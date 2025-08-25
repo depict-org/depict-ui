@@ -1,0 +1,33 @@
+name: Typecheck browser-tags-v2
+
+on:
+  push:
+    paths:
+      - "browser-tags-v2/**/*.tsx"
+      - "browser-tags-v2/**/*.ts"
+  workflow_dispatch:
+
+jobs:
+  typecheck:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "yarn"
+
+      - name: Install dependencies
+        run: yarn install --immutable
+        working-directory: browser-tags-v2
+
+      - name: Build packages
+        run: yarn build_packages
+        working-directory: browser-tags-v2
+
+      - name: Run typecheck
+        run: yarn typecheck
+        working-directory: browser-tags-v2
