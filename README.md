@@ -2,6 +2,10 @@
 
 A comprehensive e-commerce SDK for building product search, category pages, and recommendation interfaces with Depict AI's services.
 
+## How to develop on this?
+
+Please see https://www.loom.com/share/7970c891825c4147a51a4beda7f31181 and direct questions to us on Slack.
+
 ## Code style note
 
 We initially used snake_case for variable names, but have since switched to camelCase. So newer code is and should use camelCase.
