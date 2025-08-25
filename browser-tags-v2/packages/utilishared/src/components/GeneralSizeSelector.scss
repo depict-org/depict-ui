@@ -1,0 +1,48 @@
+@use "../../../plp-styling/variables";
+@use "../../../plp-styling/helpers/supports-hover";
+@use "sass:color";
+
+@mixin GeneralSizeSelector($active-color: #f1f0ee) {
+  .slidein {
+    .body .option-list {
+      display: flex;
+      flex-direction: column;
+    }
+    .option {
+      padding: 20px;
+      font-size: 1.2em;
+      flex-grow: 1;
+      border-left: none;
+      border-top: none;
+      border-right: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #f1f0ee;
+      color: black;
+
+      &:not(.available) {
+        order: 1;
+        color: #868689;
+        .size {
+          text-decoration: line-through;
+        }
+      }
+
+      &.available {
+        order: 0;
+        @include supports-hover.supports-hover() {
+          &:hover {
+            cursor: pointer;
+            font-weight: 500;
+            font-family: "Gotham Medium";
+            background: color.scale($active-color, $lightness: +30%);
+          }
+        }
+        &:active {
+          background: $active-color;
+        }
+      }
+    }
+  }
+}

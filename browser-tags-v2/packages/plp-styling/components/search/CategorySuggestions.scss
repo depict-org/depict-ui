@@ -1,0 +1,54 @@
+@use "../../helpers/supports-hover";
+@use "../../helpers/utils";
+@use "../../variables";
+
+/// CategorySuggestions is the component that displays suggested Categories on the SearchPage, above the results.
+@mixin CategorySuggestions() {
+  .category-suggestions {
+    display: flex;
+
+    .sliding {
+      padding-bottom: 2px;
+      margin-bottom: -2px;
+    }
+
+    .title {
+      font-weight: variables.get-font-weight(500);
+      margin: 0;
+    }
+    .category-suggestion {
+      background: variables.get-background-color("base", "default");
+      transition: background 100ms ease-in-out;
+
+      &:focus-visible {
+        background: variables.get-background-color("base", "hover");
+      }
+      @include supports-hover.supports-hover() {
+        &:hover {
+          background: variables.get-background-color("base", "hover");
+        }
+      }
+      &:active {
+        background: variables.get-background-color("base", "pressed");
+      }
+      border: 1px solid variables.get-border-color("subtle", "default");
+      padding: 10px 20px;
+      color: variables.get-text-icon-color("base", "default");
+      display: flex;
+      height: 100%;
+      align-items: center;
+      justify-content: space-between;
+      @include utils.flex-gap(10px, "row nowrap");
+
+      .parent-title {
+        font-weight: variables.get-font-weight(300);
+      }
+
+      & > * {
+        white-space: nowrap;
+        font-size: 0.85em;
+      }
+    }
+    @content;
+  }
+}

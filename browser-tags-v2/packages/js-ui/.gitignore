@@ -1,0 +1,7 @@
+!locales/*
+locales/.DS_Store
+
+
+# Need to be included in npm packages but we don't need them multiple times in the repo
+multi_import_deduplicator.mjs
+multi_import_deduplicator.cjs

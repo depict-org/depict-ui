@@ -1,0 +1,38 @@
+---
+title: "Rendering recommendations in a grid"
+---
+
+To render recommendations in a grid, do the following:
+
+1. Fetch recommendations, see: [this excerpt of the API integration guide](/api-guide/recommendations/api-client/fetching).
+2. Render the recommendations using the `RecommendationGrid` function.
+
+```ts
+import {
+  RecommendationGrid,
+  onExistsObserver,
+  fetchDepictRecommendations,
+} from "@depict-ai/js-ui";
+
+const recommendations = fetchDepictRecommendations({
+  merchant: "MERCHANT_ID",
+  market: "MARKET", // See demo.depict.ai for available markets
+  locale: "en_GB", // See demo.depict.ai for available locales
+  type: "TYPE",
+  // click the link above for more information on the options here
+});
+
+const recommendationGrid = RecommendationGrid({
+  recommendations,
+  productCard, // The productCard component you created in a previous step
+});
+
+onExistsObserver("#frontpage-recommendations", (element) =>
+  element.append(recommendationGrid)
+);
+```
+
+<Info>
+  Looking for the
+  [reference](/reference/recommendations-sdk/recommendations-sdk-js#recommendationgrid-function)?
+</Info>

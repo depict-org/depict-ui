@@ -1,0 +1,51 @@
+---
+title: "Overview of Data Ingestion"
+description: "Discover different ways to send your data to Depict."
+---
+
+The Depict platform requires four types of data:
+
+1. Product Information
+2. Category Information
+3. Historical Transactions
+4. Interaction Events.
+
+There are different ways to provide the data, depending on what your e-commerce stack looks like. 1-3 need to be provided to get started, while the sending of Interaction Events is implemented when adding the Depict surfaces to your site. 
+
+<Note> 
+📘 **Multiple methods of providing data might need to be combined**
+
+Even if you choose to use a platform integration, there may be some data you still need to provide through one of the other methods. For example, if some of your categories are not stored within Centra, you might setup a category feed export from your CMS.
+</Note>
+
+## Centra Integration
+
+If you are using Centra, we have a plugin integration available. Please refer to the [Centra Setup Guide](/data-ingestion-guide/centra-setup-guide) for more details.
+
+## Shopify Integration
+
+If you are using Shopify, we have a plugin integration available. Please refer to the [Shopify Setup Guide](/data-ingestion-guide/shopify-setup-guide) for more details.
+
+## Google Analytics
+
+Historical **transactions** can be exported from a Google Analytics view. Please refer to the [Google Analytics Setup Guide](/data-ingestion-guide/google-analytics-setup-guide) for instructions on how to export data.
+
+## Other platforms
+
+### Feed Ingestion
+
+A data feed is a regular data export from your e-commerce system, including data from your PIM and CMS. We support data feeds for **product** and **category** information.
+
+[-> Feed setup overview](/data-ingestion-guide/feed-setup-guide)
+
+Feed format details can be found here:
+1. [Product Feed Specifications](/reference/data-ingestion/product-feed-specification)
+2. [Category Feed Specification](/reference/data-ingestion/category-feed-specification)
+
+### API Ingestions
+
+You can also integrate with Depict using our data APIs directly. We have APIs available for **product** information, **category** information, and historical **transactions**. You can push data to these APIs by making HTTP requests.
+
+Product API - contact us for more details  
+Category API - contact us for more details  
+[Purchase API](/reference/performance-client/introduction-to-depict-performance-client)

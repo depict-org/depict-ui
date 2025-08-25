@@ -1,0 +1,15 @@
+@use "sass:meta";
+
+/// Component style mixins for PLP
+/// PLP encompasses both Search and Category page, so you will always need to include these mixins.
+
+@forward "SelectedFilters";
+@forward "ScrollStatus";
+@forward "PLPResults";
+@forward "SortAndFilter/SortAndFilter";
+@forward "SortAndFilter/SortAndFilterModal";
+@forward "SortAndFilter/FloatingButtons";
+@forward "Toast";
+@forward "ProductListingPage";
+@forward "HighlightedText";
+@forward "BreadCrumbs";

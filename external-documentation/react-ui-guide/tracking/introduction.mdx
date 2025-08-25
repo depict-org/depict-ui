@@ -1,0 +1,29 @@
+---
+title: "Introduction"
+description: "A guide to setting up tracking for Depict UI (React) integrations"
+---
+
+For any Depict product that's integrated, it is important to set up tracking so that our product performs correctly. Visit the "Tracking status" tab on [app.depict.ai](https://app.depict.ai) for live feedback on your tracking events.
+
+DPC (Depict Performance Client) is already set up automatically by using `@depict-ai/react-ui`. You can access the DPC instance by doing:
+
+```ts
+import { usePerformanceClient } from "@depict-ai/react-ui";
+
+// Where you need it:
+const { dpc } = usePerformanceClient();
+```
+
+Also the `dpq` global is available after initialising the DepictProvider.
+
+<Note>
+  If you are also integrating something via API, for example recommendations,
+  make sure to skip the steps where it says you should skip them if you use
+  `@depict-ai/react-ui`. Apart from missing the content to be skipped, the
+  tracking part of the react and api integration guide are identical.
+</Note>
+
+<Info>
+  For more detailed information see the [DPC
+  Reference](/reference/performance-client/)
+</Info>

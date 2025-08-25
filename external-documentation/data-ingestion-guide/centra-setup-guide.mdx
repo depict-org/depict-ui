@@ -1,0 +1,51 @@
+---
+title: "Centra"
+description: "Learn how to import your product data from Centra."
+---
+
+This page describes how Centra customers can import their product data to Depict and keep it up to date. 
+
+Depict integrates directly to the Centra GraphQL API to get the required information. You must provide your Centra API base URL and a GraphQL Access Token with sufficient read permissions. Once linked, your product data is immediately imported into Depict's systems and synchronised periodically to reflect any changes.
+
+### Setup steps
+
+1. Obtain your GraphQL Access Token as outlined in the [Centra documentation](https://docs.centra.com/api-references/graphql-integration-api/authorization#graphql-access-token).
+2. Ensure the GraphQL Access Token has the required permissions.
+3. Provide both your Centra **API URL** and the **access token** to Depict.
+
+<Note>
+📘 **Required Permissions**
+
+Depict requires read access to all product, market, category, and order information:
+ 
+AllocationRule:read  
+Attribute:read  
+Brand:read  
+Bundle:read  
+Campaign:read  
+Category:read  
+Collection:read  
+Country:read  
+Voucher:read  
+Display:read  
+Language:read  
+Language:read  
+Translation:read  
+Market:read  
+Market:read  
+MeasurementChart:read  
+Price:read  
+Order:read  
+OrderHistory:read  
+Pricelist:read  
+Product.attributes:read  
+Product:read  
+ProductMedia:read  
+ProductSize:read  
+ProductVariant:read  
+ProductVariant.attributes:read  
+ProductVariant:read  
+Store:read  
+Warehouse:read
+
+</Note>

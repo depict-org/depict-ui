@@ -1,0 +1,61 @@
+@use "../../variables";
+@use "../../helpers/utils";
+
+/// Toast is a small, unobtrusive, banner that appears at the bottom of the page when we clear their filters when going sideways in the category tree (or they do it manually). The Toast has a button that allows them to get their filters back (restore them) in case they want it back.
+/// It's a general component otherwise and might also be used for other messages.
+
+@mixin Toast() {
+  .depict.plp.toast {
+    position: fixed;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: calc(#{variables.$base-z-index} + 5);
+    background: variables.get-background-color("base", "default");
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.05);
+    padding: 10px 20px;
+    border-radius: variables.$border-radius;
+    border-image-source: linear-gradient(
+      90deg,
+      variables.$toast-progress-bar-color 0%,
+      variables.$toast-progress-bar-color 100%
+    );
+    border-image-slice: 0 0 100% 0;
+    border-bottom-style: solid;
+    border-bottom-width: 2px; // doesn't show in chrome sometimes without
+    white-space: nowrap;
+
+    *,
+    & * {
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    @media (min-width: 1000px) {
+      padding: 10px 40px;
+    }
+
+    &,
+    & .buttons {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      @media (max-width: 999px) {
+        @include utils.flex-gap(10px, "row nowrap");
+      }
+      @media (min-width: 1000px) {
+        @include utils.flex-gap(30px, "row nowrap");
+      }
+    }
+
+    & {
+      color: variables.get-text-icon-color("base", "default");
+    }
+    button {
+      padding: 5px 20px;
+      border-radius: variables.$border-radius;
+      cursor: pointer;
+    }
+    @content;
+  }
+}

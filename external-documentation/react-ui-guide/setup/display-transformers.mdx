@@ -1,0 +1,57 @@
+---
+title: "Transforming and enriching display data"
+---
+
+The keen observer might notice that the displays lack one key ingredient: page urls (URL to the product page).
+
+If you correctly add the display type to the `DepictProvider`, you should also encounter a type error due to this. This happens because the Depict backend omits the page_url for performance reasons.  We need to add it back in. If you need to add additional data to the product data you can also do so in this step. The advantage of doing it in the `DisplayTransformers` compared to the `productCard` is that the former is only ran once per server response, making it more suitable for making other API requests.
+
+## Adding page urls
+
+
+Provide `DisplayTransformers` to your `DepictProvider` like in the example below:
+
+```tsx
+import { DepictProvider } from "@depict-ai/react-ui";
+import { en } from "@depict-ai/react-ui/locales";
+import { YourDisplay } from "./display-types.ts";
+
+function App() {
+  return (
+    <DepictProvider<YourDisplay>
+      merchant="MERCHANT_ID"
+      market="MARKET"
+      locale={en}
+      displayTransformers={{
+        products: options => {
+          // the functions in displayTransformers can be async
+          return options.displays.map(display => ({
+            ...display,
+            variant_displays: display.variant_displays.map(variant => ({
+              ...variant, // here you can add any extra data you want, but must add page_url
+              page_url: "/" + context.market.name + "/p/" + variant.uri, // <- Change this
+            })),
+          }));
+        },
+        categories: options => {
+          return options.data.map(categoryDisplay => {
+            const urlParts = [...categoryDisplay.ancestors.map(({ slug }) => slug), categoryDisplay.slug];
+            const fullUrlToCategory = urlParts.join("/");
+            return {
+              ...categoryDisplay,
+              page_url: "/" + context.market.name + "/c/" + fullUrlToCategory, // <- Change this
+            };
+          });
+        },
+      }}
+    >
+      <div className="App">...</div>
+    </DepictProvider>
+  );
+}
+
+export default App;
+```
+
+
+<Info>For more in-depth information and examples, check out the [reference](/reference/listings-search/display-transformers)</Info>

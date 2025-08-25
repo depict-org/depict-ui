@@ -1,0 +1,103 @@
+@use "customised-plp-styling";
+@use "input_styling";
+@use "components/cart";
+@use "components/product_card";
+@use "components/header";
+@use "components/SelectListing";
+@use "pages/recommendations_page";
+@use "pages/catalog_page";
+@use "sass:color";
+@use "@depict-ai/plp-styling/helpers/supports-hover";
+
+@include customised-plp-styling.default-theme("all");
+
+@include customised-plp-styling.recommendations();
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Inter !important;
+  color: customised-plp-styling.get-text-icon-color("base", "default");
+  background: customised-plp-styling.$bg-color;
+}
+
+a {
+  color: customised-plp-styling.get-text-icon-color("base", "default");
+  text-decoration: none;
+  @include supports-hover.supports-hover() {
+    &:hover {
+      color: customised-plp-styling.get-text-icon-color("base", "hover");
+      text-decoration: underline;
+    }
+  }
+  &:active {
+    color: customised-plp-styling.get-text-icon-color("base", "pressed");
+  }
+}
+
+.upper_section {
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  .breadcrumb {
+    font-weight: bold;
+    font-size: 1.1em;
+  }
+
+  h1 {
+    align-self: center;
+  }
+  &.categories,
+  &.listings {
+    .listing_chooser {
+      display: flex;
+    }
+  }
+}
+
+.listing-and-selector {
+  padding-left: 10px;
+  display: flex;
+  @media (max-width: 650px) {
+    flex-direction: column;
+  }
+  #depict-plp-category {
+    min-width: 0;
+    flex-grow: 1;
+    .listing-page {
+      padding-top: 0;
+    }
+  }
+}
+
+.depict.search .search-field .clear {
+  background: transparent;
+}
+
+@if customised-plp-styling.$darkmode {
+  .depict.plp .depict-slider .d-navbutton {
+    svg path {
+      fill: customised-plp-styling.get-text-icon-color("base", "default");
+    }
+  }
+}
+
+.state_set .links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.depict-slider .sliding {
+  /* Fix different height product cards */
+  align-items: stretch;
+}
+button {
+  font-size: 0.9em; // safari has really tiny button font size by default
+}

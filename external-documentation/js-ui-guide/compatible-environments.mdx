@@ -1,0 +1,23 @@
+---
+title: "Compatibility and Browser Support for Depict Packages"
+---
+
+<b>If</b> you have a dependency listed below, make sure you have the minimum version or greater installed. You can also use parcel, vite or other bundlers, but we don't know the minimum version for those tools yet.
+
+| Dependency (if applicable) | Minimum version |
+|----------------------------|-----------------|
+| `sass`                     | 1.54.6          |
+| `webpack`                  | 5.0             |
+
+<Info>The only required dependency of above is `sass`</Info>
+
+## Browser support
+
+By default, the exported versions of Depict packages are transpiled for older browsers (targeting ES10). This makes it easier for the Depict UI to function in older browsers by default, but also results in a larger network payload and poorer page performance. However, you may still need to [add polyfills](/reference/listings-search/compatibility-with-old-browsers#polyfilling). If you're not keen on supporting older browsers, or you'd prefer to handle the transpilation process yourself, append `/latest` to all your imports to include the untranspiled version.
+
+```ts
+import { /* your imports */ } from "@depict-ai/js-ui/latest";
+import { /* your locales */ } from "@depict-ai/js-ui/locales/latest";
+```
+
+<Note>For a more in-depth discussion on browser compatibility, please refer to [the reference](/reference/listings-search/compatibility-with-old-browsers).</Note>

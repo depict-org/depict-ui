@@ -1,0 +1,7 @@
+{
+  "compilerOptions": {
+    "composite": true
+  },
+  "extends": "../../tsconfig_base.json",
+  "exclude": ["./dist/*", "./latest/*", "./ES*/*"]
+}

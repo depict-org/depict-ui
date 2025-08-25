@@ -1,0 +1,7 @@
+{
+  "projects": [
+    "<rootDir>/packages/utilishared/jest.config.json",
+    "<rootDir>/packages/ui/jest.config.json",
+    "<rootDir>/packages/react-ui/jest.config.json"
+  ]
+}

@@ -1,0 +1,106 @@
+@use "../../../plp-styling/helpers/utils";
+@use "../../../plp-styling/components/base/Buttons";
+@use "sass:map";
+
+/// Styling for a color picker used when a product card has multiple variants based on color.
+///
+/// A common problem with the styling of the ColorPicker is if you have a color that is similar to the background so that it's not clearly visible.
+/// To create contrast there are two options.
+/// 1. Make sure all colors are contrasting enough to the background enough to be clearly visible.
+/// 2. If 1 is not feasible. Set $inner-circle-border to a color that contrasts with the background. For example black if you have a white background.
+///    Then also set either $outer-ring-border or simply $force-outer-ring-color to the same contrasting color.
+///
+///
+///
+/// @param {Number} $inner-circle-size [16px] - The size of the inner color circle.
+/// @param {Number} $outer-ring-size [2px] - The size (border-width) of the outer ring border.
+/// @param {Number} $outer-ring-gap [2px] - The gap between the inner circle and the outer ring.
+/// @param {Number | Boolean} $border-radius [50%] - The border-radius of the inner circle & outer ring. Set to false to get square selectors.
+/// @param {String | Boolean} $outer-ring-border [false] - The css border of the outer ring. Set to false to disable.
+/// @param {String | Boolean} $inner-circle-border [false] - The css border of the inner circle. Set to false to disable.
+/// @param {String | Boolean} $force-outer-ring-color [false] - Set to a color to force the outer ring to always be that color. Set to false to disable.
+/// @param {Number} $margin-top [12px] - The margin-top of the container.
+/// @param {Number} $color-gap [7px] - The gap between the colors.
+/// @param {String} $justify-content [center] - The justify-content of the container. Set to 'flex-start' to align left.
+///
+/// @content
+
+@mixin ColorPicker(
+  $inner-circle-size: 16px,
+  $outer-ring-size: 2px,
+  $outer-ring-gap: 2px,
+  $border-radius: 50%,
+  $outer-ring-border: false,
+  $inner-circle-border: false,
+  $force-outer-ring-color: false,
+  $margin-top: 12px,
+  $color-gap: 7px,
+  $justify-content: center
+) {
+  .color-picker {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: $justify-content;
+    box-sizing: border-box;
+
+    @if $color-gap {
+      @include utils.flex-gap($color-gap, "row wrap");
+      margin-top: calc(calc(-0.5 * #{$color-gap}) + #{$margin-top});
+    }
+
+    .color-circle-container {
+      padding: 0;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      @if $outer-ring-border {
+        border: $outer-ring-border;
+      }
+      @if $border-radius {
+        border-radius: $border-radius;
+      }
+      // Shared styles for the different divs
+      &,
+      .outer-circle,
+      .inner-circle {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      &:focus {
+        outline: none;
+      }
+      &:focus-visible {
+        filter: map.get(Buttons.get-secondary-button-properties(), "focus-visible-filter");
+      }
+      .outer-circle {
+        border-width: $outer-ring-size;
+        border-style: solid;
+
+        @if $border-radius {
+          border-radius: $border-radius;
+        }
+        @if $force-outer-ring-color {
+          border-color: $force-outer-ring-color !important;
+        }
+      }
+      &:not(.active) {
+        .outer-circle {
+          border-color: transparent !important;
+        }
+      }
+      .inner-circle {
+        margin: $outer-ring-gap;
+        width: $inner-circle-size;
+        height: $inner-circle-size;
+        @if $border-radius {
+          border-radius: $border-radius;
+        }
+        @if $inner-circle-border {
+          border: $inner-circle-border;
+        }
+      }
+    }
+    @content;
+  }
+}

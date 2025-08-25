@@ -1,0 +1,26 @@
+---
+title: "Importing DPC"
+description: "Import DPC so that your code has access to it."
+---
+
+<Warning>If you are also using `@depict-ai/react-ui`, skip this step.</Warning>
+
+The second step is to import DPC. For the first two options below, add the following to <u>the top of the file where you want to use DPC</u>:
+
+<CodeGroup>
+```ts ESM
+import { DPC } from "@depict-ai/dpc";
+```
+
+```ts CommonJS
+const { DPC } = require("@depict-ai/dpc");
+```
+
+```html Not using a module bundler
+<script type="module">
+    import { DPC } from "https://esm.run/@depict-ai/dpc@1.0/ES10";
+    // CODE THAT INITIALISES DPC (SEE NEXT STEP) MUST GO HERE
+</script>
+```
+</CodeGroup>
+

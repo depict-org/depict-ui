@@ -1,0 +1,7 @@
+# Ignore everything but the distribution entry points & ts types.
+# Note: NPM will still include package.json and README.md
+*
+!dist/main.js
+!dist/module.js
+!dist/index.d.ts
+

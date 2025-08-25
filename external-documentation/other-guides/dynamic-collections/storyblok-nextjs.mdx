@@ -1,0 +1,117 @@
+---
+title: "Storyblok + NextJS"
+---
+
+To avoid having to create a Story in Storyblok for each collection, we can make use of NextJS dynamic routing.
+
+<Note>This example assumes you are using the NextJS [Pages Router](https://nextjs.org/docs/pages) when we mention file names and their locations</Note>
+
+Let's say you want all collections to be displayed under the `/collections` route. You can create a file called `[...slug].js` in a `collections` folder under `pages`.
+
+<Note>Make sure you have the `fallback` option set to `true` in your `getStaticPaths` function, otherwise NextJS will not render the page on the fly</Note>
+
+For details on `ProductCard` and `CategoryPage` see the [Product Card](/react-ui-guide/setup/product-card) and [Category Page](/react-ui-guide/listings/page) instructions.
+
+You have two examples below:
+
+The first and recommended way is that you check if the page has been configured in the Storyblok Visual Editor, and if so, render the Story before the `CategoryPage` component.
+Otherwise, render the `CategoryPage` component directly. This will allow anyone using Storyblok to provide template overrides for specific collections.
+
+The second way is a minimal setup, where you only render the `CategoryPage` component. This is useful if you don't want to allow template overrides for specific collections.
+
+<AccordionGroup>
+<Accordion title="Recommended Setup">
+  ```jsx
+
+  import {useStoryblokState, StoryblokComponent} from "@storyblok/react";
+  import {CategoryPage} from "@depict-ai/react-ui";
+
+  // Your regular layout for a PLP page
+  import Layout from "@/components/Layout";
+
+  // Your ProductCard component
+  import {ProductCard} from "@/components/ProductCard";
+
+  export default function Page({ story, queryId }) {
+    story = useStoryblokState(story);
+
+    return (
+      <Layout>
+        {/* This is how you can allow support for collection specific overrides in the Storyblok Visual Editor */}
+        {story?.content && <StoryblokComponent blok={story.content} />}
+
+        {/* This is the CategoryPage component from the Depict UI, see the React Depict UI Integration Guide for details*/}
+        <CategoryPage categoryId={queryId} productCard={ProductCard} />
+      </Layout>
+    );
+  }
+
+  export async function getStaticProps({ params }) {
+    let slug = params.slug.join("/");
+
+    // Your existing code to fetch storyblok data and whatnot
+    const data = {
+      // YOUR STORYBLOK RESPONSE
+    };
+
+  return {
+      props: {
+        story: data ? data.story : false,
+        queryId: slug, // This is what we will pass to the CategoryPage component to display the correct collection
+        key: data ? data.story.id : false,
+      }
+    };
+  }
+
+  export async function getStaticPaths() {
+    // Your existing logic to fetch static paths, see https://www.storyblok.com/tp/render-storyblok-stories-dynamically-in-next-js#dynamic-route-generation-with-getstaticpaths for inspiration
+
+    return {
+      paths: paths,
+      fallback: true, // VERY IMPORTANT - since we won't rebuild every time a new collection is created, we need this to render on the fly
+    };
+  }
+```
+</Accordion>
+
+
+
+<Accordion title="Minimal setup">
+  ```jsx
+
+  import {CategoryPage} from "@depict-ai/react-ui";
+
+  // Your regular layout for a PLP page
+  import Layout from "@/components/Layout";
+
+  // Your ProductCard component
+  import {ProductCard} from "@/components/ProductCard";
+
+  export default function Page({ queryId }) {
+    return (
+      <Layout>
+        {/* This is the CategoryPage component from the Depict UI, see the React Depict UI Integration Guide for details*/}
+        <CategoryPage categoryId={queryId} productCard={ProductCard} />
+      </Layout>
+    );
+  }
+
+  export async function getStaticProps({ params }) {
+    let slug = params.slug.join("/");
+
+    return {
+      props: {
+        queryId: slug, // This is what we will pass to the CategoryPage component to display the correct collection
+      }
+    };
+  }
+
+  export async function getStaticPaths() {
+    return {
+      paths: [],
+      fallback: true, // VERY IMPORTANT - since we won't rebuild every time a new collection is created, we need this to render on the fly
+    };
+  }
+```
+</Accordion>
+</AccordionGroup>

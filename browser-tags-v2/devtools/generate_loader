@@ -1,0 +1,71 @@
+#!/bin/bash
+
+# https://stackoverflow.com/a/246128
+SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+
+cd "$SCRIPT_DIR"
+
+cat > loader.ts <<EOF
+const options = {
+  merchant: process.env.MERCHANT,
+};
+let modern_browser = false;
+try {
+  // this is done so complicated because sites like staples polyfill String.prototype.replaceAll in ALL BROWSERS
+  let iframe = document.createElement("iframe");
+  iframe.src = "about:blank";
+  document.head.appendChild(iframe);
+  const repl_all_str = iframe?.contentWindow?.String?.prototype?.replaceAll?.toString?.();
+  iframe.parentNode.removeChild(iframe);
+  if (repl_all_str && repl_all_str.indexOf("[native code]") > -1) {
+    modern_browser = true;
+  }
+} catch (e) {} // Probably not a modern browser
+
+window.dpq ||= create_global_event_queue();
+
+if (modern_browser) {
+  // browser is modern enough
+  load_script(process.env.MODERN_NAME);
+} else {
+  load_script(process.env.COMPAT_NAME);
+}
+
+function load_script(unique_part: string) {
+  const xhr_request = new XMLHttpRequest();
+  xhr_request.addEventListener("load", () => {
+    new Function("options", xhr_request.responseText)(options);
+  });
+  xhr_request.open("GET", process.env.URL_START + "/" + options.merchant + "/" + unique_part + process.env.URL_END);
+  xhr_request.send();
+}
+
+function create_global_event_queue() {
+  const fn = function () {
+    const args = arguments;
+    if (fn.send_event) {
+      fn.send_event.apply(this, args);
+    } else {
+      fn.queue.push(args);
+    }
+  };
+  fn.queue = [];
+  return fn;
+}
+EOF
+
+
+export URL_START=${2:-"https://cdn.depict.ai"}
+export MERCHANT="$1"
+export MODERN_NAME='modern'
+export URL_END='.js'
+export COMPAT_NAME='compatibility'
+
+yarn parcel build loader.ts --dist-dir . --target ie11 --no-source-maps > /dev/null 2>&1
+
+built_loader="$(cat ie11/loader.js)"
+
+rm ie11/loader.js loader.ts
+rmdir ie11
+
+echo "<link rel=\"preload\" href=\"$URL_START/$MERCHANT/$MODERN_NAME$URL_END\" as=\"fetch\" crossorigin=\"anonymous\" /><script type=\"text/javascript\">$built_loader</script>"

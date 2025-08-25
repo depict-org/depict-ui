@@ -1,0 +1,50 @@
+#!/bin/bash
+# https://stackoverflow.com/a/246128
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+node "$SCRIPT_DIR"/pre_build.cjs
+
+## Build server and client bundles in parallel
+SOLID_JSX_RUNTIME=true NO_PRIVATE_TRANSPILATION=true HYDRATABLE=true SERVER=false parcel build --no-source-maps --target localesModule_latest --target localesCommonJS_latest --target client_esmodule_latest --target client_commonjs_latest --target localesModule_ES10 --target localesCommonJS_ES10 --target client_esmodule_ES10 --target client_commonjs_ES10 &
+
+SOLID_JSX_RUNTIME=true NO_PRIVATE_TRANSPILATION=true HYDRATABLE=true SERVER=true parcel build --no-source-maps --target server_esmodule_latest --target server_commonjs_latest --target server_esmodule_ES10  --target server_commonjs_ES10 &
+
+# Wait for both jobs to complete
+wait
+
+
+node "$SCRIPT_DIR"/post_build.cjs
+
+
+# There's a bug in parcel so when we selectively only build some targets, what we have to do to be able to build with different env vars for SSR, we can't build the types
+# To workaround that we make the package.json very simple to force parcel to just build the types
+
+package_json_contents="$(node "$SCRIPT_DIR"/pre_types_build.cjs)"
+if [ $? -ne 0 ]; then
+  echo "ERROR: Couldn't read/write package.json, aborting"
+  exit 1
+fi
+
+SOLID_JSX_RUNTIME=true NO_PRIVATE_TRANSPILATION=true SERVER=false parcel build --no-source-maps
+
+echo "$package_json_contents" > "$SCRIPT_DIR"/../package.json
+
+
+# Build types for locales
+package_json_contents="$(node "$SCRIPT_DIR"/pre_types_build.cjs locales)"
+if [ $? -ne 0 ]; then
+  echo "ERROR: Couldn't read/write package.json, aborting"
+  exit 1
+fi
+
+SOLID_JSX_RUNTIME=true NO_PRIVATE_TRANSPILATION=true SERVER=false parcel build --no-source-maps
+
+echo "$package_json_contents" > "$SCRIPT_DIR"/../package.json
+
+node $SCRIPT_DIR/../../../build_scripts/organise_transpiled_package_exports.cjs ui true
+
+# typescript understands the exports map for this anyways, but for some reason parcel doesn't understand it just for the locales in this case, so add those fallback files
+echo 'module.exports = require("./ES10/index.cjs");' > "$SCRIPT_DIR"/../locales/index.cjs
+echo 'export * from "./ES10/index.js";' > "$SCRIPT_DIR"/../locales/index.js
+echo 'export type { plp_shared_i18n, search_i18n, category_i18n, Locale } from "./ES10/index.d.ts";
+export { cz, de, en, da, fi, pl, fr, sv, pt, no, nl, es, it } from "./ES10/index.d.ts";'  > "$SCRIPT_DIR"/../locales/index.d.ts

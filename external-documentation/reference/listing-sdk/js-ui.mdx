@@ -1,0 +1,271 @@
+---
+title: "JavaScript UI Reference"
+---
+
+## DepictCategoryProvider class
+
+The `DepictCategoryProvider` class is what ties together all the configuration for the different components.
+
+If you want to dynamically change some properties, for example the market, please let us know and we'll help you out.
+
+The following table shows the `DepictCategoryProvider`'s configuration properties, their types, and descriptions:
+
+<ResponseField name="merchant" type="string">
+  The merchant to use for the search.
+</ResponseField>
+
+<ResponseField name="market" type="string">
+  The market to use for the search.
+</ResponseField>
+
+<ResponseField name="locale" type="Locale">
+  Locale object imported from `@depict-ai/js-ui/locales`. Determines
+    1. The translations for the UI
+    2. The locale to request from backend
+    3. The currency formatting used on the frontend
+
+    You have to check [demo.depict.ai](https://demo.depict.ai) to see which locales the Depict backend accepts for your specific merchant.
+    The different objects exported from `@depict-ai/js-ui/locales` have a `backend_locale_` property equivalent to their name, so either import the locale with the correct name (recommended) or just set the `backend_locale_` property to the correct value.
+
+    You can modify or create your own locale object as long as it's the same format as the ones in `@depict-ai/js-ui/locales`.
+</ResponseField>
+
+<ResponseField name="sessionId" type="string?">
+    Optionally you can override the default session id used for personalization here. This is the ID that will be used to tie together the different tracking events for a user.
+</ResponseField>
+
+<ResponseField name="metaData" type="Record<string, string>?">
+  Custom metadata to be sent with each request to the Depict API. Only necessary
+  if specifically instructed by Depict.
+</ResponseField>
+
+<ResponseField name="uniqueInstanceKeyForState" type="string?">
+  A unique key for each instance, so that the state of each instance is kept
+  separate.
+</ResponseField>
+
+<ResponseField name="listingQuery" type='({ type?: "listingId" | "externalId", id: string })?'>
+    The unique identifier for the current listing page that will be sent to
+    depict to get the products to display.
+    `type` can be `"listingId"` or `"externalId"`..
+    - If `id` is `"listingId"`, it should be a uuid where Depict is the source of truth, you can get them here: https://api.depict.ai/docs#tag/Listing/operation/Get_Listings_v3_listings_get.
+    - If `id` is `"externalId"`, it should be the id of the product listing in your system - whatever was passed to Depict during data ingestion.
+</ResponseField>
+
+<ResponseField name="displayTransformers?" type="DisplayTransformers">
+    DisplayTransformers are functions that take in a list of categories, content search results or products and then can transform or enrich the data for each category, content search result or product card in a batched way. See
+    [Creating page URLs and enriching product
+    data](/reference/listings-search/display-transformers).
+</ResponseField>
+
+The following table shows properties and methods of the `DepictCategoryProvider` class:
+
+<ResponseField name="listingQuery" type="string">
+  Use this to dynamically update the listingQuery.
+</ResponseField>
+
+## CategoryPage function
+
+The component displaying the category listing, including but not limited to sorting and filters. See [screenshot](/js-ui-guide/listings/overview#the-categorypage-component).
+
+The following table shows the `CategoryPage`'s configuration properties, their types, and descriptions:
+
+<ResponseField
+  name="gridSpacing"
+  type="(string | {
+    horizontal: string;
+    vertical: string;
+})?"
+  default="2%"
+>
+  The spacing between products.
+</ResponseField>
+
+<ResponseField
+  name="columnsAtSize"
+  type="[number, number?][]?"
+  default="[[2, 901], [3, 1024], [4]]"
+>
+  How many columns to show at each media size. For example, `[[2, 901], [3,
+  1024], [4]]` means 2 columns at sizes up to 901px, 3 columns at sizes up to
+  1024px and after that 4 columns at any viewport size.
+</ResponseField>
+
+<ResponseField
+  name="productCard"
+  type="(display: YourDisplay | null) => HTMLElement | HTMLElement[]"
+>
+  The product card function to use for rendering products.
+</ResponseField>
+
+<ResponseField name="categoryProvider" type="DepictCategoryProvider">
+  The category provider instance.
+</ResponseField>
+
+<ResponseField name="showBreadcrumbs" type="boolean?" default="true">
+  Whether to show the breadcrumbs in the category page. If layout is set to
+  `"slider"` or `"slider-without-filters"` this will be set to `false` by default
+</ResponseField>
+
+<ResponseField name="showQuicklinks" type="boolean?" default="true">
+  Whether to show the quicklinks in the category page. If layout is set to
+    `"slider"` or `"slider-without-filters"` this will be set to `false` by default
+</ResponseField>
+
+<ResponseField name="layout" type='("grid" | "slider" | "slider-without-filters")?' default='"grid"'>
+    The layout used for listing the products.
+    1. `"grid"` is the default and shows the products in a grid
+    2. `"slider"` shows the products in a slider and has default `false` for showBreadcrumbs and showQuicklinks
+    3. `"slider-without-filters"` is the same as `"slider"` but does also not render any sorting or filter buttons
+</ResponseField>
+
+<ResponseField
+  name="categoryTitlePlugin"
+  type="typeof CategoryTitle"
+  default="(typeof embedded_num_products | typeof EmbeddedNumProducts)?"
+>
+  categoryTitlePlugin is an optional plugin that can be used to customize the
+  title-part of the category page. The default is `CategoryTitle` which shows
+  the title of the category and the number of products within.
+  `EmbeddedNumProducts` (exported from `@depict-ai/js-ui`) on the other hand
+  only displays the number of products within a category and tries to fit this
+  between the sort and filter button on mobile, if the text length of the
+  localisation permits.
+</ResponseField>
+
+<ResponseField
+  name="onListingQueryChange"
+  type="((newQuery?: ListingQuery | undefined, oldQuery?: ListingQuery | undefined) => void)?"
+  default="undefined"
+>
+  Can be used to know when the CategoryPage is navigated to a new category and
+  update other content on the page accordingly. Will be called when the
+  CategoryPage is created, every time a navigation is performed between
+  categories and once the CategoryPage is destroyed. When newQuery is
+  undefined it means the category page has been closed/left, or you have
+  provided undefined as the listingQuery prop to the provider.
+</ResponseField>
+
+<ResponseField
+  name="getContentBlocksByRow"
+  type="Accessor<JSUIContentBlocksByRow>?"
+>
+  Function returned by contentBlockStore. See
+  [contentBlockStore](/reference/listings-search/js-ui#contentblockstore-function).
+</ResponseField>
+
+### `BreadCrumbs` function
+
+Breadcrumb navigation helps users know their location in the category tree by providing a trail back to the root category. By default, the `CategoryPage` component contains breadcrumb navigation. You can disable its default breadcrumb navigation by setting the `showBreadcrumbs` property to `false.` To add a custom breadcrumb navigation, import the `BreadCrumbs` component from the SDK and nest it in the desired location on your DOM tree.
+
+<Frame caption="BreadCrumbs">
+    <img src="/images/breadcrumbs.svg" style={{ width: "100%", aspectRatio: 253/29 }} ref={async element => {
+        if(!element) return;
+
+        // In prod, they have some zoom thing which breaks aspectRatio, work around that. Unfortunately this is not in the SSR'd output so there's still some CLS.
+        const direct_parent = element?.parentElement;
+        if(direct_parent?.matches?.("[data-rmiz-content]")) {
+            Object.assign(direct_parent.style, {
+                width: "100%",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center"
+            })
+        }
+        const parents_parent = direct_parent?.parentElement;
+        if(parents_parent?.matches?.("[aria-owns^='rmiz-modal']")) {
+            parents_parent.style.width = "100%";
+        }
+
+        // Fix background color in dark mode while still having cool, transparent light mode background
+        if(!window.utilishared_promise) {
+            window.utilishared_promise = new Promise(resolve => {
+                window.resolve_utilishared = resolve;
+                const script = document.createElement("script");
+                script.type = "module";
+                script.append(`
+            import * as utilishared from "https://esm.run/@depict-ai/utilishared@latest/latest";
+            window?.resolve_utilishared(utilishared);
+            `)
+                document.head.append(script);
+            })
+        }
+
+        const utilishared = await utilishared_promise;
+
+        const { style } = element;
+        const update_styling = () => {
+            const dark = document.documentElement.classList.contains("dark");
+            style.background = dark ? "white" : "";
+            style.padding = dark ? "5px" : "";
+            style.borderRadius = dark ? "0.75rem" : "";
+        };
+        const m_o = new MutationObserver(utilishared.catchify(update_styling));
+        m_o.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ["class"]
+        })
+        update_styling();
+        utilishared.observer.onremoved(element, () => m_o.disconnect());
+    }} />
+
+</Frame>
+
+Example:
+
+```tsx
+import { BreadCrumbs, onExistObserver } from "@depict-ai/js-ui";
+
+onExistObserver(".breadcrumbs-insertion", () =>
+  BreadCrumbs({ categoryProvider })
+);
+```
+
+Options:
+
+<ResponseField name="categoryProvider" type="DepictCategoryProvider">
+  The category provider instance to show BreadCrumbs for.
+</ResponseField>
+
+### `QuickLinks` function
+
+The `QuickLinks` component shows all available product categories in a carousel for easy navigation. By default, the `CategoryPage` component contains quick link navigation. You can disable its default quick link navigation by setting the `showQuicklinks` property to `false.` To add a custom quick link navigation, import the `QuickLinks` component from the SDK and nest it in the desired location on your DOM tree.
+
+<Frame caption="QuickLinks">
+  <img
+    src="/images/quicklinks.svg"
+    style={{ width: "100%", aspectRatio: 283 / 23 }}
+    ref={(element) => {
+      // In prod, they have some zoom thing which breaks aspectRatio, work around that. Unfortunately this is not in the SSR'd output so there's still some CLS.
+      const direct_parent = element?.parentElement;
+      if (direct_parent?.matches?.("[data-rmiz-content]")) {
+        Object.assign(direct_parent.style, {
+          width: "100%",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        });
+      }
+      const parents_parent = direct_parent?.parentElement;
+      if (parents_parent?.matches?.("[aria-owns^='rmiz-modal']")) {
+        parents_parent.style.width = "100%";
+      }
+    }}
+  />
+</Frame>
+
+Example:
+
+```tsx
+import { QuickLinks, onExistObserver } from "@depict-ai/js-ui";
+
+onExistObserver(".quicklinks-insertion", () =>
+  QuickLinks({ categoryProvider })
+);
+```
+
+Options:
+
+<ResponseField name="categoryProvider" type="DepictCategoryProvider">
+  The category provider instance to show QuickLinks for.
+</ResponseField>

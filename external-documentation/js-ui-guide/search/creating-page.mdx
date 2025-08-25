@@ -1,0 +1,23 @@
+---
+title: "Creating a search page"
+---
+
+We'll need a URL for the search results page, so you should <b>create a page at for example `/search` for the search results</b> in your CMS.
+
+One thing that's special about depict search is that you don't have to have loaded the search page document to see the search page. What that means is that we layer a single page application on top of your page. This is so that you can enjoy the benefits of client-side routing (instead of reloading the whole page on every navigation), which makes it <i>super fast</i> do make a search.
+
+If your page is already a single page application, and you're using the js-ui package please let us know, and we'll help you out - we haven't had that case yet, but it is supported.
+
+The relevant utility is called `setupPageReplacer` and you can find its reference [here](/reference/listings-search/js-ui#setuppagereplacer-function).
+
+```ts
+import { SetupPageReplacer } from "@depict-ai/js-ui";
+
+SetupPageReplacer({
+  isPageToReplace: (url) => url.pathname === "PATH_TO_SEARCH_PAGE",
+  selectorToReplace: `.replace-for-depict`,
+  renderContent: () => searchPage(), // (keep following this guide for knowing what to put here)
+});
+```
+
+<Note>`selectorToReplace` needs to exist on every page where the search can be opened. So you need to mark up the "main content" part of your page with some uniquely identifiable selector(s) across the whole website. Let us know if this is an insurmountable hurdle.</Note>

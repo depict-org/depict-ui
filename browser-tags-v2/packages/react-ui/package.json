@@ -1,0 +1,174 @@
+{
+  "name": "@depict-ai/react-ui",
+  "version": "4.10.7",
+  "packageManager": "yarn@3.2.2",
+  "source": "src/index.ts",
+  "types": "ES10/index.d.ts",
+  "type": "module",
+  "sass": "dist/styles/index.scss",
+  "license": "MIT",
+  "description": "React flavour of the Depict UI library.",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "build-scripts/build",
+    "print-included-package-files": "yarn pack --dry-run",
+    "typecheck": "yarn g:tsc --build tsconfig.json",
+    "publish": "yarn build && yarn npm publish"
+  },
+  "targets": {
+    "types": {},
+    "module_latest": {
+      "outputFormat": "esmodule",
+      "isLibrary": true,
+      "context": "node",
+      "engines": {
+        "browsers": "last 1 chrome version"
+      },
+      "optimize": false
+    },
+    "main_latest": {
+      "outputFormat": "commonjs",
+      "isLibrary": true,
+      "context": "node",
+      "engines": {
+        "browsers": "last 1 chrome version"
+      },
+      "optimize": false
+    },
+    "module_es10": {
+      "outputFormat": "esmodule",
+      "isLibrary": true,
+      "context": "node",
+      "engines": {
+        "browsers": "supports array-flat"
+      },
+      "optimize": false
+    },
+    "main_es10": {
+      "outputFormat": "commonjs",
+      "isLibrary": true,
+      "context": "node",
+      "engines": {
+        "browsers": "supports array-flat"
+      },
+      "optimize": false
+    },
+    "css": {
+      "source": "src/styles/plain-css-fallback-styling.scss",
+      "distDir": "dist/styles"
+    }
+  },
+  "exports": {
+    ".": {
+      "types": "./ES10/index.d.ts",
+      "browser": {
+        "import": "./ES10/index.js",
+        "require": "./ES10/index.cjs",
+        "sass": "./dist/styles/index.scss"
+      },
+      "node": {
+        "import": "./server/ES10/index.js",
+        "require": "./server/ES10/index.cjs",
+        "sass": "./dist/styles/index.scss"
+      },
+      "sass": "./dist/styles/index.scss"
+    },
+    "./latest": {
+      "types": "./latest/index.d.ts",
+      "browser": {
+        "import": "./latest/index.js",
+        "require": "./latest/index.cjs",
+        "sass": "./dist/styles/index.scss"
+      },
+      "node": {
+        "import": "./server/latest/index.js",
+        "require": "./server/latest/index.cjs",
+        "sass": "./dist/styles/index.scss"
+      },
+      "sass": "./dist/styles/index.scss"
+    },
+    "./ES10": {
+      "types": "./ES10/index.d.ts",
+      "browser": {
+        "import": "./ES10/index.js",
+        "require": "./ES10/index.cjs",
+        "sass": "./dist/styles/index.scss"
+      },
+      "node": {
+        "import": "./server/ES10/index.js",
+        "require": "./server/ES10/index.cjs",
+        "sass": "./dist/styles/index.scss"
+      },
+      "sass": "./dist/styles/index.scss"
+    },
+    "./styles/*": "./dist/styles/*",
+    "./locales": {
+      "types": "./locales/ES10/index.d.ts",
+      "import": "./locales/ES10/index.js",
+      "require": "./locales/ES10/index.cjs"
+    },
+    "./locales/latest": {
+      "types": "./locales/latest/index.d.ts",
+      "import": "./locales/latest/index.js",
+      "require": "./locales/latest/index.cjs"
+    },
+    "./locales/ES10": {
+      "types": "./locales/ES10/index.d.ts",
+      "import": "./locales/ES10/index.js",
+      "require": "./locales/ES10/index.cjs"
+    }
+  },
+  "files": [
+    "/dist",
+    "/server",
+    "/locales",
+    "README.md",
+    "/latest",
+    "/ES10",
+    "styles.scss",
+    "./multi_import_deduplicator.mjs",
+    "./multi_import_deduplicator.cjs"
+  ],
+  "dependencies": {
+    "@babel/plugin-transform-typescript": "^7.22.9",
+    "@babel/runtime": "latest",
+    "@babel/runtime-corejs3": "latest",
+    "@depict-ai/dpc": "workspace:^",
+    "@depict-ai/plp-styling": "workspace:^",
+    "@depict-ai/ui": "workspace:^",
+    "@depict-ai/utilishared": "workspace:^",
+    "solid-js": "^1.9.3"
+  },
+  "peerDependencies": {
+    "react": ">= 16.14.0",
+    "react-dom": ">= 16.14.0",
+    "sass": ">= 1.54.6"
+  },
+  "devDependencies": {
+    "@babel/core": "latest",
+    "@babel/preset-env": "latest",
+    "@babel/preset-typescript": "latest",
+    "@depict-ai/plp-styling": "workspace:^",
+    "@jest/globals": "^29.3.1",
+    "@parcel/babel-preset-env": "^2.10.3",
+    "@parcel/transformer-sass": "^2.10.3",
+    "@types/jest": "^29.2.6",
+    "@types/node": "^18.11.11",
+    "@types/react": "^18.0.26",
+    "@types/react-dom": "^18.0.10",
+    "babel-preset-solid": "^1.9.3",
+    "jest": "^29.3.1",
+    "jest-environment-jsdom": "^29.3.1",
+    "jest-haste-map": "^29.3.1",
+    "jest-resolve": "^29.3.1",
+    "next": "^13.4.10",
+    "parcel": "^2.10.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "ts-jest": "^29.0.5"
+  },
+  "main": "ES10/index.js",
+  "module": "ES10/index.cjs"
+}

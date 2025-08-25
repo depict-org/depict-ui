@@ -1,0 +1,287 @@
+@use "../../helpers/utils";
+@use "../../helpers/modal-backdrop";
+@use "../../variables";
+@use "../../helpers/supports-hover";
+
+/// SearchModal is the component that shows the search modal when the user clicks on the search icon/into the search field in the header.
+@mixin SearchModal() {
+  .depict-search-modal-backdrop {
+    @include modal-backdrop.modal-backdrop(
+      $z-index: if(variables.$search-modal-layout == "v2", false, variables.$base-z-index)
+    );
+  }
+
+  @if variables.$search-modal-layout == "v2" {
+    // Use :where for 0 specificity of this declaration, this allows us to use the id selector
+    :where(&#depict-search-modal) {
+      // Reset all user agent styles for the dialog element, as everything else about the modal is assuming this is a normal div
+      max-width: unset;
+      max-height: unset;
+      position: static;
+      width: auto;
+      border: none;
+      height: auto;
+      padding: 0;
+      margin: 0;
+      background-color: transparent;
+      overflow: visible;
+      &::backdrop {
+        // We already have our own, clickable backdrop so make the default one transparent
+        background: transparent;
+      }
+    }
+  }
+
+  .depict-search-modal {
+    // Center horizontally by default, align_field can override
+    display: flex;
+    justify-content: center;
+    $modal-top-padding: min(max(16px, 4vw), 32px); // Scale between 16px mobile and 32px desktop
+
+    @if variables.$search-modal-layout == "v2" {
+      h2,
+      h3 {
+        margin: 0;
+        font-weight: variables.get-font-weight(400);
+      }
+      h2 {
+        text-transform: variables.$uppercase-text-transform;
+        font-size: 0.95em;
+        color: variables.get-text-icon-color("subtle", "default");
+      }
+      &:not(.stacked) {
+        $desktop-side-spacing: 48px;
+        .body {
+          .padded {
+            padding-left: $desktop-side-spacing;
+            padding-right: $desktop-side-spacing;
+          }
+        }
+        .search-field {
+          margin-left: $desktop-side-spacing;
+          margin-right: $desktop-side-spacing;
+        }
+      }
+    }
+
+    .search-field {
+      z-index: calc(#{variables.$base-z-index} + 5); // make shadow go above contents
+      @if variables.$search-modal-layout == "v2" {
+        margin-bottom: $modal-top-padding;
+      }
+    }
+
+    $desktop-bottom-padding: 48px;
+
+    .body {
+      // This also has position: absolute and width: 80vw set as default styling from the javascript, inside of SearchModal.tsx
+      display: flex;
+      flex-direction: column;
+      background: if(
+        variables.$search-modal-layout == "v2",
+        variables.get-background-color("base", "default"),
+        variables.get-background-color("subtle", "default")
+      );
+      max-width: min(
+        #{variables.get-merged(variables.$search-modal-defaults, variables.$search-modal, "max-width")},
+        100vw
+      );
+      $top-snapping: variables.get-merged(variables.$search-modal-defaults, variables.$search-modal, "top-snapping");
+      $whole-modal-border-radius: calc(#{variables.$border-radius} * 2.5);
+
+      @if variables.$search-modal-layout == "v2" {
+        align-items: stretch;
+        border-bottom-left-radius: $whole-modal-border-radius;
+        border-bottom-right-radius: $whole-modal-border-radius;
+        &::before {
+          // To make alignment easier, we use a pseudo element for the top padding
+          content: "";
+          position: absolute;
+          left: 0;
+          right: 0;
+          $extra-pixels: 5px; // Chrome has rendering glitches where a small gap is visible between the modal and pseudo element otherwise
+          bottom: calc(100% - #{$extra-pixels});
+          height: calc(#{$modal-top-padding} - #{$extra-pixels});
+          background: variables.get-background-color("base", "default");
+          border-top-right-radius: $whole-modal-border-radius;
+          border-top-left-radius: $whole-modal-border-radius;
+        }
+        & > *:not(.search-field) {
+          opacity: 0;
+          animation: depictFadeInPadded calc(var(--js-animation-duration, 250ms) / 1.4285714286) ease-in forwards;
+          animation-delay: calc(var(--js-animation-duration, 250ms) / 2);
+
+          @keyframes depictFadeInPadded {
+            from {
+              opacity: 0;
+            }
+            to {
+              opacity: 1;
+            }
+          }
+        }
+      } @else if variables.$search-modal-layout == "classic" {
+        border-radius: $whole-modal-border-radius;
+        // Don't need z-index in v2 anymore since we're using <dialog> which is in the top layer and therefore above any z-index
+        z-index: calc(#{variables.$base-z-index} + 1);
+      }
+
+      @media (hover: hover) and (pointer: fine) {
+        @media (max-height: 790px) {
+          @include topSnap($top-snapping, $modal-top-padding, $whole-modal-border-radius);
+          @media (max-width: 600px) {
+            @include leftSnap($modal-top-padding, $whole-modal-border-radius);
+          }
+        }
+      }
+      @media not all and (hover: hover) and (pointer: fine) {
+        @media (max-height: 1000px) {
+          @media (max-width: 600px) {
+            @include leftSnap($modal-top-padding, $whole-modal-border-radius);
+          }
+          @include topSnap($top-snapping, $modal-top-padding, $whole-modal-border-radius);
+        }
+      }
+
+      .padded > *,
+      .search-field {
+        // workaround https://github.com/philipwalton/flexbugs#flexbug-1 in MobileSafari 12-14.2 (range is only what I tested)
+        flex-shrink: 0;
+      }
+      .padded {
+        overflow: auto;
+
+        @if variables.$search-modal-layout == "classic" {
+          padding-top: 20px;
+          padding-left: calc(max(1vw, 10px));
+          padding-right: calc(max(1vw, 10px));
+          @include utils.flex-gap(20px, "column nowrap");
+          display: flex;
+          flex-direction: column;
+        } @else if variables.$search-modal-layout == "v2" {
+          display: grid;
+          grid-template-columns: 20fr 80fr;
+          grid-template-rows: 1fr auto;
+          column-gap: 48px;
+          padding-bottom: $desktop-bottom-padding;
+          &.no-results {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            container-type: inline-size;
+            flex-direction: column;
+          }
+          & > .left,
+          & > .right {
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+          }
+        }
+      }
+
+      .discover-more {
+        display: flex;
+        justify-content: center;
+        @if variables.$search-modal-layout == "v2" {
+          // Here when we snap top we also snap the modal to the bottom (100% height), it looks weird if there's just a bunch of space at the end so put the discover more button at the bottom in this case
+          order: 6;
+          grid-column-start: 1;
+          grid-column-end: 3;
+        }
+
+        button {
+          padding: 12px 18px;
+          @if variables.$search-modal-layout == "v2" {
+            b {
+              font-weight: variables.get-font-weight(400);
+            }
+          } @else if variables.$search-modal-layout == "classic" {
+            margin: 20px 0;
+          }
+          @if variables.$uppercase-text-transform != "none" and variables.$search-modal-layout != "v2" {
+            text-transform: variables.$uppercase-text-transform;
+          }
+        }
+      }
+    }
+
+    @if variables.$search-modal-layout == "v2" {
+      &:not(.stacked) .padded {
+        row-gap: 32px;
+      }
+      &.stacked {
+        .search-field {
+          margin-left: variables.get-merged(
+            variables.$search-modal-defaults,
+            variables.$search-modal,
+            "stacked-side-padding"
+          );
+          margin-right: variables.get-merged(
+            variables.$search-modal-defaults,
+            variables.$search-modal,
+            "stacked-side-padding"
+          );
+        }
+        .padded {
+          display: flex;
+          flex-direction: column;
+          align-items: stretch;
+          gap: 32px;
+          padding-bottom: 32px;
+          & > * {
+            // Can't use :where or we'll get too low precedence compared to other styling (https://www.loom.com/share/832df82a16ac4d149b3cd82905f41dd3)
+            // Need to have lower precedence than no results styling though, so overriding this just for visual listing suggestions below
+            margin-left: variables.get-merged(
+              variables.$search-modal-defaults,
+              variables.$search-modal,
+              "stacked-side-padding"
+            );
+            margin-right: variables.get-merged(
+              variables.$search-modal-defaults,
+              variables.$search-modal,
+              "stacked-side-padding"
+            );
+          }
+          & > .visual-listing-suggestions {
+            margin-left: unset;
+            margin-right: unset;
+          }
+        }
+      }
+    }
+  }
+}
+
+@mixin usePadding($modal-top-padding, $whole-modal-border-radius) {
+  // On mobile we can use normal padding instead of our pseudo element since no alignment has to be achieved
+  @if variables.$search-modal-layout == "v2" {
+    &::before {
+      display: none;
+    }
+    padding-top: $modal-top-padding;
+    border-top-left-radius: $whole-modal-border-radius;
+    border-top-right-radius: $whole-modal-border-radius;
+  }
+}
+
+@mixin leftSnap($modal-top-padding, $whole-modal-border-radius) {
+  transform: unset;
+  @if variables.$search-modal-layout == "classic" {
+    left: 30px;
+    width: calc(100% - 30px);
+  } @else if variables.$search-modal-layout == "v2" {
+    left: 0;
+    width: 100%;
+  }
+}
+
+@mixin topSnap($top-snapping, $modal-top-padding, $whole-modal-border-radius) {
+  @if $top-snapping {
+    max-height: 100%;
+    max-height: 100dvh; // Need this declaration too to override max-height declaration created by set_max_height_based_on_bottom_distance
+    top: 0;
+    position: fixed;
+    @include usePadding($modal-top-padding, $whole-modal-border-radius);
+  }
+}

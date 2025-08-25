@@ -1,0 +1,75 @@
+@use "../../helpers/utils";
+@use "../../variables";
+
+/// Mixin that styles the container of the InstantResults in the SearchModal
+@mixin InstantResults() {
+  .instant-results {
+    @if variables.$search-modal-layout == "classic" {
+      display: flex;
+      flex-direction: column;
+      @include utils.flex-gap(variables.get-gap("between-instant-results"), "column nowrap");
+    }
+    @content;
+  }
+
+  @if variables.$search-modal-layout == "v2" {
+    .instant-results-wrapper {
+      display: none;
+    }
+    .instant-results-wrapper:has(.instant-results) {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .depict-search-modal:not(.stacked) {
+      .instant-results {
+        display: grid;
+        grid-template-columns: repeat(60, 1fr);
+        grid-template-rows: max-content;
+        container-type: inline-size;
+        $gap: 48px;
+        margin-left: calc(
+          -1 * #{$gap}
+        ); // Can't use gap because our hacks to be able to specify the number of columns in a grid based on the size of the grid itself break the gap property in chrome
+        .instant-card {
+          margin-left: $gap;
+          grid-column: span 12; // 5 cards
+          @container (max-width: 900px) {
+            grid-column: span 15; // 4 cards
+            &:nth-child(n + 5) {
+              display: none;
+            }
+          }
+          @container (max-width: calc(650px + #{$gap})) {
+            grid-column: span 20; // 3 cards
+            &:nth-child(n + 4) {
+              display: none;
+            }
+          }
+        }
+      }
+    }
+
+    .depict-search-modal.stacked {
+      .instant-results-wrapper {
+        gap: 12px;
+      }
+      .instant-results {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        column-gap: 12px;
+        row-gap: 24px;
+
+        .instant-card {
+          // two cards per row, two rows
+          flex: 0 0 calc(50% - 6px);
+          &:nth-child(n + 5) {
+            display: none;
+          }
+        }
+      }
+    }
+  }
+}

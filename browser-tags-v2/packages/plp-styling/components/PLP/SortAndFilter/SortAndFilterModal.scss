@@ -1,0 +1,161 @@
+@use "../../../variables";
+@use "../../../helpers/utils";
+@use "../../../helpers/modal-backdrop";
+@use "sass:map";
+@use "sass:color";
+
+/// Mobile modal - taking arguments from SortAndFilter mixin so see SortAndFilter docs for more info
+@mixin SortAndFilterModal() {
+  $title-font-weight: variables.get-merged(variables.$font-weights-defaults, variables.$font-weights, 400);
+  $expanded-title-font-weight: variables.get-merged(variables.$font-weights-defaults, variables.$font-weights, 600);
+  $mobile-top-level-collapse-color: variables.get-text-icon-color("base", "default");
+  $sort-and-filter-modal-background: variables.get-merged(
+    variables.$filters-configuration-defaults,
+    variables.$filters-configuration,
+    "mobile-modal-background-color"
+  );
+
+  .depict-filter-sort-modal-backdrop {
+    @include modal-backdrop.modal-backdrop($background: rgba(0, 0, 0, 0.7), $z-index: variables.$base-z-index);
+    will-change: opacity;
+    opacity: 0;
+  }
+
+  .dismiss-modal {
+    background: transparent;
+    padding: 0;
+    line-height: 0;
+    border: none;
+    position: fixed;
+    top: 14px;
+    transform: translateY(calc(-100% - 14px));
+    left: 4px;
+    z-index: variables.$base-z-index + 3;
+    cursor: pointer;
+    svg {
+      transform: scale(0.6646);
+      path {
+        fill: #fff;
+      }
+    }
+  }
+
+  .filter-sort-modal {
+    z-index: calc(#{variables.$base-z-index} + 2);
+    position: fixed;
+    top: 0;
+    left: 30px;
+    width: calc(100% - 30px);
+    height: 100%;
+    background: $sort-and-filter-modal-background;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    will-change: transform;
+    transform: translateY(100%);
+
+    // the toggles that close/expand the whole sorting and filter section on mobile
+    details {
+      &.sorting,
+      &.filters {
+        & > summary {
+          list-style: none;
+          &::-webkit-details-marker {
+            display: none;
+          }
+        }
+        .sort-filter-summary > .summary {
+          $contrasting-color: variables.get-background-color(
+            "inverse",
+            "default"
+          ); // ensure best possible contrast against background color
+          $shadow-color: color.change($contrasting-color, $alpha: 0.1);
+          // Blend the shadow color and background color so that the border color looks to be part of the shadow when the section is collapsed (8% since the shadow has decreased a bit after the gap)
+          border-top: 1px solid color.mix($contrasting-color, $sort-and-filter-modal-background, 8%);
+          cursor: pointer;
+          box-shadow: 0px 4px 4px $shadow-color;
+          color: $mobile-top-level-collapse-color;
+          padding: 13px 20px;
+          display: flex;
+          justify-content: space-between;
+          @if $title-font-weight {
+            font-weight: $title-font-weight;
+          }
+          .left-els {
+            display: flex;
+            align-items: center;
+            @include utils.flex-gap(10px, "row nowrap");
+          }
+        }
+      }
+      &[open] {
+        .sort-filter-summary > .summary {
+          @if $expanded-title-font-weight {
+            font-weight: $expanded-title-font-weight;
+          }
+        }
+      }
+    }
+    .filter-icon,
+    .sort-icon {
+      fill: $mobile-top-level-collapse-color;
+    }
+
+    & > .body {
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      @include utils.flex-gap(2px, "column nowrap");
+    }
+    .filters,
+    .sorting {
+      .body {
+        color: variables.get-text-icon-color("neutral", "default");
+      }
+      & > summary {
+        .morphing-sign span {
+          background: $mobile-top-level-collapse-color;
+        }
+      }
+    }
+
+    .filters {
+      .filter-collapsible-body {
+        background: transparent;
+      }
+      .body {
+        padding: 10px;
+        background: unset;
+      }
+    }
+    .sorting .body {
+      margin: 10px;
+      border-radius: variables.$border-radius;
+      padding: 0;
+    }
+
+    .bottom-row {
+      flex-shrink: 0;
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+      @include utils.flex-gap(10px, "row nowrap");
+
+      & > button {
+        padding-top: 12px;
+        padding-bottom: 12px;
+        border-radius: variables.$border-radius;
+      }
+
+      .show-results {
+        flex-grow: 1;
+        font-weight: 500;
+        font-size: 1.1em;
+      }
+
+      .clear {
+        font-size: 1.1em;
+      }
+    }
+  }
+}

@@ -1,0 +1,41 @@
+/// @deprecated Use the version from `@depict/plp-styling` instead.
+.depict-placeholder {
+  overflow: hidden;
+  position: relative;
+  display: inline-block;
+
+  // Animation
+  animation: 1.5s infinite linear depict-placeholder;
+  background: #dddddd; // fallback and dark color
+  // https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/renderer/core/style/computed_style.cc;l=1146?q=CreatesStackingContext
+  // https://linear.app/depictai/issue/FRO-268/bok-question-from-them-on-errors
+  // https://web.dev/stick-to-compositor-only-properties-and-manage-layer-count/
+  will-change:
+    mask,
+    -webkit-mask;
+  mask-position-x: 125%;
+  mask-position-y: center;
+  mask-size: 300% 100%;
+  mask-image: linear-gradient(-60deg, rgb(0, 0, 0) 30%, rgba(0, 0, 0, 0.333), rgb(0, 0, 0) 70%);
+  -webkit-mask: linear-gradient(-60deg, #000 30%, #0005, #000 70%) 125% / 300% 100%;
+  // https://stackoverflow.com/a/69970936
+}
+
+@keyframes depict-placeholder {
+  00% {
+    mask-position-x: 125%;
+    -webkit-mask-position-x: 125%;
+  }
+  10% {
+    mask-position-x: 125%;
+    -webkit-mask-position-x: 125%;
+  }
+  90% {
+    mask-position-x: -25%;
+    -webkit-mask-position-x: -25%;
+  }
+  100% {
+    mask-position-x: -25%;
+    -webkit-mask-position-x: -25%;
+  }
+}

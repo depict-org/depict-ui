@@ -1,0 +1,12 @@
+.depict-slider .sliding {
+  user-select: none;
+  cursor: grab;
+}
+
+.depict-slider .sliding {
+  scroll-behavior: auto;
+}
+
+.depict-slider .sliding.grabbing .rec_outer {
+  cursor: grabbing;
+}

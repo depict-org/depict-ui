@@ -1,0 +1,112 @@
+#!/bin/bash
+
+set -e
+
+modern=""
+ie11=""
+compat=""
+dd=""
+
+print_usage() {
+  printf "Usage: -m modern.js filename\n-i ie11.js filename\n-c compat filename to bake into distributor\-d distribution directory of tenant\n"
+  exit 1
+}
+
+if [ "$#" -lt 6 ]; then
+    print_usage
+fi
+
+while getopts 'm:i:c:d:' flag; do
+  # echo flag: "${flag}"
+  case "${flag}" in
+    m) modern="${OPTARG}" ;;
+    i) ie11="${OPTARG}" ;;
+    c) compat="${OPTARG}" ;;
+    d) dd="${OPTARG}" ;;
+  esac
+done
+
+# echo "modern $modern"
+# echo "ie11 $ie11"
+# echo "compat $compat"
+# echo "dd $dd"
+
+# ( set -o posix ; set )
+
+startdir="$(pwd)"
+
+cd $dd
+td=$RANDOM.js
+echo "Wrapping targets modern ($modern) into a distributor that falls back to $compat"
+
+
+# get rid of escaped unicode by SWC as this causes parsing issues in IE11
+cat > $td <<EOF
+import {readFileSync} from 'fs'
+globalThis.process.stdout.write(readFileSync('$modern', 'utf-8'));
+EOF
+yarn parcel build --no-autoinstall --target ie11 $td --no-optimize --dist-dir .
+node ie11/$td > deunicodified.js
+
+cat > $td <<EOF
+import 'current-script-polyfill';
+import {readFileSync} from 'fs'
+if(window.self === window.top || location?.hostname?.includes?.("depict.ai") || globalThis?.Shopify?.designMode){ // exception so we get sentry events from shopify app config interface
+  let modern_browser = false;
+  try {
+    // this is done so complicated because sites like staples polyfill String.prototype.replaceAll in ALL BROWSERS
+    let iframe = document.createElement("iframe");
+    iframe.src = "about:blank";
+    document.head.appendChild(iframe);
+    const repl_all_str = iframe?.contentWindow?.String?.prototype?.replaceAll?.toString?.();
+    let bigint_str;
+    if(process.env.CHECK_BIGINT === "true"){
+      bigint_str = iframe?.contentWindow?.BigInt?.toString?.();
+    }
+    iframe.parentNode.removeChild(iframe);
+    const check_native = (str) => str && str.indexOf("[native code]") > -1;
+    if(check_native(repl_all_str) && (process.env.CHECK_BIGINT !== "true" || check_native(bigint_str))){
+      modern_browser = true;
+    }
+  } catch(e) {
+    // console.log("Probably not a modern browser", e);
+  }
+  if(modern_browser){ // browser is modern enough
+    (new Function(readFileSync('$dd/deunicodified.js', 'utf-8')))();
+  } else {
+    const curr_script = document.currentScript;
+    let filename = curr_script.src.split("/");
+    filename.pop();
+    filename.push("$compat");
+    const new_script = document.createElement("script");
+    new_script.src = filename.join("/");
+    const keys = Object.keys(curr_script.dataset);
+    for(let i = 0; i < keys.length; i++){
+      new_script.dataset[keys[i]] = curr_script.dataset[keys[i]];
+    }
+    // console.log("cloned", curr_script, "to", new_script);
+    curr_script.insertAdjacentElement("afterend", new_script);
+  }
+} else {
+  console.warn("Depict script", document.currentScript, "executed inside a frame or iframe. I will now exit.");
+}
+EOF
+
+# Ugly CWD switching back and forth, because $dotenv_opts contains a relative path created from browser-tags-v2/
+cd ../..
+dotenv $dotenv_opts -- parcel build --no-autoinstall --target ie11 $dd/$td --no-optimize --dist-dir $dd
+cd $dd
+
+mv ie11/$td distributor.js
+rm -rf ie11 $td deunicodified.js
+terser -cm -- distributor.js > distributor.min.js
+gzip -c "distributor.min.js" > "distributor.min.js.gzip"
+
+echo "removing sourcemapping url from ie11 version of script and adding one pointing to future filename"
+sed '${/\/\/# sourceMappingURL=/d;}' ie11.js  > $ie11.tmp
+mv $ie11.tmp $ie11
+echo "//# sourceMappingURL=$compat.map" >> $ie11
+gzip -c "$ie11" > "$ie11.gzip"
+
+echo "We're done"
+ls

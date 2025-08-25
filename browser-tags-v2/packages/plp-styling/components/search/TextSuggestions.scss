@@ -1,0 +1,88 @@
+@use "../../variables";
+@use "../../helpers/supports-hover";
+
+@mixin TextSuggestions() {
+  .depict-search-modal {
+    .suggestions {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 12px;
+
+      .title-row {
+        display: flex;
+        justify-content: space-between;
+
+        .delete {
+          padding: 0;
+          background: transparent;
+          text-decoration: underline;
+          color: variables.get-text-icon-color("subtle", "default");
+          font-weight: variables.get-font-weight(500);
+          cursor: pointer;
+          transition-duration: 0.05s;
+          transition-timing-function: ease-in-out;
+          @include supports-hover.supports-hover() {
+            &:not(:focus-visible) {
+              opacity: 0;
+            }
+          }
+        }
+      }
+
+      .delete,
+      .suggestion {
+        &:focus-visible {
+          outline: none;
+          box-shadow:
+            0 0 0 2px variables.get-background-color("base", "default"),
+            0 0 0 4px variables.get-border-color("base", "default");
+        }
+      }
+      .suggestion .title {
+        // Remove default shopify margin
+        margin: 0;
+      }
+
+      .suggestion.selected .title {
+        text-decoration: underline;
+      }
+
+      .line-clamp {
+        -webkit-line-clamp: 1;
+      }
+
+      .suggestion-container {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+      }
+
+      @include supports-hover.supports-hover() {
+        &:hover {
+          .title-row .delete {
+            opacity: 1;
+          }
+        }
+      }
+    }
+
+    .padded.no-results .suggestions {
+      margin-right: auto;
+    }
+    // No-results: align us with the search field whenever possible. The container for the container-query is .padded
+    &:not(.stacked) .padded .suggestions {
+      $max-searchfield-width: variables.get-merged(
+        variables.$search-field-defaults,
+        variables.$search-field,
+        "max-width"
+      );
+      @container (min-width: #{$max-searchfield-width}) {
+        // Offset us so the start of us is aligned with the start of the search field
+        transform: translateX(calc(calc(#{$max-searchfield-width} / -2) + 50%));
+        margin-right: 0;
+      }
+    }
+  }
+}

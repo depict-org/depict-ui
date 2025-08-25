@@ -1,0 +1,122 @@
+diff --git a/.idea/.gitignore b/.idea/.gitignore
+new file mode 100644
+index 0000000000000000000000000000000000000000..b58b603fea78041071d125a30db58d79b3d49217
+--- /dev/null
++++ b/.idea/.gitignore
+@@ -0,0 +1,5 @@
++# Default ignored files
++/shelf/
++/workspace.xml
++# Editor-based HTTP Client requests
++/httpRequests/
+diff --git a/.idea/modules.xml b/.idea/modules.xml
+new file mode 100644
+index 0000000000000000000000000000000000000000..d9fb14e4d06a030cba3cd105982c4f196e0718a0
+--- /dev/null
++++ b/.idea/modules.xml
+@@ -0,0 +1,8 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="ProjectModuleManager">
++    <modules>
++      <module fileurl="file://$PROJECT_DIR$/.idea/user.iml" filepath="$PROJECT_DIR$/.idea/user.iml" />
++    </modules>
++  </component>
++</project>
+\ No newline at end of file
+diff --git a/.idea/user.iml b/.idea/user.iml
+new file mode 100644
+index 0000000000000000000000000000000000000000..24643cc37449b4bde54411a80b8ed61258225e34
+--- /dev/null
++++ b/.idea/user.iml
+@@ -0,0 +1,12 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<module type="WEB_MODULE" version="4">
++  <component name="NewModuleRootManager">
++    <content url="file://$MODULE_DIR$">
++      <excludeFolder url="file://$MODULE_DIR$/.tmp" />
++      <excludeFolder url="file://$MODULE_DIR$/temp" />
++      <excludeFolder url="file://$MODULE_DIR$/tmp" />
++    </content>
++    <orderEntry type="inheritedJdk" />
++    <orderEntry type="sourceFolder" forTests="false" />
++  </component>
++</module>
+\ No newline at end of file
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+new file mode 100644
+index 0000000000000000000000000000000000000000..931d72c9c2033b7f07fa9ab55fdc6734cae64856
+--- /dev/null
++++ b/.idea/workspace.xml
+@@ -0,0 +1,44 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="ChangeListManager">
++    <list default="true" id="ee5a7fca-9e59-444a-b232-e0f15cf68ece" name="Changes" comment="" />
++    <option name="SHOW_DIALOG" value="false" />
++    <option name="HIGHLIGHT_CONFLICTS" value="true" />
++    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
++    <option name="LAST_RESOLUTION" value="IGNORE" />
++  </component>
++  <component name="ProjectColorInfo"><![CDATA[{
++  "associatedIndex": 8
++}]]></component>
++  <component name="ProjectId" id="2VIWJ4Zzm1v64o5PpDSY8vjLMUT" />
++  <component name="ProjectViewState">
++    <option name="autoscrollFromSource" value="true" />
++    <option name="autoscrollToSource" value="true" />
++    <option name="hideEmptyMiddlePackages" value="true" />
++    <option name="showLibraryContents" value="true" />
++  </component>
++  <component name="PropertiesComponent"><![CDATA[{
++  "keyToString": {
++    "RunOnceActivity.OpenProjectViewOnStart": "true",
++    "RunOnceActivity.ShowReadmeOnStart": "true",
++    "WebServerToolWindowFactoryState": "false",
++    "nodejs_package_manager_path": "npm",
++    "vue.rearranger.settings.migration": "true"
++  }
++}]]></component>
++  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
++  <component name="TaskManager">
++    <task active="true" id="Default" summary="Default task">
++      <changelist id="ee5a7fca-9e59-444a-b232-e0f15cf68ece" name="Changes" comment="" />
++      <created>1694523999870</created>
++      <option name="number" value="Default" />
++      <option name="presentableId" value="Default" />
++      <updated>1694523999870</updated>
++      <workItem from="1694524001099" duration="27000" />
++    </task>
++    <servers />
++  </component>
++  <component name="TypeScriptGeneratedFilesManager">
++    <option name="version" value="3" />
++  </component>
++</project>
+\ No newline at end of file
+diff --git a/lib/Worker.js b/lib/Worker.js
+index e3833d0c72e3d2c6bb061a66598dd335b4d8d5fb..af8180c5c9e5786c7f6660d4b1c6e143107c5d49 100644
+--- a/lib/Worker.js
++++ b/lib/Worker.js
+@@ -42,7 +42,7 @@ class Worker extends _events().default {
+     this.options = options;
+   }
+   async fork(forkModule) {
+-    let filteredArgs = process.execArgv.filter(v => !/^--(debug|inspect|max-old-space-size=)/.test(v));
++    let filteredArgs = process.execArgv.filter(v => !/^--(debug|inspect|no-opt|max-old-space-size=)/.test(v));
+     for (let i = 0; i < filteredArgs.length; i++) {
+       let arg = filteredArgs[i];
+       let isArgWithParam = (arg === '-r' || arg === '--require') && filteredArgs[i + 1] === '@parcel/register' || arg === '--title';
+diff --git a/src/Worker.js b/src/Worker.js
+index ce98cde5933aee311d379ca3b14a45ab8ab1b2d2..996b4053a99873543599ecb8ff411a89b8dfcacf 100644
+--- a/src/Worker.js
++++ b/src/Worker.js
+@@ -49,7 +49,7 @@ export default class Worker extends EventEmitter {
+ 
+   async fork(forkModule: FilePath) {
+     let filteredArgs = process.execArgv.filter(
+-      v => !/^--(debug|inspect|max-old-space-size=)/.test(v),
++      v => !/^--(debug|inspect|no-opt|max-old-space-size=)/.test(v),
+     );
+ 
+     for (let i = 0; i < filteredArgs.length; i++) {

@@ -1,0 +1,76 @@
+#!/bin/bash
+
+# Arguments for the build scripts that invoke this: [tenant] [environment] [-c --cache cache_max_age]
+# Tenant optional if cwd is already a tenant directory (can't specify environment in this case)
+
+# Potentially dangerous oddity: this script will be invoked multiple times for certain build processes, such as deploy.
+
+positional_arguments=()
+# Iterate over arguments, prefixed arguments can appear in any order
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    -c|--cache)
+      cache_max_age="$2"
+      shift # move past prefix
+      shift # move past value
+      ;;
+    -*|--*)
+      echo "Unknown option $1"
+      exit 1
+      ;;
+    *)
+      positional_arguments+=("$1") # This argument isn't prefixed with - or --, so it is positional. Save it for later.
+      shift # move past argument
+      ;;
+  esac
+done
+
+# restore the positional arguments we saved to $1 $2 etc
+set -- "${positional_arguments[@]}" 
+
+tenant=$1
+environment=$2
+
+# Now we're all done READING arguments. Time to parse, validate etc.
+
+if [ -z "$tenant" ]; then
+  # No tenant set, assume cwd is a tenant directory
+  tenant="${INIT_CWD##*/}"
+  tenant_wd=src/$tenant
+else
+  tenant_wd=src/$(basename $tenant) # For autocompletion. You can now write `npm run serve src/cdlp`. <-- Can you though??
+fi
+
+if [ ! -f $tenant_wd/main.* ]; then
+  echo "couldn't find main.* in $tenant_wd. Either supply a valid tenant, or call the script from the directory of a tenant"
+  exit
+fi
+
+dotenv_opts=""
+if [[ ! -z $environment ]] && [ -f "$tenant_wd/.env.$environment" ]; then
+  # Environment is set and tenant-environment specific .env file exists. Use it.
+  dotenv_opts="$dotenv_opts -e $tenant_wd/.env.$environment"
+fi
+if [ -f "$tenant_wd/.env" ]; then
+  # Tenant specific .env file also exists, use it with lower precedence than above
+  dotenv_opts="$dotenv_opts -e $tenant_wd/.env"
+fi
+
+if [ -z "$environment" ]; then
+  # No environment set, upload to /$tenant/ as normal
+  url_path=$tenant
+else
+  url_path="$tenant-$environment"
+fi
+
+infile=$(echo -n $tenant_wd/main.*)
+temp_file_name="$tenant_wd/temp-$RANDOM.tsx" # TSX for JSX support. Doesn't affect other optimizations.
+
+echo "tenant": "$tenant"
+echo "environment: $environment"
+echo "infile: $infile"
+echo "dotenv inputs: $dotenv_opts"
+echo "tenant working directory: $tenant_wd/"
+echo "temp file name: $temp_file_name"
+echo "cache max-age: $cache_max_age"
+echo ""

@@ -1,0 +1,200 @@
+{
+  "name": "depict-ai",
+  "version": "0.0.1",
+  "description": "Browser tag",
+  "repository": "depict.ai",
+  "author": "hello@depict.ai",
+  "dev": "depict-ai.js",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "serve": "X=\"$@\" bash -c 'cd $PROJECT_CWD && ./build_scripts/serve $X'",
+    "build": "X=\"$@\" bash -c 'cd $PROJECT_CWD && ./build_scripts/build_prod $X'",
+    "test-production-build": "X=\"$@\" bash -c 'cd $PROJECT_CWD && ./build_scripts/test_production_build $X'",
+    "//": "Runs 'yarn && yarn build' in the defined order in the packages in packages/, add new packages here in the correct order to make them work in CI",
+    "build_packages": "node --version && yarn clean && cd ./packages && bash -c 'for package in utilishared performance-client ui js-ui react-ui portal-components; do pushd \"$package\"; yarn build; popd; done'",
+    "fast_build_packages": "yarn clean && zsh -c 'for package in utilishared performance-client ui js-ui react-ui portal-components; do (cd \"packages/$package\" && env -i TERM=\"$TERM\" PATH=\"$PATH\" bash -c \"yarn build\") & done; wait'",
+    "reverse_proxy": "X=\"$@\" bash -c 'cd $PROJECT_CWD && dotenv -e .env.development -- ./build_scripts/to_reverse_proxy $X'",
+    "demo": "X=\"$@\" bash -c 'cd $PROJECT_CWD && dotenv -e .env.development -- ./build_scripts/to_reverse_proxy $X'",
+    "mkdemo": "ssh root@demo-machine.europe-west1-b.depict-v2 one_click_demo",
+    "clean": "X=\"$@\" bash -c 'cd $PROJECT_CWD && rm -rf .parcel-cache .cache dist dev_dist $X'",
+    "fresh-start": "X=\"$@\" bash -c 'cd $PROJECT_CWD && ./build_scripts/fresh-start $X'",
+    "format": "prettier --write ./{src,lib,packages,devtools,tsconfig.json,testcafe,build_scripts,.yarnrc.yml}",
+    "typecheck": "tsc -p tsconfig.typecheck.json",
+    "lint": "eslint . --quiet",
+    "lint:fix": "eslint --fix .",
+    "deploy": "X=\"$@\" bash -c 'cd $PROJECT_CWD && ./build_scripts/deploy_rebuild -c 600 $X'",
+    "deploy_no_rebuild": "X=\"$@\" bash -c 'cd $PROJECT_CWD && ./build_scripts/deploy_no_rebuild -c 600 $X'",
+    "oneclick_demo": "X=\"$@\" bash -c 'cd $PROJECT_CWD && ./build_scripts/deploy_oneclick $X'",
+    "generate_loader": "X=\\\"$@\\\" bash -c 'cd $PROJECT_CWD && devtools/generate_loader $X'",
+    "generate_shopify_loader": "X=\\\"$@\\\" bash -c 'cd $PROJECT_CWD && devtools/generate_shopify_loader $X'",
+    "g:tsc": "cd $INIT_CWD && tsc",
+    "watch_packages": "$PROJECT_CWD/devtools/watch_packages.sh",
+    "watch_ui_package": "$PROJECT_CWD/devtools/watch_packages.sh ui",
+    "watch_utilishared_package": "$PROJECT_CWD/devtools/watch_packages.sh utilishared",
+    "watch_react_ui_package": "$PROJECT_CWD/devtools/watch_packages.sh react-ui",
+    "unit-test-ci": "jest --ci --config jest.config.json",
+    "publish-packages-dev": "$PROJECT_CWD/devtools/publish_packages.sh patch dev",
+    "publish-packages-latest": "$PROJECT_CWD/devtools/publish_packages.sh patch latest",
+    "build_scss_docs": "cd packages/plp-styling && sassdoc .",
+    "bypass-package-compilation": "yarn clean && node devtools/bypass-package-compilation.mjs",
+    "bypass-package-compilation-vite": "cd .. && git apply browser-tags-v2/devtools/sdk-no-compilation-vite-changes-required.patch",
+    "dangerous-revert-bypass-package-compilation": "git restore 'packages/*/package.json' 'packages/*/locales/latest/index.d.ts' 'packages/*/latest/index.d.ts' 'babel.config.js' && cd .. && git apply browser-tags-v2/devtools/revert-sdk-no-compilation-vite-changes-required.patch",
+    "test-storefront": "./devtools/test-storefront"
+  },
+  "@parcel/transformer-js": {
+    "inlineEnvironment": true
+  },
+  "alias": {
+    "process": {
+      "global": "process"
+    }
+  },
+  "targets": {
+    "modern": {
+      "engines": {
+        "browsers": "firefox 77, safari 13.1, ios 13.4"
+      }
+    },
+    "ie11": {
+      "engines": {
+        "browsers": "ie 11"
+      }
+    },
+    "edge": {
+      "engines": {
+        "browsers": "edge 17"
+      }
+    },
+    "dev": {
+      "engines": {
+        "browsers": "last 1 firefox version"
+      }
+    }
+  },
+  "jest": {
+    "testEnvironment": "jsdom"
+  },
+  "resolutions": {
+    "ip": "patch:ip@npm:1.1.5#./.yarn/patches/ip-npm-1.1.5-af36318aa6.patch",
+    "htmlnano": "2.0.3",
+    "@parcel/workers@2.9.3": "patch:@parcel/workers@npm%3A2.9.3#./.yarn/patches/@parcel-workers-npm-2.9.3-b0559c8ccb.patch"
+  },
+  "packageManager": "yarn@4.5.3",
+  "devDependencies": {
+    "@babel/cli": "latest",
+    "@babel/core": "latest",
+    "@babel/plugin-proposal-class-properties": "latest",
+    "@babel/plugin-proposal-private-methods": "latest",
+    "@babel/plugin-transform-private-property-in-object": "latest",
+    "@babel/plugin-transform-react-jsx": "latest",
+    "@babel/plugin-transform-typescript": "^7.22.9",
+    "@babel/preset-env": "latest",
+    "@babel/preset-typescript": "latest",
+    "@babel/traverse": "latest",
+    "@babel/types": "latest",
+    "@depict-ai/types": "workspace:^",
+    "@jest/globals": "^29.3.1",
+    "@parcel/babel-plugin-transform-runtime": "^2.10.3",
+    "@parcel/babel-preset-env": "^2.10.3",
+    "@parcel/bundler-default": "^2.10.3",
+    "@parcel/compressor-raw": "^2.10.3",
+    "@parcel/core": "^2.10.3",
+    "@parcel/diagnostic": "^2.10.3",
+    "@parcel/fs": "^2.10.3",
+    "@parcel/namer-default": "^2.10.3",
+    "@parcel/optimizer-css": "^2.10.3",
+    "@parcel/optimizer-cssnano": "^2.10.3",
+    "@parcel/optimizer-htmlnano": "^2.10.3",
+    "@parcel/optimizer-terser": "^2.10.3",
+    "@parcel/packager-css": "^2.10.3",
+    "@parcel/packager-html": "^2.10.3",
+    "@parcel/packager-js": "^2.10.3",
+    "@parcel/packager-ts": "^2.10.3",
+    "@parcel/resolver-default": "^2.10.3",
+    "@parcel/runtime-browser-hmr": "^2.10.3",
+    "@parcel/runtime-js": "^2.10.3",
+    "@parcel/runtime-react-refresh": "^2.10.3",
+    "@parcel/runtime-service-worker": "^2.10.3",
+    "@parcel/transformer-babel": "^2.10.3",
+    "@parcel/transformer-css": "^2.10.3",
+    "@parcel/transformer-html": "^2.10.3",
+    "@parcel/transformer-inline-string": "^2.10.3",
+    "@parcel/transformer-js": "^2.10.3",
+    "@parcel/transformer-postcss": "^2.10.3",
+    "@parcel/transformer-posthtml": "^2.10.3",
+    "@parcel/transformer-react-refresh-wrap": "^2.10.3",
+    "@parcel/transformer-sass": "^2.10.3",
+    "@parcel/transformer-typescript-types": "^2.10.3",
+    "@parcel/utils": "^2.10.3",
+    "@sentry/cli": "^2.21.2",
+    "@sentry/types": "^7.75.1",
+    "@types/expect": "latest",
+    "@types/jquery": "latest",
+    "@types/jsdom": "latest",
+    "@types/node": "^20.10.4",
+    "@types/node-fetch": "2",
+    "@types/selenium-webdriver": "latest",
+    "@typescript-eslint/eslint-plugin": "latest",
+    "@typescript-eslint/parser": "latest",
+    "babel-preset-solid": "^1.9.3",
+    "chrome-launcher": "latest",
+    "dotenv-cli": "latest",
+    "eslint": "latest",
+    "eslint-plugin-unused-imports": "^2.0.0",
+    "expect": "latest",
+    "jest": "^29.3.1",
+    "jest-environment-jsdom": "^29.3.1",
+    "jest-haste-map": "^29.3.1",
+    "jest-resolve": "^29.3.1",
+    "js-beautify": "next",
+    "jsdom": "latest",
+    "lighthouse": "latest",
+    "node-fetch": "2",
+    "parcel": "^2.10.3",
+    "prettier": "latest",
+    "process": "latest",
+    "sassdoc": "^2.7.4",
+    "terser": "latest",
+    "testcafe": "2.5.0",
+    "ts-jest": "^29.0.3",
+    "ts-node": "latest",
+    "typescript": "4.9.5"
+  },
+  "dependencies": {
+    "@babel/plugin-transform-runtime": "^7.22.9",
+    "@babel/runtime": "latest",
+    "@babel/runtime-corejs3": "^7.22.6",
+    "@depict-ai/dpc": "workspace:^",
+    "@depict-ai/ui": "workspace:^",
+    "@depict-ai/utilishared": "workspace:^",
+    "@googleapis/drive": "latest",
+    "@juggle/resize-observer": "latest",
+    "@parcel/config-default": "^2.10.3",
+    "@parcel/types": "^2.10.3",
+    "@sentry/browser": "^7.75.1",
+    "@types/google.analytics": "^0.0.42",
+    "@ungap/event-target": "latest",
+    "core-js": "latest",
+    "current-script-polyfill": "latest",
+    "element-scroll-polyfill": "latest",
+    "intersection-observer": "latest",
+    "jsbi": "latest",
+    "navigator.sendbeacon": "latest",
+    "proxy-polyfill": "latest",
+    "resq": "latest",
+    "smoothscroll-polyfill": "latest",
+    "solid-js": "^1.9.3",
+    "string.prototype.endswith": "latest",
+    "string.prototype.includes": "latest",
+    "string.prototype.replaceall": "latest",
+    "string.prototype.startswith": "latest",
+    "tree-kill": "^1.2.2",
+    "web-animations-js": "latest",
+    "whatwg-fetch": "latest"
+  },
+  "@parcel/resolver-default": {
+    "packageExports": true
+  }
+}

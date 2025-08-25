@@ -1,0 +1,15 @@
+#!/bin/bash
+
+set -e
+
+. ./build_scripts/define_vars
+
+TENANT="$(basename $tenant_wd)"
+
+yarn build $TENANT
+
+echo "copying modern.js to depict-ai.js for $TENANT"
+cp dist/${TENANT}/modern.js dist/${TENANT}/depict-ai.js
+
+echo "Starting http-server on port 1234"
+http-server dist/${TENANT} -p 1234

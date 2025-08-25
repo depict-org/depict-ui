@@ -1,0 +1,162 @@
+{
+  "name": "@depict-ai/utilishared",
+  "version": "2.6.0",
+  "packageManager": "yarn@3.2.2",
+  "source": "src/index.ts",
+  "types": "ES10/index.d.ts",
+  "license": "MIT",
+  "description": "Miscellaneous utilities shared across different Depict packages and projects.",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "./scripts/build",
+    "publish": "yarn build && yarn npm publish",
+    "print-included-package-files": "yarn pack --dry-run",
+    "typecheck": "yarn g:tsc --build tsconfig.json",
+    "test": "jest"
+  },
+  "targets": {
+    "types": {},
+    "module_latest": {
+      "outputFormat": "esmodule",
+      "isLibrary": true,
+      "context": "node",
+      "engines": {
+        "browsers": "last 1 chrome version"
+      },
+      "optimize": false
+    },
+    "main_latest": {
+      "outputFormat": "commonjs",
+      "isLibrary": true,
+      "context": "node",
+      "engines": {
+        "browsers": "last 1 chrome version"
+      },
+      "optimize": false
+    },
+    "module_es10": {
+      "outputFormat": "esmodule",
+      "isLibrary": true,
+      "context": "node",
+      "engines": {
+        "browsers": "supports array-flat"
+      },
+      "optimize": false
+    },
+    "main_es10": {
+      "outputFormat": "commonjs",
+      "isLibrary": true,
+      "context": "node",
+      "engines": {
+        "browsers": "supports array-flat"
+      },
+      "optimize": false
+    },
+    "module_latest_server": {
+      "outputFormat": "esmodule",
+      "isLibrary": true,
+      "context": "node",
+      "distDir": "dist/server/esmodule_latest",
+      "engines": {
+        "browsers": "last 1 chrome version"
+      },
+      "optimize": false
+    },
+    "main_latest_server": {
+      "outputFormat": "commonjs",
+      "isLibrary": true,
+      "context": "node",
+      "distDir": "dist/server/commonjs_latest",
+      "engines": {
+        "browsers": "last 1 chrome version"
+      },
+      "optimize": false
+    },
+    "module_es10_server": {
+      "outputFormat": "esmodule",
+      "isLibrary": true,
+      "context": "node",
+      "distDir": "dist/server/esmodule_ES10",
+      "engines": {
+        "browsers": "supports array-flat"
+      },
+      "optimize": false
+    },
+    "main_es10_server": {
+      "outputFormat": "commonjs",
+      "isLibrary": true,
+      "context": "node",
+      "distDir": "dist/server/commonjs_ES10",
+      "engines": {
+        "browsers": "supports array-flat"
+      },
+      "optimize": false
+    }
+  },
+  "exports": {
+    ".": {
+      "types": "./ES10/index.d.ts",
+      "browser": {
+        "import": "./ES10/index.js",
+        "require": "./ES10/index.cjs"
+      },
+      "node": {
+        "import": "./server/ES10/index.js",
+        "require": "./server/ES10/index.cjs"
+      }
+    },
+    "./latest": {
+      "types": "./latest/index.d.ts",
+      "browser": {
+        "import": "./latest/index.js",
+        "require": "./latest/index.cjs"
+      },
+      "node": {
+        "import": "./server/latest/index.js",
+        "require": "./server/latest/index.cjs"
+      }
+    },
+    "./ES10": {
+      "types": "./ES10/index.d.ts",
+      "browser": {
+        "import": "./ES10/index.js",
+        "require": "./ES10/index.cjs"
+      },
+      "node": {
+        "import": "./server/ES10/index.js",
+        "require": "./server/ES10/index.cjs"
+      }
+    }
+  },
+  "files": [
+    "/latest",
+    "/ES10",
+    "/server",
+    "./multi_import_deduplicator.mjs",
+    "./multi_import_deduplicator.cjs"
+  ],
+  "devDependencies": {
+    "@babel/core": "latest",
+    "@depict-ai/types": "workspace:^",
+    "@parcel/resolver-default": "^2.10.3",
+    "@sentry/cli": "^2.21.2",
+    "@sentry/types": "^7.75.1",
+    "@types/jest": "^29.2.5",
+    "@types/node": "^18.11.9",
+    "jest": "^29.3.1",
+    "parcel": "^2.10.3",
+    "ts-jest": "^29.0.3"
+  },
+  "dependencies": {
+    "@babel/plugin-transform-typescript": "^7.22.9",
+    "@babel/runtime": "latest",
+    "@babel/runtime-corejs3": "latest",
+    "@sentry/browser": "^7.75.1",
+    "solid-js": "^1.9.3"
+  },
+  "type": "module",
+  "main": "ES10/index.cjs",
+  "module": "ES10/index.js"
+}

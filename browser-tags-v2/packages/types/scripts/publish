@@ -1,0 +1,8 @@
+#!/bin/bash
+
+mv api api_symlink
+mkdir api
+cp -r api_symlink/* api/
+yarn npm publish $@
+rm -rf api
+mv api_symlink api

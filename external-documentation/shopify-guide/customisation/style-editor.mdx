@@ -1,0 +1,60 @@
+---
+title: "The style editor"
+---
+
+The style editor is what lets you influence the styling imported for the Depict components, but it can also be used to style anything on your website.
+
+The code you write is SCSS, which is a superset of CSS. This means that you can write plain CSS and it will work, but you can also use SCSS features like variables and nesting.
+
+On the right you can get a live preview of all the Depict components with your custom styling applied.
+
+<Frame caption="Screenshot of the style editor with the initial contents">
+    <img src="https://cdn.statically.io/gh/depict-org/documentation-images/main/shopify/style-editor.svg" style={{aspectRatio: 1679/979, width: "100%"}} ref={element => {
+        // In prod, they have some zoom thing which breaks aspectRatio, work around that. Unfortunately this is not in the SSR'd output so there's still some CLS.
+        const direct_parent = element?.parentElement;
+        if(direct_parent?.matches?.("[data-rmiz-content]")) {
+            Object.assign(direct_parent.style, {
+                width: "100%",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center"
+            })
+        }
+        const parents_parent = direct_parent?.parentElement;
+        if(parents_parent?.matches?.("[aria-owns^='rmiz-modal']")) {
+            parents_parent.style.width = "100%";
+        }
+    }} />
+</Frame>
+
+The `@use` statement at the top imports this file: [@depict-ai/plp-styling/index.scss](https://www.unpkg.com/browse/@depict-ai/plp-styling@latest/index.scss)
+
+When doing so, you can specify [variables](https://www.unpkg.com/browse/@depict-ai/plp-styling@latest/variables.scss) to override the default values, for example:
+
+```scss
+@use "node_modules/@depict-ai/plp-styling" as plp-styling with (
+  $instant-card: (
+    "sales-price-color": red,
+  ),
+  $font-weights: (
+    // map all 500 font weights to 600 because font doesn't support 500
+    500: 600,
+  ),
+  // disable all border radii
+  $border-radius: 0
+);
+```
+
+To override style properties, inspect the element you want to override properties for and look for a parent that has an id, that way your styling automatically takes precedence. For example,
+
+```scss
+#depict-search-modal {
+  .instant-results {
+    .depict-img-mod {
+      object-fit: contain;
+    }
+  }
+}
+```
+
+<Tip>See [this page in the reference section](/reference/listings-search/customize-plp-styling-with-scss) for more information regarding our style system, variables that can be customised and color palettes</Tip>

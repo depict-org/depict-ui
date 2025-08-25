@@ -1,0 +1,57 @@
+/* button stylings */
+@mixin phat-buttons {
+  button.left,
+  button.right {
+    color: transparent;
+    background: transparent;
+    border: medium none;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+  }
+
+  button.left:hover,
+  button.right:hover {
+    opacity: 0.6;
+    border: none;
+    background: transparent;
+  }
+
+  button.left:active,
+  button.right:active {
+    box-shadow: none;
+  }
+
+  button.left.hidden,
+  button.right.hidden {
+    opacity: 0.2;
+  }
+  /* bigger button for misclicks */
+  button.right {
+    right: 0;
+  }
+
+  button.left {
+    left: 0;
+  }
+
+  button.left,
+  button.right {
+    height: 100%;
+    width: 46px;
+    /* give users some space to miss the button without getting to the wrong page */
+    padding-right: 20px;
+    padding-left: 10px;
+  }
+
+  button.left:active,
+  button.right:active {
+    background: rgba(0, 0, 0, 0.4);
+  }
+  @media screen and (min-width: 769px) {
+    button.left.hidden,
+    button.right.hidden {
+      opacity: 0;
+    }
+  }
+}

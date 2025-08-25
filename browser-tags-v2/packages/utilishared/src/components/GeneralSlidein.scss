@@ -1,0 +1,49 @@
+@use "../../../plp-styling/variables";
+
+@mixin GeneralSlidein() {
+  .slidein-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: rgba(0, 0, 0, 0.5);
+    right: 0;
+    bottom: 0;
+    z-index: calc(#{variables.$base-z-index} + 6);
+  }
+  .slidein {
+    position: fixed;
+    right: 0;
+    background: white;
+    top: 0;
+    z-index: calc(#{variables.$base-z-index} + 7);
+    padding: 20px;
+    min-width: 320px;
+    height: 100%;
+    transform-origin: right;
+    color: black;
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 20px;
+      .close {
+        cursor: pointer;
+        svg {
+          width: 20px;
+          height: 20px;
+        }
+      }
+    }
+
+    .body {
+      overflow: auto;
+    }
+
+    &,
+    .body {
+      display: flex;
+      flex-direction: column;
+    }
+  }
+}

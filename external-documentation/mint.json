@@ -1,0 +1,563 @@
+{
+  "$schema": "https://mintlify.com/schema.json",
+  "name": "Depict AI Documentation",
+  "openapi": "https://api.depict.ai/openapi.json",
+  "logo": {
+    "dark": "/logo/dark.png",
+    "light": "/logo/light.png"
+  },
+  "favicon": "/favicon.png",
+  "colors": {
+    "primary": "#0E0E0E",
+    "light": "#FAFAFA",
+    "dark": "#0E0E0E"
+  },
+  "modeToggle": {
+  },
+  "topbarCtaButton": {
+    "name": "Contact us",
+    "url": "mailto:hello@depict.ai"
+  },
+  "tabs": [
+    {
+      "name": "Guide: Data ingestion",
+      "url": "data-ingestion-guide"
+    },
+    {
+      "name": "Guide: Depict UI integration (React)",
+      "url": "react-ui-guide"
+    },
+    {
+      "name": "Guide: Depict UI integration (JavaScript)",
+      "url": "js-ui-guide"
+    },
+    {
+      "name": "Guide: Shopify app",
+      "url": "shopify-guide"
+    },
+    {
+      "name": "Guide: API integration",
+      "url": "api-guide"
+    },
+    {
+      "name": "Other guides",
+      "url": "other-guides"
+    },
+    {
+      "name": "Reference",
+      "url": "reference"
+    }
+  ],
+  "primaryTab": {
+    "name": "Home"
+  },
+  "navigation": [
+    {
+      "group": "Home",
+      "pages": ["home/homepage", "home/depict-ui-intro"]
+    },
+    {
+      "group": "Overview",
+      "pages": [
+        "js-ui-guide/introduction",
+        "js-ui-guide/data-ingestion",
+        "js-ui-guide/compatible-environments"
+      ]
+    },
+    {
+      "group": "Setup",
+      "pages": [
+        "js-ui-guide/setup/installation",
+        "js-ui-guide/setup/styling",
+        "js-ui-guide/setup/setting-up-jsx",
+        "js-ui-guide/setup/product-card"
+      ]
+    },
+    {
+      "group": "Search",
+      "pages": [
+        "js-ui-guide/search/overview",
+        "js-ui-guide/search/creating-page",
+        "js-ui-guide/search/provider",
+        "js-ui-guide/search/display-transformers",
+        "js-ui-guide/search/modal",
+        "js-ui-guide/search/adding-page",
+        "js-ui-guide/search/complete"
+      ]
+    },
+    {
+      "group": "Product listing pages",
+      "pages": [
+        "js-ui-guide/listings/overview",
+        "js-ui-guide/listings/id-source-of-truth",
+        "js-ui-guide/listings/provider",
+        "js-ui-guide/listings/display-transformers",
+        "js-ui-guide/listings/page",
+        "js-ui-guide/listings/complete"
+      ]
+    },
+    {
+      "group": "Recommendations",
+      "pages": [
+        "js-ui-guide/recommendations/slider",
+        "js-ui-guide/recommendations/grid"
+      ]
+    },
+    {
+      "group": "Tracking",
+      "pages": [
+        "js-ui-guide/tracking/introduction",
+        "js-ui-guide/tracking/importing",
+        "js-ui-guide/tracking/initialising",
+        "js-ui-guide/tracking/product-cards",
+        "js-ui-guide/tracking/product-pages",
+        "js-ui-guide/tracking/add-to-cart",
+        "js-ui-guide/tracking/purchases",
+        "js-ui-guide/tracking/completed"
+      ]
+    },
+    {
+      "group": "Overview",
+      "pages": [
+        "react-ui-guide/introduction",
+        "react-ui-guide/data-ingestion",
+        "react-ui-guide/compatible-environments"
+      ]
+    },
+    {
+      "group": "Setup",
+      "pages": [
+        "react-ui-guide/setup/installation",
+        "react-ui-guide/setup/depict-provider",
+        "react-ui-guide/setup/routing",
+        "react-ui-guide/setup/display-transformers",
+        "react-ui-guide/setup/styling",
+        "react-ui-guide/setup/product-card"
+      ]
+    },
+    {
+      "group": "Search",
+      "pages": [
+        "react-ui-guide/search/overview",
+        "react-ui-guide/search/modal",
+        "react-ui-guide/search/configuring-provider",
+        "react-ui-guide/search/page",
+        "react-ui-guide/search/complete"
+      ]
+    },
+    {
+      "group": "Product listing pages",
+      "pages": [
+        "react-ui-guide/listings/overview",
+        "react-ui-guide/listings/id-source-of-truth",
+        "react-ui-guide/listings/page",
+        "react-ui-guide/listings/complete"
+      ]
+    },
+    {
+      "group": "Recommendations",
+      "pages": [
+        "react-ui-guide/recommendations/slider",
+        "react-ui-guide/recommendations/grid"
+      ]
+    },
+    {
+      "group": "Tracking",
+      "pages": [
+        "react-ui-guide/tracking/introduction",
+        "react-ui-guide/tracking/product-cards",
+        "react-ui-guide/tracking/product-pages",
+        "react-ui-guide/tracking/add-to-cart",
+        "react-ui-guide/tracking/purchases",
+        "react-ui-guide/tracking/completed"
+      ]
+    },
+    {
+      "group": "Overview",
+      "pages": ["shopify-guide/introduction", "shopify-guide/compatible-environments"]
+    },
+    {
+      "group": "Setup",
+      "pages": ["shopify-guide/setup/installation", "shopify-guide/setup/edit-theme-head", "shopify-guide/setup/edit-theme-body","shopify-guide/setup/complete"]
+    },
+    {
+      "group": "Depict blocks",
+      "pages": ["shopify-guide/blocks/introduction", "shopify-guide/blocks/recommendations", "shopify-guide/blocks/search-page","shopify-guide/blocks/search-modal", "shopify-guide/blocks/collection-page"]
+    },
+    {
+      "group": "Customisation",
+      "pages": ["shopify-guide/customisation/style-editor","shopify-guide/customisation/product-card-editor"]
+    },
+    {
+      "group": "Overview",
+      "pages": ["api-guide/introduction", "api-guide/data-ingestion"]
+    },
+    {
+      "group": "Recommendations",
+      "pages": [
+        "api-guide/recommendations/introduction",
+        {
+          "group": "JavaScript API Client",
+          "pages": [
+            "api-guide/recommendations/api-client/installing",
+            "api-guide/recommendations/api-client/importing",
+            "api-guide/recommendations/api-client/fetching",
+            "api-guide/recommendations/api-client/completed"
+          ]
+        },
+        "api-guide/recommendations/api"
+      ]
+    },
+    {
+      "group": "Tracking",
+      "pages": [
+        "api-guide/tracking/introduction",
+        "api-guide/tracking/installation",
+        "api-guide/tracking/importing",
+        "api-guide/tracking/initialising",
+        "api-guide/tracking/product-cards",
+        "api-guide/tracking/product-pages",
+        "api-guide/tracking/add-to-cart",
+        "api-guide/tracking/purchases",
+        "api-guide/tracking/completed"
+      ]
+    },
+    {
+      "group": "Other guides",
+      "pages": [
+        "other-guides/introduction",
+        {
+          "group": "Dynamic Collections",
+          "pages": [
+            "other-guides/dynamic-collections/introduction",
+            "other-guides/dynamic-collections/storyblok-nextjs"
+          ]
+        },
+        {
+          "group": "Content Blocks",
+          "pages": [
+            "other-guides/content-blocks-react",
+            "other-guides/content-blocks-js-ui"
+          ]
+        },{
+          "group": "Looks slider or grid",
+          "pages": [
+            "other-guides/looks-slider-grid-react-ui",
+            "other-guides/looks-slider-grid-js-ui"
+          ]
+        },
+        {
+          "group": "Switching to classic Search Modal",
+          "pages": [
+            "other-guides/switching-to-classsic-modal-js-ui",
+            "other-guides/switching-to-classsic-modal-react"
+          ]
+        },
+        "other-guides/sdk-migration-v2-v3",
+        "other-guides/sdk-migration-v3-v4"
+      ]
+    },
+    {
+      "group": "Glossary",
+      "pages": [
+        "reference/glossary/naming-discrepancies",
+        "reference/glossary/types-of-listing-pages"
+      ]
+    },
+    {
+      "group": "Shopify app",
+      "pages": [
+        "reference/shopify-app/product-card-rendering"
+      ]
+    },
+    {
+      "group": "Data ingestion",
+      "pages": [
+        "reference/data-ingestion/product-feed-specification",
+        "reference/data-ingestion/category-feed-specification"
+      ]
+    },
+    {
+      "group": "Data ingestion",
+      "pages": [
+        "data-ingestion-guide/overview-of-data-ingestion",
+        "data-ingestion-guide/centra-setup-guide",
+        "data-ingestion-guide/shopify-setup-guide",
+        "data-ingestion-guide/feed-setup-guide",
+        "data-ingestion-guide/google-analytics-setup-guide"
+      ]
+    },
+    {
+      "group": "Search",
+      "pages": [
+        "reference/search-sdk/js-ui",
+        "reference/search-sdk/search-react-sdk"
+      ]
+    },
+    {
+      "group": "Product Listing Pages",
+      "pages": [
+        "reference/listing-sdk/listing-page-react-sdk",
+        "reference/listing-sdk/js-ui"
+      ]
+    },
+    {
+      "group": "Product Listing Pages and Search",
+      "pages": [
+        "reference/listings-search/js-ui",
+        "reference/listings-search/placeholder-components",
+        "reference/listings-search/customize-plp-styling-with-scss",
+        "reference/listings-search/display-transformers",
+        "reference/listings-search/error-reporting",
+        "reference/listings-search/looks-slider-grid",
+        "reference/listings-search/compatibility-with-old-browsers",
+        "reference/listings-search/price-formatting",
+        "reference/SCSS-styling-documentation"
+      ]
+    },
+    {
+      "group": "Looks",
+      "pages": [
+        "reference/looks-slider-grid/react-ui",
+        "reference/looks-slider-grid/js-ui"
+      ]
+    },
+    {
+      "group": "Recommendations SDK",
+      "pages": [
+        {
+          "group": "Native",
+          "pages": [
+            "reference/recommendations-sdk/getting-started"
+          ]
+        },
+        "reference/recommendations-sdk/recommendations-sdk-api-wrapper",
+        "reference/recommendations-sdk/recommendations-sdk-js",
+        "reference/recommendations-sdk/recommendations-sdk-react"
+      ]
+    },
+    {
+      "group": "Tracking Product Interactions",
+      "pages": [
+        "reference/performance-client/introduction-to-depict-performance-client",
+        "reference/performance-client/performance-client",
+        "reference/performance-client/example-usage-with-nextjs"
+      ]
+    },
+    {
+      "group": "HTTP API",
+      "pages": [
+        "reference/search-listing-apis/search-overview",
+        "reference/search-listing-apis/listing-pages",
+        "reference/search-listing-apis/query-suggestions",
+        {
+          "group": "Endpoints",
+          "pages": [
+            {
+              "group": "Listing (v3)",
+              "pages": [
+                "reference/openapi-reference/listing-v3/get-listings",
+                "reference/openapi-reference/listing-v3/get-listing-via-external-id",
+                "reference/openapi-reference/listing-v3/get-listing",
+                "reference/openapi-reference/listing-v3/get-products-in-listing-via-external-id",
+                "reference/openapi-reference/listing-v3/get-products-in-listing"
+              ]
+            },
+            {
+              "group": "Search (v3)",
+              "pages": [
+                "reference/openapi-reference/search-v3/get-results",
+                "reference/openapi-reference/search-v3/get-suggestions",
+                "reference/openapi-reference/search-v3/get-related-recommendations"
+              ]
+            },
+            {
+              "group": "Recommendations (v3)",
+              "pages": [
+                "reference/openapi-reference/recommendations-v3/recommendations"
+              ]
+            },
+            {
+              "group": "Other (v3)",
+              "pages": [
+                "reference/openapi-reference/other-v3/get-displays",
+                "reference/openapi-reference/other-v3/get-markets",
+                "reference/openapi-reference/other-v3/get-locales"
+              ]
+            },
+            {
+              "group": "Listing (v2)",
+              "pages": [
+                "reference/openapi-reference/listing-v2/get-products"
+              ]
+            },
+            {
+              "group": "Search (v2)",
+              "pages": [
+                "reference/openapi-reference/search-v2/get-results",
+                "reference/openapi-reference/search-v2/get-suggestions",
+                "reference/openapi-reference/search-v2/get-related-recommendations",
+                "reference/openapi-reference/search-v2/search-through-text-content"
+              ]
+            },
+            {
+              "group": "Recommendations (v2)",
+              "pages": [
+                "reference/openapi-reference/recommendations-v2/recommend-for-user",
+                "reference/openapi-reference/recommendations-v2/recommend-for-product-and-user",
+                "reference/openapi-reference/recommendations-v2/recommend-for-category-and-user",
+                "reference/openapi-reference/recommendations-v2/recommend-for-products-and-user"
+              ]
+            },
+            {
+              "group": "Events (v2)",
+              "pages": [
+                "reference/openapi-reference/events-v2/create-events",
+                "reference/openapi-reference/events-v2/track-v2",
+                "reference/openapi-reference/events-v2/create-events-v2"
+              ]
+            },
+            {
+              "group": "Catalog Push API (v0)",
+              "pages": [
+                "reference/openapi-reference/catalog-push-api-v0/list-product-ids",
+                "reference/openapi-reference/catalog-push-api-v0/list-category-ids",
+                "reference/openapi-reference/catalog-push-api-v0/get-products",
+                "reference/openapi-reference/catalog-push-api-v0/upsert-products",
+                "reference/openapi-reference/catalog-push-api-v0/delete-products",
+                "reference/openapi-reference/catalog-push-api-v0/get-categories",
+                "reference/openapi-reference/catalog-push-api-v0/upsert-categories",
+                "reference/openapi-reference/catalog-push-api-v0/delete-categories",
+                "reference/openapi-reference/catalog-push-api-v0/get-product-attribute-config",
+                "reference/openapi-reference/catalog-push-api-v0/set-product-attribute-config",
+                "reference/openapi-reference/catalog-push-api-v0/get-category-attribute-config",
+                "reference/openapi-reference/catalog-push-api-v0/set-category-attribute-config"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "footerSocials": {
+    "website": "https://depict.ai/",
+    "linkedin": "https://www.linkedin.com/company/depict-ai/"
+  },
+  "feedback": {
+    "thumbsRating": true
+  },
+  "redirects": [
+    {
+      "source": "/reference/category-search/url-creator",
+      "destination": "/reference/listings-search/display-transformers"
+    },
+    {
+      "source": "/react-ui-guide/setup/pageURLCreator",
+      "destination": "/react-ui-guide/setup/display-transformers"
+    },
+    {
+      "source": "/js-ui-guide/search/pageURLCreator",
+      "destination": "/js-ui-guide/search/display-transformers"
+    },
+    {
+      "source": "/js-ui-guide/categories-collections/pageURLCreator",
+      "destination": "/js-ui-guide/listings/display-transformers"
+    },
+    {
+      "source": "/reference/SCSS-styling-documentation",
+      "destination": "https://scss-docs.depict.ai"
+    },
+    {
+      "source": "/api-guide/categories-collections",
+      "destination": "/reference/search-listing-apis/listing-pages"
+    },
+    {
+      "source": "/api-guide/search",
+      "destination": "/reference/search-listing-apis/search-overview"
+    },
+    {
+      "source": "/js-ui-guide/categories-collections/complete.mdx",
+      "destination": "/js-ui-guide/listings/complete.mdx"
+    },
+    {
+      "source": "/js-ui-guide/categories-collections/display-transformers.mdx",
+      "destination": "/js-ui-guide/listings/display-transformers.mdx"
+    },
+    {
+      "source": "/js-ui-guide/categories-collections/overview.mdx",
+      "destination": "/js-ui-guide/listings/overview.mdx"
+    },
+    {
+      "source": "/js-ui-guide/categories-collections/page.mdx",
+      "destination": "/js-ui-guide/listings/page.mdx"
+    },
+    {
+      "source": "/js-ui-guide/categories-collections/provider.mdx",
+      "destination": "/js-ui-guide/listings/provider.mdx"
+    },
+    {
+      "source": "/react-ui-guide/categories-collections/overview",
+      "destination": "/react-ui-guide/listings/overview"
+    },
+    {
+      "source": "/react-ui-guide/categories-collections/id-source-of-truth",
+      "destination": "/react-ui-guide/listings/id-source-of-truth"
+    },
+    {
+      "source": "/react-ui-guide/categories-collections/page",
+      "destination": "/react-ui-guide/listings/page"
+    },
+    {
+      "source": "/react-ui-guide/categories-collections/complete",
+      "destination": "/react-ui-guide/listings/complete"
+    },
+    {
+      "source": "/reference/category-sdk/category-page-react-sdk.mdx",
+      "destination": "/reference/listing-sdk/listing-page-react-sdk.mdx"
+    },
+    {
+      "source": "/reference/category-sdk/js-ui.mdx",
+      "destination": "/reference/listing-sdk/js-ui.mdx"
+    },
+    {
+      "source": "/reference/search-category-apis/category-pages.mdx",
+      "destination": "/reference/search-listing-apis/listing-pages.mdx"
+    },
+    {
+      "source": "/reference/search-category-apis/search-overview.mdx",
+      "destination": "/reference/search-listing-apis/search-overview.mdx"
+    },
+    {
+      "source": "/reference/search-category-apis/query-suggestions.mdx",
+      "destination": "/reference/search-listing-apis/query-suggestions.mdx"
+    },
+    {
+      "source": "/reference/category-search/error-reporting.mdx",
+      "destination": "/reference/listings-search/error-reporting.mdx"
+    },
+    {
+      "source": "/reference/category-search/compatibility-with-old-browsers.mdx",
+      "destination": "/reference/listings-search/compatibility-with-old-browsers.mdx"
+    },
+    {
+      "source": "/reference/category-search/customize-plp-styling-with-scss.mdx",
+      "destination": "/reference/listings-search/customize-plp-styling-with-scss.mdx"
+    },
+    {
+      "source": "/reference/category-search/placeholder-components.mdx",
+      "destination": "/reference/listings-search/placeholder-components.mdx"
+    },
+    {
+      "source": "/reference/category-search/price-formatting.mdx",
+      "destination": "/reference/listings-search/price-formatting.mdx"
+    },
+    {
+      "source": "/reference/category-search/js-ui.mdx",
+      "destination": "/reference/listings-search/js-ui.mdx"
+    },
+    {
+      "source": "/reference/category-search/display-transformers.mdx",
+      "destination": "/reference/listings-search/display-transformers.mdx"
+    }
+  ]
+}

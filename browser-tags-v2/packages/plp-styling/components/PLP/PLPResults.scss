@@ -1,0 +1,33 @@
+@use "../../variables";
+@use "../../helpers/utils";
+
+/// Base styling (PLP) that applies to both category and search pages for the PLPResults component, the component which holds the product cards.
+/// Another part of this styling is in the ProductListingPage mixin, which takes care about the overall layout of the page (which mostly means margins and paddings).
+
+@mixin PLPResults() {
+  .listing-page {
+    display: flex;
+    flex-direction: column;
+
+    .no-results {
+      background: variables.$page-background-color;
+      padding: 40px;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      flex-direction: column;
+      flex-grow: 2;
+      @include utils.flex-gap(6px, "column nowrap");
+
+      .hint {
+        text-decoration: underline;
+        cursor: pointer;
+        color: variables.get-text-icon-color("neutral", "default");
+      }
+      .text {
+        font-size: 2em;
+        font-weight: variables.get-font-weight(700);
+      }
+    }
+  }
+}

@@ -1,0 +1,21 @@
+# Misc folders that don't make sense to format
+.pnp.*
+.vscode
+.yarn
+dev_dist
+dist
+lighthouse
+src/lazy_sentry
+dist-server
+packages/react-ui/dist-server
+packages/ui/ssr
+
+ES10
+latest
+
+# We don't care about linting of deprecated code or polyfills
+lib/deprecated
+lib/depict_polyfills
+
+multi_import_deduplicator.cjs
+multi_import_deduplicator.mjs

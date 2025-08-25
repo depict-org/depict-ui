@@ -1,0 +1,23 @@
+.depict-slider {
+  width: 100%;
+  position: relative;
+  .sliding {
+    scroll-behavior: smooth;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    overflow-x: scroll;
+    /* Internet Explorer 10+; next 3 properties stolen from: https://stackoverflow.com/a/38994837*/
+    -ms-overflow-style: none;
+    /* Firefox */
+    scrollbar-width: none;
+    // Chrome and Safari
+    &::-webkit-scrollbar {
+      display: none;
+    }
+    & > * {
+      flex: 0 0 auto;
+      box-sizing: border-box;
+    }
+  }
+}

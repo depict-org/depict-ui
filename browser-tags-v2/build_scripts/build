@@ -1,0 +1,96 @@
+#!/bin/bash
+set -e
+
+. ./build_scripts/define_vars
+
+dd="dist/$(basename $tenant_wd)"
+
+add_to_force_transpile="solid-js"
+if [ -z ${FORCE_TRANSPILE+x} ];
+then
+  ft="$add_to_force_transpile"
+else
+  ft="$FORCE_TRANSPILE,$add_to_force_transpile"
+fi
+
+function build {
+  target="$1"
+  tfn="$dd/$target.js"
+  # mfn="$dd/$target.min.js"
+  gfn="$dd/$target.js.gzip"
+
+  cp -v ".terserrc.$target" .terserrc
+
+  # There's a bug with babel that doesn't read the babel config in some circumstances unless it's in same directory as the entry-file
+  cp -v "babel.config.js" "$tenant_wd"
+
+  mkdir -p "$dd"
+  export sentry_version="$(sentry-cli releases propose-version)"
+  BUILD_TARGET="$target" TENANT="$(basename $tenant_wd)" FORCE_TRANSPILE="$ft" dotenv $dotenv_opts -- parcel build --log-level verbose --no-autoinstall $2 --dist-dir $dd --detailed-report 400 $parcel_extraargs --target "$target" "$temp_file_name"
+  mv $dd/$target/*.js "$tfn"
+  if [ -f $dd/$target/*.js.map ]; then
+   mv $dd/$target/*.js.map "$tfn.map"
+  fi
+  rm -rf "$dd/$target" .terserrc .babelrc "$tenant_wd"/babel.config.js
+  # echo "minifying"
+  # terser -cm toplevel,eval -- "$dd/$target.js" > "$mfn"
+  echo "gzipping"
+  gzip -c "$tfn" > "$gfn"
+  # echo minified file size: $(du -sh "$mfn"|cut -f -1)
+  echo gzipped file size: $(du -sh "$gfn"|cut -f -1)
+}
+
+function disable_polyfills {
+  echo "disabling polyfills"
+node --experimental-modules --input-type=module > $temp_file_name <<EOL
+import {readFileSync} from 'fs'
+const script = readFileSync('$infile', 'utf-8');
+process.stdout.write("import '../../lib/depict_polyfills/the_modern_polyfills';\n");
+process.stdout.write(script.replaceAll("import '../../lib/depict_polyfills/the_polyfills';","// import '../../lib/depict_polyfills/the_polyfills';").replaceAll("import \"../../lib/depict_polyfills/the_polyfills\";","// import \"../../lib/depict_polyfills/the_polyfills\";"));
+EOL
+# echo "replacing .babelrc"
+# cat > .babelrc <<EOL
+# {
+# "presets": ["@babel/preset-typescript", "@parcel/babel-preset-env"],
+# "plugins": ["@parcel/babel-plugin-transform-runtime"]
+# }
+# EOL
+}
+
+function enable_polyfills {
+#   echo "replacing .babelrc to include corejs 3"
+#   cat > .babelrc <<EOL
+#   {
+#   "presets": ["@babel/preset-typescript", "@parcel/babel-preset-env"],
+#   "plugins": [["@parcel/babel-plugin-transform-runtime", { "corejs": 3 }]]
+#   }
+# EOL
+  echo "enabling polyfills"
+  node --experimental-modules --input-type=module > $temp_file_name <<EOL
+  import {readFileSync} from 'fs'
+  const script = readFileSync('$infile', 'utf-8');
+  let out;
+  if(script.indexOf("../../lib/depict_polyfills/the_polyfills") === -1){
+    out = "import '../../lib/depict_polyfills/the_polyfills';\n" + script;
+  } else {
+    out = script.replaceAll("// import '../../lib/depict_polyfills/the_polyfills';", "import '../../lib/depict_polyfills/the_polyfills';").replaceAll("// import \"../../lib/depict_polyfills/the_polyfills\";", "import \"../../lib/depict_polyfills/the_polyfills\";");
+  }
+  process.stdout.write(out);
+EOL
+}
+
+enable_polyfills
+for browser in ie11 #edge
+do
+  echo "building for $browser"
+  build "$browser"
+done
+rm $temp_file_name
+
+disable_polyfills
+for browser in modern
+do
+  echo "building for $browser"
+  build "$browser" "$parcel_extraargs_modern"
+done
+rm -f $temp_file_name

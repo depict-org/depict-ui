@@ -1,0 +1,20 @@
+{
+  "extends": "@parcel/config-default",
+  "optimizers": {
+    "*.{js,mjs,cjs}": ["@parcel/optimizer-terser"],
+    "bundle-text:*.css": [
+      "@parcel/optimizer-cssnano"
+    ],
+    "bundle-text:*.html": [
+      "@parcel/optimizer-htmlnano"
+    ]
+  },
+  "transformers": {
+    "bundle-text:*.html": [
+      "@parcel/transformer-inline-string"
+    ],
+    "bundle-text:*.scss": [
+      "@parcel/transformer-sass"
+    ]
+  }
+}

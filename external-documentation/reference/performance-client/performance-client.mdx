@@ -1,0 +1,279 @@
+---
+title: "Getting started with Depict Performance Client"
+description: "DPC handles performance tracking to enable the Depict AI to optimize recommendations and product listings."
+---
+
+Depict Performance Client (DPC) handles the performance tracking of our products. DPC is designed to be as easy as possible to set up and allows our Product Discovery Platform to get better over time. Once DPC is live on your site you can also view our performance on [app.depict.ai](https://app.depict.ai/).
+
+## Installing
+
+**Depict Tag (CDN)**  
+If you load Depict with a script tag, DPC will automatically be included.
+
+**NPM Package**  
+DPC is available as a public [npm package](https://www.npmjs.com/package/@depict-ai/dpc). You can install it via `yarn` or `npm`
+
+<CodeGroup>
+
+```shell NPM
+npm i @depict-ai/dpc
+```
+
+```shell Yarn
+yarn add @depict-ai/dpc
+```
+
+</CodeGroup>
+
+**UI package**  
+If you're using one of our UI packages, DPC is already included.
+
+<CodeGroup>
+
+```typescript @depict-ai/js-ui
+import { DPC } from "@depict-ai/js-ui";
+```
+
+```typescript @depict-ai/react-ui
+import { usePerformanceClient } from "@depict-ai/react-ui";
+// DPC is already initialized and ready to use for sending add-to-cart and purchase events
+const { dpc } = usePerformanceClient();
+```
+
+</CodeGroup>
+
+**Initializing**
+
+DPC is automatically initialized when loaded through the Depict Tag, or the `usePerformanceClient` hook in `@depict-ai/react-ui`.
+
+If you are using `yarn` or `npm` you must initialize it yourself:
+
+<CodeGroup>
+
+```typescript Basic Usage (client side)
+import { DPC } from "@depict-ai/dpc";
+
+const dpc = new DPC("MERCHANT_ID", { market: "se" });
+```
+
+```typescript With default options
+import { DPC } from "@depict-ai/dpc";
+
+// Initialize with explicit defaults.
+// Unless you change the values there's no difference to "Basic Usage"
+const dpc = new DPC("MERCHANT_ID", { autoObserve: true, market: undefined });
+```
+
+```typescript Handling hybrid rendering in React
+useEffect(() => {
+  import("@depict-ai/dpc").then(({ DPC }) => {
+    const dpc = new DPC("MERCHANT_ID", { market: "se" });
+  });
+}, []);
+```
+
+</CodeGroup>
+
+When constructing the `DPC` it takes two arguments. The first is your Merchant ID. The second argument is an optional object with extra configuration. If the market is known at this point, it should be specified. If you initialize DPC before you know which market is active, use [dpq](#configuring-the-active-market).
+
+**Config values**
+
+All config values are optional.
+
+<ResponseField name="market" type="string" default="undefined">
+  The initial market. Should be specified if the market is known at the point of
+  intializing DPC.
+</ResponseField>
+
+<ResponseField name="autoObserve" type="boolean" default="true">
+  If we should observe for recommendations on creation. If false, you must call
+  trackRecommendationCard manually.
+</ResponseField>
+
+## Tracking Product Cards
+
+Once initialized, DPC watches elements with a `data-recommendation-id` attribute in the DOM. The recommendation_id is unique for each recommendation and is all that is needed to track `Impression` and `Click` events. If you are rendering product cards through one of Depict's UI packages, this is already handled for you.
+
+If you have an add-to-cart button in your product card, add the `depict-add-to-cart` class to your button and DPC will automatically track it as well.
+
+**Example Product Card HTML**
+
+This is a simple example where the two things relevant to DPC is the `data-recommendation-id` attribute and the `depict-add-to-cart` class on the add to cart button.
+
+```html HTML
+<div
+  class="product-card"
+  data-recommendation-id="10b77279-0295-4f3d-9d4c-67d95ee2f05d"
+>
+  <img src="..." />
+  <h2>Product Title</h2>
+  <span>$100</span>
+  <button class="depict-add-to-cart">Add to cart</button>
+</div>
+```
+
+## Depict Queue - The main API for DPC
+
+The Depict Queue (DPQ) is the main way to interact the Depict Performance Client (DPC) and is globally available under `window.dpq` after initializing DPC. This way you can send events from anywhere in your code, even without a reference to the DPC instance. If you _do_ have a DPC instance, it can also be used to send events directly.
+
+<CodeGroup>
+
+```typescript dpq
+dpq("[eventName]", eventData);
+```
+
+```typescript DPC instance
+import { DPC } from "@depict-ai/dpc";
+
+const dpc = new DPC("MERCHANT_ID", { market: "se" });
+dpc.addToCart(productId);
+```
+
+</CodeGroup>
+
+`window.dpq` is a function that takes two arguments. The first argument is always a string specifying the name of the event to send to DPC. The second argument contains the data, this can be a string or an object depending on the event.
+
+<Note>
+📘 **A note on `window.dpq` availability**
+
+`window.dpq` is set when first initializing DPC with `new DPC(...)`. It will then be globally available on the `window` object. It can be accessed by simply calling `dpq(...)` (without specifying `window`) from anywhere in your code that executes on the browser after the `new DPC(...)` call.
+
+</Note>
+
+<Note>
+📘 **External tag managers**
+
+To ensure that `window.dpq` is available when calling it from a different context such as Google Tag Manager, it can be initialized using:  
+`((e,n)=>{e.dpq||((n=e.dpq=function(){n.send_event?n.send_event.apply(n,arguments):n.queue.push(arguments)}).queue=[])})(window);`  
+Events added to the queue will be sent once DPC itself is initialized.
+
+</Note>
+
+**Available DPQ events**
+
+| Event name                                        | Description                                                                | Event Data                                           |
+| ------------------------------------------------- |----------------------------------------------------------------------------| ---------------------------------------------------- |
+| [setProductId](#configuring-the-active-market)    | Sets the product id after navigating to a PDP.                             | string \- a product id                               |
+| [addToCart](#tracking-add-to-cart)                | Sends an add to cart event to Depict.                                      | string \- the product id that was added              |
+| [purchase](#purchase-events)                      | Sends a purchase event to Depict.                                          | object \- a purchase object                          |
+| [setMarket](#configuring-the-active-market)       | Sets the currently active market used in all tracking events.              | string \- a market                                   |
+| [setSessionId](#informing-depict-of-logged-in-users) | Sets the session_id for a user to get personalized recommendations.        | string \- an id you use to identify a logged in user or a session |
+
+## Tracking Product Details Page (PDP) views
+
+After navigating to a page representing a product on your website, send a `setProductId` event to register which product id is currently viewed.
+
+<Note>
+📘 **Using the correct Product ID**
+
+For attribution of purchases to work properly, the product ID used in
+`setProductId` and `addToCart` events must be the same type of id that is
+returned in the displays by our API as `product_id`. For an example of valid
+product IDs, see the bottom table on the "Tracking status" tab on
+[app.depict.ai](https://app.depict.ai).
+
+</Note>
+
+<CodeGroup>
+
+```typescript dpq
+dpq("setProductId", "[PRODUCT_ID_FOR_CURRENT_PDP]");
+```
+
+```typescript DPC instance
+dpc.setProductId("[PRODUCT_ID_FOR_CURRENT_PDP]");
+```
+
+</CodeGroup>
+
+## Tracking add-to-cart
+
+For Event Attribution of add-to-cart-events, there are two main methods. Either imperitavely sending `addToCart` events, or automatically by marking add-to-cart buttons in the DOM with the `depict-add-to-cart` class.
+
+**Sending add-to-cart events imperatively**
+
+Whenever a product was successfully added to the cart anywhere on your website (including surfaces not directly related to Depict), send an `addToCart` event with the corresponding product id. If you implement imperative tracking, skip the automatic tracking section below.
+
+<CodeGroup>
+
+```typescript dpq
+dpq("addToCart", "[PRODUCT_ID_FOR_ADDED_PRODUCT]");
+```
+
+```typescript DPC instance
+dpc.sendAddToCartEvent({ product_id: "[PRODUCT_ID_FOR_ADDED_PRODUCT]" });
+```
+
+</CodeGroup>
+
+**Mark up your add-to-cart buttons for automatic tracking**
+
+Add the `depict-add-to-cart` class to all add-to-cart buttons on your website, including product cards and product detail pages. Depict will automatically track clicks as necessary, and attribute them to the corresponding products for add-to-cart buttons inside product cards.
+
+```html HTML
+<button class="depict-add-to-cart">Add to cart</button>
+```
+
+## Purchase events
+
+A purchase is an event that tracks when a user has gone through the checkout process and paid for a set of products. The `transaction_id` should be whatever you use to identify the purchase in your system. The `item_id` in the `items` array should be the SKU of the product. The `price` should be the final price of the product, after any taxes, discounts, etc have been applied.
+
+<CodeGroup>
+
+```typescript dpq
+dpq("purchase", {
+  transaction_id: "YOUR_TRANSACTION_ID",
+  items: [{ item_id: "white-socks-xl", price: 89.9, quantity: 12 }],
+  currency: "SEK",
+});
+```
+
+```typescript DPC instance
+dpc.sendPurchaseEvent({
+  transaction_id: "YOUR_TRANSACTION_ID",
+  items: [{ item_id: "white-socks-xl", price: 89.9, quantity: 12 }],
+  currency: "SEK",
+});
+```
+
+</CodeGroup>
+
+## Setting the current market (Optional)
+
+If your website can change markets without doing a full page reload, you'll need to inform DPC when the market changes.
+
+<CodeGroup>
+
+```typescript dpq
+dpq("setMarket", "se");
+```
+
+```typescript DPC instance
+dpc.setMarket("se");
+```
+
+</CodeGroup>
+
+## Informing Depict of logged in users (Optional)
+
+To get better personalisation for logged in users, you can set sessionId to the id you use to represent them in your system. Send this event when a user logs in or if they are already logged in and the page refreshes.
+
+If tracking events are sent to the Depict API from other sources than the performance client, such as server-to-server tracking, a common identifier needs to be set to match attribution between the different tracking sources. Set a shared browser session ID on DPC to be the same as the one used in the events you send directly to the API.
+
+Please beware that the id needs to stay the same during the journey of a user, starting from them seeing a product card to purchasing it.
+
+<CodeGroup>
+
+```typescript dpq
+dpq("setSessionId", "[UNIQUE_SESSION_ID]");
+```
+
+```typescript DPC instance
+dpc.setSessionId("[UNIQUE_SESSION_ID]");
+```
+
+</CodeGroup>
+
+## Debugging
+
+To view debug logging from DPC, set `localStorage.debug = true` in your browser console and reload the page.

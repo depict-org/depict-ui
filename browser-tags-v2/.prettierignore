@@ -1,0 +1,23 @@
+# Misc folders that don't make sense to format
+.pnp.*
+.vscode
+.yarn
+dev_dist
+dist
+lighthouse
+dist-server
+
+# We don't care about formatting of polyfills
+lib/depict_polyfills
+
+# Our old HTML templates depend on the attribute ordering to work properly
+# and prettier can mess that up. So we ignore all .html files
+*.html
+
+# We allow ourselves to get creative with markdown formatting :-)
+*.md
+
+# For package build output folders outside of dist/
+packages/ui/locales
+packages/ui/ssr
+packages/react-ui/locales

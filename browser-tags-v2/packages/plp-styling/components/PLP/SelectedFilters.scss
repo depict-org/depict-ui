@@ -1,0 +1,79 @@
+@use "../../variables";
+@use "../../helpers/utils";
+@use "../../helpers/supports-hover";
+@use "../base/Buttons";
+@use "ProductListingPage";
+@use "sass:map";
+
+/// Mixin that styles the SelectedFilters component, which is the component that shows the selected filters if both the sorting and filtering menus are currently hidden.
+
+@mixin SelectedFilters() {
+  .listing-page .selected-filters {
+    .inner {
+      // this is in here because it's an ExpandingContainer and the animation gets borked otherwise
+      $margin-on-desktop: map.get(
+        map.get(variables.get-gap("listing-page"), "above-and-below-selected-filters"),
+        "desktop"
+      );
+      $margin-on-mobile: map.get(
+        map.get(variables.get-gap("listing-page"), "above-and-below-selected-filters"),
+        "mobile"
+      );
+      margin-top: $margin-on-desktop;
+      margin-bottom: $margin-on-desktop;
+      display: flex;
+      align-items: center;
+
+      .title {
+        margin-right: 10px;
+      }
+
+      @include ProductListingPage.mobile_sizes() {
+        margin-top: $margin-on-mobile;
+        margin-bottom: $margin-on-mobile;
+      }
+
+      .title {
+        @media (max-width: 600px) {
+          display: none;
+        }
+        font-size: 1.1em;
+        text-transform: variables.$uppercase-text-transform;
+        color: variables.get-text-icon-color("base", "default");
+      }
+
+      .depict-slider {
+        overflow: hidden;
+        width: unset;
+
+        .clear-filter {
+          border: 1px solid map.get(Buttons.get-primary-button-properties(), "background");
+
+          svg {
+            width: 12.64px;
+            height: 12.64px;
+          }
+        }
+
+        .clear-all-filters {
+          border: map.get(Buttons.get-secondary-button-properties(), "border");
+        }
+
+        .clear-filter,
+        .clear-all-filters {
+          white-space: nowrap;
+          padding: 5px 10px;
+          display: flex;
+          @include utils.flex-gap(5px, "row nowrap");
+          align-items: center;
+          border-radius: variables.$border-radius;
+          font-size: 1em;
+          line-height: 1;
+          cursor: pointer;
+        }
+      }
+
+      @content;
+    }
+  }
+}

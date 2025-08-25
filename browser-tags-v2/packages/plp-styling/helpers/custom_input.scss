@@ -1,0 +1,220 @@
+@use "sass:string";
+@use "sass:color";
+@use "supports-hover";
+@use "sass:map";
+@use "../components/base/Buttons";
+@use "../variables";
+
+// https://selleo.com/til/posts/rc5qli22jp-pass-hex-color-to-fill-svg-in-background-url-scss
+@function escape-url-hex-color($hex_color) {
+  $ie-color-string: color.ie-hex-str($hex_color);
+  $string: string.quote($ie-color-string);
+  $color: string.slice($string, 4);
+  @return "%23" + $color;
+}
+
+@mixin custom_input($input-row-height) {
+  $input-border: variables.get-merged(
+    variables.$filters-configuration-defaults,
+    variables.$filters-configuration,
+    "radio-checkbox-border"
+  );
+  $hovered-input-border: variables.get-merged(
+    variables.$filters-configuration-defaults,
+    variables.$filters-configuration,
+    "hovered-radio-checkbox-border"
+  );
+  $disabled-input-border: variables.get-merged(
+    variables.$filters-configuration-defaults,
+    variables.$filters-configuration,
+    "disabled-radio-checkbox-border"
+  );
+  $largest-border-on-custom-input: get_border_width($input-border);
+  $width-and-height: calc(
+    #{$input-row-height} - calc(#{$largest-border-on-custom-input} * 2)
+  ); // border is on both sides
+  /* Customize the label (the container) */
+  .input-row {
+    position: relative;
+    &:not(.count-0) {
+      cursor: pointer;
+    }
+
+    .custom-indicator {
+      position: relative;
+      // space to text
+      margin-right: 10px;
+    }
+
+    /* Hide the browser's default radio/checkbox input element */
+    input {
+      position: absolute;
+      opacity: 0;
+      cursor: pointer;
+      height: 0;
+      width: 0;
+    }
+    /* Create the custom-indicator (hidden when not checked) */
+    .custom-indicator:after {
+      content: "";
+      position: absolute;
+      display: none;
+    }
+
+    /* Create a custom checkbox */
+    input[type="checkbox"] {
+      & ~ .custom-indicator {
+        // if global border radius is 0 or 0px, don't round input fields
+        @if variables.$border-radius !=
+          0 and
+          variables.$border-radius !=
+          0px and
+          variables.$border-radius !=
+          unset and
+          variables.$border-radius !=
+          none
+        {
+          // Do 4px or 2px rounding based on "heuristics". We might implement a border-radius system in the future if there's more demand.
+          @if variables.$border-radius > 4px {
+            border-radius: 4px;
+          } @else {
+            border-radius: 2px;
+          }
+        }
+        padding: calc(#{$width-and-height} / 2);
+        background-color: variables.get-background-color("base", "default");
+        &:not(.color) {
+          border: $input-border;
+        }
+        &.color {
+          $border-width: 0.5px;
+          border: $border-width solid variables.get-border-color("neutral", "hover");
+          padding: calc(calc(#{$input-row-height} / 2) - #{$border-width});
+        }
+      }
+      /* When the checkbox is checked, add a blue background */
+      &:checked ~ .custom-indicator {
+        // background-color: #000;
+        background-color: variables.get-background-color("inverse", "default");
+        &:after {
+          background-image: url('data:image/svg+xml;utf8,<svg fill="#{escape-url-hex-color(variables.get-text-icon-color("inverse", "default"))}" width="12" height="10" viewBox="0 0 12 10" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.0001L10.6 0.600098L4 7.2001L1.4 4.6001L0 6.0001L4 10.0001L12 2.0001Z" /></svg>');
+          fill: #fff;
+          color: #fff;
+          position: absolute;
+          transform: translate(-50%, -50%);
+          display: block; // Show the custom-indicator when checked
+          width: 13px;
+          height: 10px;
+          background-repeat: round;
+
+          $checkbox-top-offset: 0px; // Idk what one might want to customise here
+          $checkbox-left-offset: 0px;
+          top: calc(50% + $checkbox-top-offset);
+          left: calc(50% + $checkbox-left-offset);
+        }
+        &.color:after {
+          // Force this to be white for color checkboxes
+          background-image: url('data:image/svg+xml;utf8,<svg fill="#{escape-url-hex-color(#fff)}" width="12" height="10" viewBox="0 0 12 10" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.0001L10.6 0.600098L4 7.2001L1.4 4.6001L0 6.0001L4 10.0001L12 2.0001Z" /></svg>');
+        }
+        &.color.black-check:after {
+          background-image: url('data:image/svg+xml;utf8,<svg fill="#{escape-url-hex-color(#000)}" width="12" height="10" viewBox="0 0 12 10" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.0001L10.6 0.600098L4 7.2001L1.4 4.6001L0 6.0001L4 10.0001L12 2.0001Z" /></svg>');
+        }
+        &.color.outlined-check:after {
+          width: 13.414px;
+          height: 10.814px;
+          background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="13.414" height="10.814"><path d="M12.707 2.107l-1.4-1.4-6.6 6.6-2.6-2.6-1.4 1.4 4 4z" fill="#{escape-url-hex-color(#fff)}" stroke="#{escape-url-hex-color(#000)}"/></svg>');
+        }
+      }
+      &:focus-visible ~ .custom-indicator {
+        $gap-width: 2.5px;
+        $actual-outline-width: 1.5px;
+        outline-color: variables.get-background-color("base", "default");
+        outline-style: solid;
+        outline-width: $gap-width;
+        box-shadow: 0px 0px 0px calc(#{$actual-outline-width} + #{$gap-width})
+          variables.get-border-color("base", "default");
+      }
+    }
+    @include supports-hover.supports-hover() {
+      &:hover input[type="checkbox"]:not([disabled]) {
+        & ~ .custom-indicator {
+          background-color: variables.get-background-color("base", "hover");
+          &:not(.color) {
+            border: $hovered-input-border;
+            $hovered-border-width: get_border_width($hovered-input-border);
+            $border-width: get_border_width($input-border);
+            padding: calc(calc(#{$width-and-height} / 2) - calc(#{$hovered-border-width} - #{$border-width}));
+          }
+        }
+        &:checked ~ .custom-indicator {
+          background-color: variables.get-background-color("inverse", "hover");
+        }
+      }
+    }
+    input[type="checkbox"][disabled] {
+      & ~ .custom-indicator:not(.color) {
+        border: $disabled-input-border;
+        $disabled-border-width: get_border_width($disabled-input-border);
+        $border-width: get_border_width($input-border);
+        padding: calc(calc(#{$width-and-height} / 2) - calc(#{$disabled-border-width} - #{$border-width}));
+      }
+    }
+
+    /* Create a custom radio button */
+    input[type="radio"] {
+      ~ .custom-indicator {
+        padding: calc(#{$width-and-height} / 2);
+        border-radius: 50%;
+        border: $input-border;
+        background-color: variables.get-background-color("base", "default");
+      }
+      &:checked ~ .custom-indicator {
+        background-color: transparent;
+        &:after {
+          display: block; // Show the custom-indicator when checked
+          $radio-selected-dot-size: 12px;
+          $radio-selected-offset: 0px;
+          width: $radio-selected-dot-size;
+          height: $radio-selected-dot-size;
+          top: calc(50% + $radio-selected-offset);
+          left: calc(50% + $radio-selected-offset);
+          transform: translate(-50%, -50%);
+          background-color: variables.get-text-icon-color("base", "default");
+          border-radius: 50%;
+        }
+      }
+      &:focus-visible ~ .custom-indicator {
+        $gap-width: 2.5px;
+        $actual-outline-width: 1.5px;
+        outline-color: variables.get-background-color("base", "default");
+        outline-style: solid;
+        outline-width: $gap-width;
+        box-shadow: 0px 0px 0px calc(#{$actual-outline-width} + #{$gap-width})
+          variables.get-border-color("base", "default");
+      }
+    }
+    @include supports-hover.supports-hover() {
+      &:hover input[type="radio"]:not([disabled]) ~ .custom-indicator {
+        background-color: variables.get-background-color("base", "hover");
+        border: $hovered-input-border;
+        $hovered-border-width: get_border_width($hovered-input-border);
+        $border-width: get_border_width($input-border);
+        padding: calc(calc(#{$width-and-height} / 2) - calc(#{$hovered-border-width} - #{$border-width}));
+      }
+
+      &:hover input[type="radio"]:checked ~ .custom-indicator:after {
+        background-color: variables.get-text-icon-color("base", "hover");
+      }
+    }
+
+    @content;
+  }
+}
+
+@function get_border_width($border-declaration) {
+  @if $border-declaration == "none" or $border-declaration == "unset" {
+    @return 0px;
+  } @else {
+    @return nth($border-declaration, 1);
+  }
+}

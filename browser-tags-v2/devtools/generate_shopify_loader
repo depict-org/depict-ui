@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# https://stackoverflow.com/a/246128
+SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+
+cd "$SCRIPT_DIR"
+
+
+export URL_START=${2:-"https://cdn.depict.ai"}
+export MERCHANT="$1"
+export MODERN_NAME='modern'
+export URL_END='.js'
+export COMPAT_NAME='compatibility'
+
+yarn parcel build shopify_loader.ts --dist-dir . --target ie11 --no-source-maps > /dev/null 2>&1
+
+built_loader="$(cat ie11/shopify_loader.js)"
+
+rm ie11/shopify_loader.js
+rmdir ie11
+
+echo "<link rel=\"preload\" href=\"$URL_START/$MERCHANT/$MODERN_NAME$URL_END\" as=\"fetch\" crossorigin=\"anonymous\" /><script type=\"text/javascript\">$built_loader</script>"

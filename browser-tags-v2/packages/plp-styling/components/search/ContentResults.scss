@@ -1,0 +1,135 @@
+@use "../../helpers/utils";
+@use "../../helpers/supports-hover";
+@use "../../variables";
+@use "sass:map";
+
+/// Mixin that styles the ContentResults part of the SearchPage
+@mixin ContentResults() {
+  .listing-page .content-results {
+    display: flex;
+    flex-direction: column;
+
+    .results-for {
+      $desktop-item-gap: map.get(variables.get-gap("listing-page"), "desktop-item-gap");
+      $mobile-item-gap: map.get(variables.get-gap("listing-page"), "mobile-item-gap");
+      margin-bottom: $desktop-item-gap;
+      @media (max-width: 651px) {
+        margin-bottom: $mobile-item-gap;
+      }
+    }
+
+    .load-more-container,
+    .load-less-container {
+      margin-top: 8px;
+    }
+
+    .view-more,
+    .view-less {
+      // people will have some button styling, reset that since this should look like a link (but it actually isn't and therefore I still made it a button)
+      background: transparent;
+      border: none;
+      color: variables.get-text-icon-color("base", "default");
+      font-size: 1em;
+      padding: 0;
+      // Default underline to make it obvious that this can be clicked
+      text-decoration: underline;
+      text-underline-offset: 2px;
+
+      @include supports-hover.supports-hover() {
+        &:hover {
+          color: variables.get-text-icon-color("base", "hover");
+          cursor: pointer;
+        }
+      }
+      &:focus-visible {
+        // using outline and shadow because they don't make the link move when focused
+        $gap-width: 1px;
+        $actual-outline-width: 2.5px;
+        outline-color: variables.get-background-color("base", "default");
+        outline-style: solid;
+        outline-width: $gap-width;
+        box-shadow: 0 0 0 calc(#{$actual-outline-width} + #{$gap-width}) variables.get-border-color("base", "default");
+      }
+      &:active {
+        color: variables.get-text-icon-color("base", "pressed");
+      }
+    }
+  }
+
+  .content-card {
+    $gaps: 8px;
+    // don't nest this into above or the specificity will be too high so SolidLayout won't be able to override display:flex
+    display: flex;
+    //background: variables.get-background-color("subtle", "default");
+    //padding: $gaps;
+
+    &:has(.content-title:focus-visible) {
+      background: variables.get-background-color("subtle", "hover");
+    }
+
+    .info {
+      display: flex;
+      @include utils.flex-gap($gaps, "column nowrap");
+      flex-direction: column;
+      flex-grow: 1;
+    }
+
+    .highlighted-part {
+      color: variables.get-text-icon-color("base", "pressed");
+      font-weight: variables.get-font-weight(600);
+    }
+
+    @include supports-hover.supports-hover() {
+      &:has(.image a:hover) .content-title {
+        // When image (which is clickable) is hovered, also show hover effects on content title
+        // Not changing element structure with them in one anchor so the image can still be made an actual image in the future and be styled more freely
+        color: variables.get-text-icon-color("base", "hover");
+        text-decoration: underline;
+      }
+    }
+    .content-title {
+      font-size: 1.2em;
+      -webkit-line-clamp: 1;
+      color: variables.get-text-icon-color("base", "default");
+      font-weight: variables.get-font-weight(500);
+      align-self: flex-start; // So the potentially empty space to the right of the title isn't clickable
+      @include supports-hover.supports-hover() {
+        &:hover,
+        &:hover .highlighted-part {
+          color: variables.get-text-icon-color("base", "hover");
+          text-decoration: underline;
+        }
+      }
+      &:focus-visible {
+        // has to be in a separate declaration for browsers that don't understand focus-visible
+        color: variables.get-text-icon-color("base", "hover");
+        text-decoration: underline;
+      }
+      &:active,
+      &:active .highlighted-part {
+        color: variables.get-text-icon-color("base", "pressed");
+      }
+    }
+
+    .description {
+      // don't remove this or chrome will fuck up the text rendering lol, see https://depictaiworkspace.slack.com/archives/C02BASM9X5J/p1690383140791789
+      -webkit-line-clamp: 2;
+      color: variables.get-text-icon-color(
+        "neutral",
+        "default"
+      ); // subtle-default would have too poor contrast according to WCAG AA and WCAG AAA
+    }
+
+    .image {
+      display: flex;
+      flex-direction: column; // so only image is clickable and not space below
+      & > * {
+        // make so that everything from image to title is continuously clickable
+        padding-right: $gaps;
+      }
+      svg path {
+        fill: variables.get-text-icon-color("base", "default");
+      }
+    }
+  }
+}

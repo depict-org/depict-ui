@@ -1,0 +1,81 @@
+@forward "variables";
+@forward "./components/base/DefaultProductCard";
+
+@use "variables";
+@use "components/PLP";
+@use "components/category";
+@use "components/search";
+@use "components/Placeholders";
+@use "components/Recommendations";
+@use "components/base/BaseStyle";
+@use "components/base/Buttons";
+
+/// Default theme for Search and Category pages. Calling this mixin will generate all the styling for the page specified.
+/// To configure variables, use `@use` and `with`
+/// @param {"both" | "search" | "category"} $scope - What to generate styling for. Set this to `category` if you are only using the Category page or `search` if you are only using the Search page. If you are using both, set this to `both`.
+///
+/// @example scss - Example usage for when only using the category page that disables all rounded corners.
+///  @use "@depict-ai/plp-styling" with (
+///    $border-radius: 0
+///  );
+///  @include plp-styling.default-theme("category");
+@mixin default-theme($scope) {
+  @include BaseStyle.BaseStyle();
+  .depict.plp {
+    @include BaseStyle.BaseStyle();
+    @include PLP.PLPResults();
+    @include PLP.ProductListingPage();
+    @include PLP.SelectedFilters();
+    @include PLP.ScrollStatus();
+    @include PLP.SortAndFilter();
+    @include PLP.SortAndFilterModal();
+    @include PLP.FloatingButtons();
+    // PrimaryButton gets added in BaseStyle because it's also needed for the recommendation grid
+    @include Buttons.SecondaryButton();
+    @include PLP.HighlightedText();
+    @include PLP.BreadCrumbs();
+  }
+  @if $scope != "category" {
+    // This is to get around shopify header max-width restrictions (for example in the Dawn theme)
+    body * > *:has(.depict-search-field-and-modal.nuke-mw) {
+      max-width: unset;
+      max-height: unset;
+    }
+    .depict.search {
+      @if variables.$search-modal-layout == "v2" {
+        @include search.TextSuggestions();
+      } @else if variables.$search-modal-layout == "classic" {
+        @include search.Autocomplete();
+      }
+      @include search.CategorySuggestions();
+      @include search.InstantResults();
+      @include search.InstantCard();
+      @include search.SearchField();
+      @include search.SearchModal();
+      @include search.SearchPage();
+      @include search.SearchRecommendations();
+      @include search.ShowingResultsFor();
+      @include search.ContentResults();
+      @if variables.$search-modal-layout == "v2" {
+        @include search.VisualListingSuggestions();
+      }
+    }
+  }
+  @if $scope != "search" {
+    .depict.category {
+      @include category.QuickLinks();
+      @include category.CategoryTitle();
+      @include category.CategoryPage();
+    }
+  }
+  @include PLP.Toast();
+  @include Placeholders.Placeholders();
+}
+
+/// Base styling for recommendations UI components (Slider and Grid).
+@mixin recommendations() {
+  @include BaseStyle.BaseStyle();
+  .depict.recommendations {
+    @include Recommendations.Recommendations();
+  }
+}

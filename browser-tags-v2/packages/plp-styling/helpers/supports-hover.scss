@@ -1,0 +1,7 @@
+/// Wraps @content in a media query that targets devices that support `:hover` in a non-fallback way.
+
+@mixin supports-hover {
+  @media not all and (hover: none) {
+    @content;
+  }
+}

@@ -1,0 +1,103 @@
+const nbsp = String.fromCharCode(160);
+
+// kudos to chatGPT
+export const locale_to_price_fmt = {
+  "cz": {
+    pre_: "",
+    post_: nbsp + "Kč",
+    decimal_places_delimiter_: ",",
+    thousands_delimiter_: ".",
+    places_after_comma_: 2,
+  },
+  "da": {
+    pre_: "",
+    post_: nbsp + "kr.",
+    decimal_places_delimiter_: ",",
+    thousands_delimiter_: ".",
+    places_after_comma_: 2,
+  },
+  "nl": {
+    pre_: "€" + nbsp,
+    post_: "",
+    decimal_places_delimiter_: ",",
+    thousands_delimiter_: ".",
+    places_after_comma_: 2,
+  },
+  "en": {
+    pre_: "$",
+    post_: "",
+    decimal_places_delimiter_: ".",
+    thousands_delimiter_: ",",
+    places_after_comma_: 2,
+  },
+  "fi": {
+    pre_: "",
+    post_: nbsp + "€",
+    decimal_places_delimiter_: ",",
+    thousands_delimiter_: nbsp + "",
+    places_after_comma_: 2,
+  },
+  "fr": {
+    pre_: "",
+    post_: nbsp + "€",
+    decimal_places_delimiter_: ",",
+    thousands_delimiter_: nbsp + "",
+    places_after_comma_: 2,
+  },
+  "de": {
+    pre_: "",
+    post_: nbsp + "€",
+    decimal_places_delimiter_: ",",
+    thousands_delimiter_: ".",
+    places_after_comma_: 2,
+  },
+  "it": {
+    pre_: "",
+    post_: nbsp + "€",
+    decimal_places_delimiter_: ",",
+    thousands_delimiter_: ".",
+    places_after_comma_: 2,
+  },
+  "no": {
+    pre_: "kr" + nbsp,
+    post_: "",
+    decimal_places_delimiter_: ",",
+    thousands_delimiter_: ".",
+    places_after_comma_: 2,
+  },
+  "nb": {
+    pre_: "kr" + nbsp,
+    post_: "",
+    decimal_places_delimiter_: ",",
+    thousands_delimiter_: ".",
+    places_after_comma_: 2,
+  },
+  "pl": {
+    pre_: "",
+    post_: nbsp + "zł",
+    decimal_places_delimiter_: ",",
+    thousands_delimiter_: nbsp + "",
+    places_after_comma_: 2,
+  },
+  "pt": {
+    pre_: "R$" + nbsp,
+    post_: "",
+    decimal_places_delimiter_: ",",
+    thousands_delimiter_: ".",
+    places_after_comma_: 2,
+  },
+  "es": {
+    pre_: "",
+    post_: nbsp + "€",
+    decimal_places_delimiter_: ",",
+    thousands_delimiter_: ".",
+    places_after_comma_: 2,
+  },
+  "sv": {
+    pre_: "",
+    post_: nbsp + "kr",
+    decimal_places_delimiter_: ",",
+    thousands_delimiter_: nbsp + "",
+    places_after_comma_: 2,
+  },
+};

@@ -1,0 +1,127 @@
+---
+title: "Setting up your product card"
+description: "Your product card components needs to meet some specific requirements"
+---
+
+## Requirements
+
+For both search and product listing pages, you need to set up your product card component.
+
+That component will receive a `display` of the type `YourDisplay` (see [previous page](/react-ui-guide/setup/depict-provider)) <b>OR `null`</b>.
+
+If `display` is `null`, it means that there's no data for this product card yet, and you should display <b>a product card as close to the dimensions as the one you'll display when you'll have data</b>, we'll call this a "placeholder". The placeholder serves as a loading indicator for users as well as enabling scroll restoration when going back and minimizing content shift.
+
+## Example expected output of your product card component
+
+<CardGroup cols={2}>
+    <Frame caption="`display` is `null`">
+        <img src="/images/placeholder.svg" style={{ aspectRatio: 457/903, width: "100%"}} ref={element => {
+        // In prod, they have some zoom thing which breaks aspectRatio, work around that. Unfortunately this is not in the SSR'd output so there's still some CLS.
+        const direct_parent = element?.parentElement;
+        if(direct_parent?.matches?.("[data-rmiz-content]")) {
+            Object.assign(direct_parent.style, {
+                width: "100%",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center"
+            })
+        }
+        const parents_parent = direct_parent?.parentElement;
+        if(parents_parent?.matches?.("[aria-owns^='rmiz-modal']")) {
+            parents_parent.style.width = "100%";
+        }
+        }} />
+    </Frame>
+
+    <Frame caption="`display` is `HoudiniDisplay`">
+        <img src="/images/product_card.svg" style={{ aspectRatio: 469/928, width: "100%"}} ref={element => {
+        // In prod, they have some zoom thing which breaks aspectRatio, work around that. Unfortunately this is not in the SSR'd output so there's still some CLS.
+        const direct_parent = element?.parentElement;
+        if(direct_parent?.matches?.("[data-rmiz-content]")) {
+            Object.assign(direct_parent.style, {
+                width: "100%",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center"
+            })
+        }
+        const parents_parent = direct_parent?.parentElement;
+        if(parents_parent?.matches?.("[aria-owns^='rmiz-modal']")) {
+            parents_parent.style.width = "100%";
+        }
+        }} />
+    </Frame>
+</CardGroup>
+
+
+## Provided Placeholder components
+
+To make it easier for you to create a placeholder, we provide you with a few components that you can use to create a placeholder.
+
+You can understand their usage from the example below or [read the reference](/reference/listings-search/placeholder-components).
+
+## Displaying color swatches
+
+```ts
+export interface YourDisplay {
+  /**
+  * The index of the variant to show in the variant_displays array
+  */
+  variant_index: number;
+  /**
+  * All variants for that product - here you can, for example, get the color of each variant to display color swatches
+  */
+  variant_displays: YourVariantDisplay[];
+  // … other properties
+}
+```
+
+## Code example
+
+You probably have an existing product card which you just can add placeholder functionality for. Here's an example of how it could look like:
+
+```tsx
+import { ImagePlaceholder, TextPlaceholder } from "@depict-ai/react-ui";
+
+export function ProductCard({ display }: { display: null | YourDisplay }) {
+  const variant_to_show = display?.variant_displays[display?.variant_index];
+
+  return [
+    <Link
+      href={variant_to_show?.page_url || "#"}
+      className="rec-outer"
+      {...(variant_to_show && "recommendation_id" in variant_to_show
+        ? { "data-recommendation-id": variant_to_show.recommendation_id }
+        : {})}
+    >
+      {variant_to_show ? (
+        <div className="image-container">
+          {/* Use the first image in image_urls as the default image */}
+          <img className="default-image" src={variant_to_show.image_urls[0]} />
+          {/* Use the second image in image_urls as the hover image */}
+          <img className="hover-image" src={variant_to_show.image_urls[1]} />
+        </div>
+      ) : (
+        <ImagePlaceholder aspectRatio={imgAspectRatio} />
+      )}
+
+      <div className="text-container">
+        <div className="rec-title">
+          {variant_to_show.title ?? <TextPlaceholder height="1em" width="20ch" />}
+        </div>
+        <div className="price-container">
+          <span className="price">
+            {variant_to_show ? (
+              <FormatPrice price={variant_to_show.sale_price} />
+            ) : (
+              <TextPlaceholder height="1em" width="5ch" />
+            )}
+          </span>
+        </div>
+      </div>
+    </Link>,
+  ];
+}
+```
+
+<Note>Note how we branch off to the shimmering placeholder effect in place of the content, when there is no content</Note>

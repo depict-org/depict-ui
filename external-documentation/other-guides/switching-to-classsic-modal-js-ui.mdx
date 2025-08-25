@@ -1,0 +1,25 @@
+---
+title: "Switching to the classic search modal (JS-UI)"
+---
+
+1. Where you construct your searchProvider, import and pass in the `ClassicSearchModal` as the `searchModalComponent` property.
+```tsx
+import { ClassicSearchModal } from "@depict-ai/js-ui";
+
+const searchProvider = new DepictSearchProvider<YourDisplay>({
+  // … other properties
+  searchModalComponent: ClassicSearchModal,
+});
+```
+3. Where you import the Depict UI SCSS, set the `$search-modal-layout` variable to `"classic"`.
+```scss
+@use "@depict-ai/js-ui" with ($search-modal-layout: "classic");
+```
+
+
+<Accordion title="A note about bundle size (Advanced)">
+    Because the new search modal is the default, it can't be tree-shaken by default. However, if you want to use the old search modal and not have the new one included in your bundle, you can do the following:
+
+    1. Set up your build system so you can inline/substitute envirnoment variables into your code. For example, with webpack, you can use the [DefinePlugin](https://webpack.js.org/plugins/define-plugin/).
+    2. Ensure the expression `process.env.NO_SEARCH_MODAL_DEFAULT` becomes substituted to `"true"` (if you use parcel you can just set the environment variable `NO_SEARCH_MODAL_DEFAULT` to `true` while building), this leads to your minifier being able to remove the new search modal from the bundle.
+</Accordion>

@@ -1,0 +1,137 @@
+@use "../../variables";
+@use "../../helpers/supports-hover";
+
+@mixin VisualListingSuggestions() {
+  .visual-listing-suggestions {
+    $border-radius: calc(#{variables.$border-radius} * 4);
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+
+    .d-navbutton {
+      display: none;
+    }
+
+    .suggestion-container {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      container-type: inline-size;
+      gap: 48px;
+
+      & > .listing-card {
+        // .suggestion-container doesn't exist in stacked layout so by writing it like this these rules only get applied pre-stacked
+        grid-column: span 2; // 3 cards
+
+        @container (max-width: 650px) {
+          grid-column: span 3; // 2 cards
+          &:nth-child(n + 3) {
+            display: none;
+          }
+        }
+      }
+    }
+
+    .listing-card {
+      display: flex;
+      flex-direction: column;
+
+      .title {
+        display: flex;
+        font-size: 1em;
+        a {
+          flex-grow: 1;
+          &:focus-visible {
+            outline: none;
+          }
+        }
+      }
+
+      &:has(.title a:focus-visible) {
+        $distance-to-outline: 6px;
+        box-shadow:
+          0 0 0 #{$distance-to-outline} variables.get-background-color("base", "default"),
+          0 0 0 8px variables.get-border-color("base", "default");
+        border-radius: calc(#{$distance-to-outline} + #{$border-radius});
+      }
+
+      &:active {
+        $active-bg: rgba(variables.get-background-color("inverse", "default"), 3%);
+        background: $active-bg;
+        box-shadow: 0 0 0 12px $active-bg;
+      }
+
+      &.selected .title {
+        text-decoration: underline;
+      }
+
+      .crumbs {
+        padding-bottom: 4px; // So that outline on crumbs doesn't go into the text below and to be consistent with InstantCard text spacing
+        .separator {
+          margin-left: 8px;
+          margin-right: 8px;
+        }
+      }
+
+      .image-part {
+        display: flex;
+        // Padding so there's no gap in the clickable area
+        padding-bottom: 12px;
+
+        .images-wrapper {
+          border-radius: $border-radius;
+          flex-grow: 1;
+          display: grid;
+          grid-template-columns: repeat(var(--image-count), 1fr);
+          &,
+          & > * {
+            overflow: hidden;
+          }
+        }
+      }
+
+      .empty-image {
+        border-radius: $border-radius;
+        border: inset 2px variables.get-border-color("subtle", "default");
+        border-style: solid;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        svg path {
+          fill: variables.get-text-icon-color("subtle", "default");
+        }
+      }
+    }
+  }
+  .depict-search-modal.stacked {
+    .visual-listing-suggestions {
+      gap: 12px;
+
+      h2 {
+        margin-left: variables.get-merged(
+          variables.$search-modal-defaults,
+          variables.$search-modal,
+          "stacked-side-padding"
+        );
+        margin-right: variables.get-merged(
+          variables.$search-modal-defaults,
+          variables.$search-modal,
+          "stacked-side-padding"
+        );
+      }
+
+      .sliding {
+        padding-left: variables.get-merged(
+          variables.$search-modal-defaults,
+          variables.$search-modal,
+          "stacked-side-padding"
+        );
+        padding-right: variables.get-merged(
+          variables.$search-modal-defaults,
+          variables.$search-modal,
+          "stacked-side-padding"
+        );
+      }
+    }
+  }
+}

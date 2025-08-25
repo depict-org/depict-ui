@@ -1,0 +1,215 @@
+@use "../../variables";
+@use "../../helpers/supports-hover";
+
+@mixin Looks() {
+  $height-transition: calc(var(--animation-duration) * 0.5) cubic-bezier(0, 0.8, 1, 1);
+  $width-transition: var(--animation-duration) ease-in-out;
+  $small-image-size-percent: 0.18;
+  // Look listing pages
+  .cards.looks-container {
+    height: var(--looks-height, 100vh);
+    scroll-snap-type: y mandatory;
+    scroll-behavior: smooth;
+
+    // Hide scrollbar
+    /* Internet Explorer 10+; next 3 properties stolen from: https://stackoverflow.com/a/38994837*/
+    -ms-overflow-style: none;
+    /* Firefox */
+    scrollbar-width: none;
+    /* Chrome and Safari */
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    &.scrolling {
+      overflow: auto;
+    }
+    & > * {
+      scroll-snap-align: start;
+      scroll-snap-stop: always;
+    }
+
+    .look-card {
+      height: var(--looks-height, 100vh);
+    }
+  }
+
+  // Looks slider
+  &.recommendations.looks .d-navbutton {
+    // Hide slider buttons by default for looks if touch screen
+    @media not all and (pointer: fine) {
+      display: none;
+    }
+  }
+
+  // Look cards
+  .look-card {
+    $look-card-width: var(
+      --look-card-width
+    ); // This variable comes from the JS side and contains the actual width using a ResizeObserver
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.2);
+    display: flex;
+    position: relative;
+
+    .s-responsive-image {
+      // All look images should zoom in by default
+      object-fit: cover;
+    }
+
+    .image-container {
+      flex-grow: 1;
+      align-self: stretch;
+      .s-responsive-image {
+        position: relative;
+      }
+    }
+    $look-overlay-padding: 3px;
+    $space-around-overlay: 3px;
+
+    .scroll-padding {
+      // So padding is also there while scrolling
+      padding-top: $look-overlay-padding;
+      padding-bottom: $look-overlay-padding;
+      position: absolute;
+      display: flex;
+      left: $space-around-overlay;
+      bottom: $space-around-overlay;
+      background: variables.get-background-color("base", "default");
+    }
+
+    .look-overlay {
+      $look-item-height: var(--look-item-height);
+      $small-image-size: calc(#{$look-card-width} * #{$small-image-size-percent});
+      $large-image-size: calc(#{$look-card-width} * 0.26);
+      $gap-between-items: 3px;
+      $gap-inside-look-items: 8px;
+      padding-left: $look-overlay-padding;
+      padding-right: $look-overlay-padding;
+      width: calc(#{$small-image-size} + 2 * #{$look-overlay-padding});
+      transition: width $width-transition;
+      max-height: min(
+        // Three gaps, one between card 1, one between 2 and 3 and one between 3 and 4. Show 2.5 cards.
+        calc(calc(#{$look-item-height} * 3.5) + calc(#{$gap-between-items} * 3)),
+        calc(var(--look-card-height) - calc(#{$look-overlay-padding} * 4))
+          // We can't really use this to limit the height as it changes how many look items are visible in collapsed vs exapnded state which makes the animation look weird
+        // Because it visually "pushes down" the look items
+        // Still limiting to 100% of the container height (minus padding) though because it's better to have a bit of weird animation than to have the look items go off screen
+        // Padding is times four because first we have the "transparent" padding and then the black padding, both on top and bottom
+      );
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: $gap-between-items;
+
+      .look-item {
+        container-type: inline-size;
+        display: flex;
+        transition: padding-right $width-transition;
+        gap: $gap-inside-look-items;
+        @include supports-hover.supports-hover() {
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+      }
+
+      .img-wrapper {
+        display: flex; // Without this, img doesn't fill out the container and there are weird black gaps
+        min-width: $small-image-size;
+        position: relative;
+
+        transition: $width-transition;
+        .s-image-container {
+          transition: $height-transition;
+          .s-responsive-image {
+            transition: $height-transition;
+            object-fit: cover; // We can have this even in expanded state because we have autoAdjustAspectRatio
+          }
+        }
+      }
+
+      .right-part {
+        display: flex;
+        gap: 8px;
+        justify-content: space-between;
+        min-width: calc(
+          #{$look-card-width} - calc(#{$large-image-size} + calc(#{$space-around-overlay} * 2) + calc(
+                  #{$look-overlay-padding} * 2
+                ) + #{$gap-inside-look-items})
+        );
+        .d-title {
+          -webkit-line-clamp: 2;
+          @container (max-width: 350px) {
+            // Animation gets jumpy if text is taller than image, when cards very small just limit it to one line
+            -webkit-line-clamp: 1;
+          }
+        }
+
+        .text-container {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          justify-content: center;
+        }
+        .d-price {
+          &.original {
+            text-decoration: line-through;
+            color: variables.get-text-icon-color("subtle", "default");
+          }
+          &.sale {
+            color: variables.get-merged(variables.$instant-card-defaults, variables.$instant-card, "sales-price-color");
+          }
+        }
+      }
+
+      &.expanded {
+        // Leaving timings commented out - if one would want a different timing for opening animation, uncomment and adjust these
+        //$opening-timing: ease-out;
+        width: calc(
+          #{$look-card-width} - calc(#{$space-around-overlay} * 2)
+        ); // Using percent here glitches safari, figure out if that means we have to use JS instead
+        //transition-timing-function: $opening-timing;
+
+        .look-item {
+          padding-right: 16px;
+          //transition-timing-function: $opening-timing;
+        }
+
+        .img-wrapper {
+          min-width: $large-image-size;
+          //  transition-timing-function: $opening-timing;
+          //  .s-image-container {
+          //    transition-timing-function: $opening-timing;
+          //    .s-responsive-image {
+          //      transition-timing-function: $opening-timing;
+          //    }
+          //  }
+        }
+      }
+
+      &.resting-fully-expanded {
+        overflow: auto;
+      }
+    }
+
+    // Since the placeholders are frozen, we can't have calculated sizes for them. But since there are no animations, we can do this with just CSS.
+    &.placeholder {
+      .scroll-padding {
+        width: calc(calc(100% * #{$small-image-size-percent}) + calc(2 * #{$space-around-overlay}));
+        .look-overlay {
+          width: 100%;
+          .img-wrapper {
+            min-width: 100%;
+          }
+          .look-item:last-child {
+            .depict-placeholder {
+              padding-bottom: 50% !important;
+            }
+          }
+        }
+      }
+    }
+  }
+}

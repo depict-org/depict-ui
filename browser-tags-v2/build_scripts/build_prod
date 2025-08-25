@@ -1,0 +1,9 @@
+#!/bin/bash
+set -e
+parcel_extraargs=""
+parcel_extraargs_modern="--no-source-maps"
+
+# note: parcel_extraargs_ie11 doesn't exist yet
+
+. ./build_scripts/build
+. ./build_scripts/distributorify -m modern.js -i ie11.js -d dist -c compatibility.js -d "$dd"

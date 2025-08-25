@@ -1,0 +1,18 @@
+{
+  "mangle": {
+    "eval": true,
+    "properties": {
+      "regex": "^(?!__core-js_shared__).*_$"
+    }
+  },
+  "compress": {
+    "unsafe": true,
+    "arguments": true,
+    "ecma": "2020",
+    "passes": 4,
+    "unsafe_arrows": true
+  },
+  "format": {
+    "ecma": 2020
+  }
+}

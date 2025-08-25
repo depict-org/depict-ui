@@ -1,0 +1,35 @@
+@use "../../variables";
+
+/// ScrollStatus shows the user how many items are left to scroll through, if they scroll at a speed that indicates that they are no longer looking at each product but rather just trying to see how many there are.
+///
+/// If you too think that blurring the background would look great here, please take a minute to upvote this chrome bug: https://bugs.chromium.org/p/chromium/issues/detail?id=1382360
+///
+/// @param {Number with size unit} $border-radius [variables.$border-radius * 5] - The border-radius of the scroll status.
+
+@mixin ScrollStatus() {
+  .scroll-status {
+    pointer-events: none;
+    position: sticky;
+    bottom: 10vh;
+    white-space: nowrap;
+    display: flex;
+    justify-content: center;
+    z-index: calc(#{variables.$base-z-index} + 4);
+    align-items: center;
+    opacity: 0;
+
+    .text {
+      background: rgba(variables.get-background-color("inverse", "hover"), 0.75);
+      color: variables.get-text-icon-color("inverse", "default");
+      padding: 10px 20px;
+      border-radius: calc(#{variables.$border-radius} * 5);
+    }
+  }
+  // When inside sliding PLP
+  .depict-slider > .scroll-status {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 10%; // We want it to be relative to the size of the container when inside a slider
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "name": "@depict-ai/plp-styling",
+  "packageManager": "yarn@3.2.2",
+  "scripts": {
+    "publish": "yarn npm publish"
+  },
+  "files": [
+    "components/",
+    "helpers/",
+    "index.scss",
+    "variables.scss",
+    "README.md"
+  ],
+  "sass": "index.scss",
+  "version": "4.6.0",
+  "description": "Depict PLP UI SCSS Styling",
+  "author": "Daniel Troger <daniel@depict.ai>",
+  "contributors": [
+    "Fabian Hedin <fabian@depict.ai>",
+    "Sverre Westerlund <sverre@depict.ai>",
+    "Joakim Olsson <joakim.olsson@depict.ai>",
+    "Arnaud Cortisse <arnaud@depict.ai>",
+    "Carl Riis <carl@depict.ai>"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "sassdoc": "^2.7.4"
+  },
+  "peerDependencies": {
+    "sass": ">= 1.54.6"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

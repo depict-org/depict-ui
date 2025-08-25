@@ -1,0 +1,133 @@
+{
+  "name": "@depict-ai/js-ui",
+  "version": "4.10.5",
+  "packageManager": "yarn@3.2.2",
+  "source": "src/index.ts",
+  "types": "ES10/index.d.ts",
+  "sass": "dist/styles/index.scss",
+  "context": "node",
+  "license": "MIT",
+  "description": "JavaScript flavour of the Depict UI library.",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "./build-scripts/build",
+    "print-included-package-files": "yarn pack --dry-run",
+    "typecheck": "yarn g:tsc --build tsconfig.json",
+    "publish": "yarn build && yarn npm publish"
+  },
+  "targets": {
+    "module_latest": {
+      "outputFormat": "esmodule",
+      "isLibrary": true,
+      "context": "node",
+      "engines": {
+        "browsers": "last 1 chrome version"
+      },
+      "optimize": false
+    },
+    "main_latest": {
+      "outputFormat": "commonjs",
+      "isLibrary": true,
+      "context": "node",
+      "engines": {
+        "browsers": "last 1 chrome version"
+      },
+      "optimize": false
+    },
+    "module_es10": {
+      "outputFormat": "esmodule",
+      "isLibrary": true,
+      "context": "node",
+      "engines": {
+        "browsers": "supports array-flat"
+      },
+      "optimize": false
+    },
+    "main_es10": {
+      "outputFormat": "commonjs",
+      "isLibrary": true,
+      "context": "node",
+      "engines": {
+        "browsers": "supports array-flat"
+      },
+      "optimize": false
+    },
+    "css": {
+      "source": "src/styles/plain-css-fallback-styling.scss",
+      "distDir": "dist/styles"
+    },
+    "types": {}
+  },
+  "exports": {
+    ".": {
+      "import": "./ES10/index.js",
+      "require": "./ES10/index.cjs",
+      "types": "./ES10/index.d.ts",
+      "sass": "./dist/styles/index.scss"
+    },
+    "./latest": {
+      "import": "./latest/index.js",
+      "require": "./latest/index.cjs",
+      "types": "./latest/index.d.ts",
+      "sass": "./dist/styles/index.scss"
+    },
+    "./ES10": {
+      "import": "./ES10/index.js",
+      "require": "./ES10/index.cjs",
+      "types": "./ES10/index.d.ts",
+      "sass": "./dist/styles/index.scss"
+    },
+    "./styles/*": "./dist/styles/*",
+    "./locales": {
+      "types": "./locales/ES10/index.d.ts",
+      "import": "./locales/ES10/index.js",
+      "require": "./locales/ES10/index.cjs"
+    },
+    "./locales/latest": {
+      "types": "./locales/latest/index.d.ts",
+      "import": "./locales/latest/index.js",
+      "require": "./locales/latest/index.cjs"
+    },
+    "./locales/ES10": {
+      "types": "./locales/ES10/index.d.ts",
+      "import": "./locales/ES10/index.js",
+      "require": "./locales/ES10/index.cjs"
+    }
+  },
+  "files": [
+    "/locales",
+    "/latest",
+    "/ES10",
+    "/dist",
+    "./multi_import_deduplicator.mjs",
+    "./multi_import_deduplicator.cjs"
+  ],
+  "peerDependencies": {
+    "sass": ">= 1.54.6"
+  },
+  "devDependencies": {
+    "@babel/core": "latest",
+    "@babel/preset-env": "latest",
+    "@babel/preset-typescript": "latest",
+    "@parcel/babel-preset-env": "^2.10.3",
+    "@parcel/resolver-default": "^2.10.3",
+    "@types/node": "^18.13.0",
+    "babel-preset-solid": "^1.9.3",
+    "parcel": "^2.10.3"
+  },
+  "dependencies": {
+    "@babel/plugin-transform-typescript": "^7.22.9",
+    "@babel/runtime": "latest",
+    "@babel/runtime-corejs3": "latest",
+    "@depict-ai/dpc": "workspace:^",
+    "@depict-ai/plp-styling": "workspace:^",
+    "@depict-ai/ui": "workspace:^",
+    "@depict-ai/utilishared": "workspace:^",
+    "solid-js": "^1.9.3"
+  },
+  "type": "module",
+  "main": "ES10/index.cjs",
+  "module": "ES10/index.js"
+}

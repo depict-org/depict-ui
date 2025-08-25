@@ -1,0 +1,151 @@
+// @use "../../../rendering/slider_button_positioning";
+@use "../../helpers/utils";
+@use "Buttons";
+@use "../../variables";
+@use "../../helpers/supports-hover";
+@use "sass:map";
+
+/// Styling for sliders used in the PLP and recommendations.
+/// Most of the times SlidableItems is used for items laid out horizontally that do not fit the screen width.
+/// On .depict-slider elements without the `products` class, there will be default spacing and button style used for overflowing UI items
+/// On .depict-slider elements with the `products` class there will be no default spacing and buttons styled for navigating products
+///
+/// Examples are the QuickLinks (used to navigate sideways or downwards in the category tree) and the SelectedFilters (if not all selected filters fit on the screen).
+@mixin SlidableItems() {
+  .depict-slider {
+    min-width: 0;
+    flex-grow: 1;
+    position: relative;
+    .sliding {
+      min-height: 100%;
+      align-items: stretch; /* Makes all kids take the height of the container */
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      overflow-x: scroll;
+      /* Internet Explorer 10+; next 3 properties stolen from: https://stackoverflow.com/a/38994837*/
+      -ms-overflow-style: none;
+      /* Firefox */
+      scrollbar-width: none;
+      /* Chrome and Safari */
+      &::-webkit-scrollbar {
+        display: none;
+      }
+      & > * {
+        flex-shrink: 0;
+      }
+    }
+    .d-navbutton {
+      position: absolute;
+      z-index: 2;
+      top: 50%;
+      transform: translateY(-50%);
+      -webkit-transform: translateY(-50%);
+      touch-action: manipulation;
+      transition-duration: 0.2s;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+
+      & > div {
+        display: flex;
+      }
+
+      &.left {
+        transform: translateY(-50%) rotate(180deg);
+        left: 0;
+      }
+
+      &.right {
+        right: 0;
+      }
+    }
+    &:not(.products) {
+      .sliding {
+        @include utils.flex-gap(10px, "row nowrap");
+      }
+      .d-navbutton {
+        height: 100%;
+        padding-right: 1px;
+        padding-top: 0;
+        padding-left: 0;
+        padding-bottom: 0;
+        width: 26px;
+        background: linear-gradient(270deg, variables.$page-background-color 50%, transparent 105%);
+
+        img {
+          width: 100%;
+          height: 100%;
+        }
+        @include supports-hover.supports-hover() {
+          &:hover {
+            svg {
+              transform: scale(1.2);
+            }
+          }
+        }
+        &:focus-visible {
+          svg {
+            transform: scale(1.5);
+            path {
+              filter: map.get(Buttons.get-secondary-button-properties(), "focus-visible-filter");
+            }
+          }
+        }
+        svg {
+          transition-duration: 150ms;
+        }
+
+        &:active {
+          opacity: 0.9;
+        }
+      }
+    }
+
+    &.products {
+      .d-navbutton {
+        padding: 15px 10px 15px 15px;
+        border-radius: calc(#{variables.$border-radius} * 3) 0 0 calc(#{variables.$border-radius} * 3);
+        opacity: 70%;
+
+        &:not(.hidden):hover {
+          opacity: 100%;
+        }
+
+        &:focus-visible {
+          outline: none;
+          opacity: 100%;
+          filter: map.get(Buttons.get-secondary-button-properties(), "focus-visible-filter");
+          svg {
+            transform: scale(1.5);
+          }
+        }
+
+        background: variables.get-background-color("base", "default");
+
+        svg path {
+          fill: variables.get-text-icon-color("neutral", "default");
+        }
+      }
+    }
+    button.d-navbutton.hidden {
+      // At the end for specificity
+      cursor: default;
+      opacity: 0;
+      // Make buttons unclickable 5s after they're hidden so someone spamming the button doesn't accidentally click on the product underneath once the button gets hidden
+      animation-name: depict_slider_button_unclickable;
+      animation-duration: 5s;
+      animation-fill-mode: forwards;
+      @keyframes depict_slider_button_unclickable {
+        0% {
+          pointer-events: all;
+        }
+        100% {
+          pointer-events: none;
+          visibility: hidden; // make not keyboard focusable with tab
+        }
+      }
+    }
+  }
+}

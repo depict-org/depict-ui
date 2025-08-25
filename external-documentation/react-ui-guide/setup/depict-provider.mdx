@@ -1,0 +1,40 @@
+---
+title: "Configuring `DepictProvider`"
+---
+
+Import the `DepictProvider` component from the installed package and use this component to wrap your entire application's component tree as shown:
+
+```tsx
+import { DepictProvider } from "@depict-ai/react-ui";
+import { en_GB } from "@depict-ai/react-ui/locales";
+import { YourDisplay } from "./display-types.ts"
+
+function App() {
+  return (
+    <DepictProvider<YourDisplay>
+      // Wondering what your MERCHANT_ID is? Depict engineers aren't very creative here, so you can probably guess. Odds are it's your company name or an abbreviation thereof, all lower case and only a-z or 1-9. Ask us if you can't get it working.
+      merchant="MERCHANT_ID"
+      // Wondering what your MARKET(s) is/are? Check on demo.depict.ai
+      market="MARKET"
+      // The `locale` property on the `DepictProvider` wrapper accepts a JavaScript object that handles UI translations, price formatting as well as what language the backend responds with. Check what locales are available for you on demo.depict.ai, then import them from the `@depict-ai/react-ui/locales` subpackage. You can also extend them using spread.
+      locale={en_GB}
+      // sessionId={"USER_ID"} // <- Optionally you can override the default session id used for personalization here
+    >
+      <div className="App">
+        ...
+      </div>
+    </DepictProvider>
+  );
+}
+
+export default App;
+```
+
+We call the product data that you receive for each product card that you have to render `display`.
+
+`YourDisplay` is a type definition of your specific display. Please ask Depict for this.
+
+<Note>
+    Review the types or the [reference](/reference/search-sdk/search-react-sdk#the-depictprovider-component) to see what you can configure on DepictProvider.
+</Note>
+<Tip>If you're seeing a type error after providing YourDisplay, don't fret and go to the next step</Tip>

@@ -1,0 +1,32 @@
+---
+title: "Example usage with Next.js"
+description: "Using DPC as a client-side library"
+---
+
+Since DPC handles tracking by observing the DOM it can only run in the browser. This requires DPC to be loaded in a way so that it's not executed on the server when using a framework capable of Server-side rendering (SSR) like Next.js.
+
+## Initializing DPC in your entry point
+
+In Next.js you can make sure code is only executed client-side by checking `typeof window !== "undefined"`. Since we are importing DPC as a module we can't do it the with the normal `import { DPC } from "depict-ai/dpc"` syntax. Instead, we can use [dynamic imports](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import). This is also [documented by Next.js](https://nextjs.org/docs/advanced-features/dynamic-import#with-external-libraries). 
+
+```typescript TypeScript
+// pages/_app.tsx
+
+import "../styles/globals.css";
+
+/**
+ * Initialize Depict Performance Client
+ * doc:performance-client
+ * Note that this is a client-side only library.
+ */
+(async function initDepictTracking() {
+  if (typeof window !== "undefined") {
+    const { DPC } = await import("@depict-ai/dpc");
+    new DPC("[MERCHANT_ID]", { market: "se" });
+  }
+})();
+
+export default function App({ Component, pageProps }) {
+  return <Component {...pageProps} />;
+}
+```

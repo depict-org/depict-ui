@@ -1,0 +1,27 @@
+{
+  "name": "replace_depict_script_with_dev",
+  "version": "0.4",
+  "description": "utility to replace depict scripts with the one being developed served by parcel",
+  "permissions": [
+    "webRequest",
+    "webRequestBlocking",
+    "https://*/*",
+    "http://*/*",
+    "https://static-scripts-deploy.s3.eu-north-1.amazonaws.com/reformasthlm/depict-ai.js",
+    "http://localhost:1234/depict-ai.js",
+    "http://0.0.0.0:3055/search"
+  ],
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "content_scripts": [
+    {
+      "js": ["content.js"],
+      "matches": ["https://*/*", "http://*/*"],
+      "run_at": "document_start"
+    }
+  ],
+
+  "content_security_policy": "script-src 'self' http://localhost:1234/depict-ai.js; object-src 'self'",
+  "manifest_version": 2
+}

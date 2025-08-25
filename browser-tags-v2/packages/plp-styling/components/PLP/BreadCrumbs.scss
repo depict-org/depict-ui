@@ -1,0 +1,33 @@
+@use "../../variables";
+
+/// BreadCrumbs is the trail of links that shows the user where they are in the site hierarchy and allows them to go back up the tree. Often BreadCrumbs are located at the top of the page.
+
+@mixin BreadCrumbs() {
+  .crumbs {
+    display: flex;
+    flex-wrap: wrap;
+    .crumb {
+      color: variables.get-text-icon-color("subtle", "default");
+      &:hover {
+        text-decoration: underline;
+      }
+      &:focus-visible {
+        outline: none;
+        box-shadow:
+          0 0 0 2px variables.get-background-color("base", "default"),
+          0 0 0 4px variables.get-border-color("base", "default");
+      }
+    }
+    .separator {
+      margin-left: 10px;
+      margin-right: 10px;
+      color: variables.get-text-icon-color("subtle", "disabled");
+    }
+  }
+
+  *:not(.listing-card) > .crumbs .crumb:last-of-type {
+    // Only highlight last item when not in a listing card
+    color: variables.get-text-icon-color("base", "default");
+    font-weight: 500;
+  }
+}

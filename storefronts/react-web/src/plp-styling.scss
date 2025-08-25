@@ -1,0 +1,21 @@
+@use "@depict-ai/react-ui/latest" as plp-styling with (
+  $page-background-color: #affcff,
+  $background-colors: (
+    "base": (
+      "default": #edfac7,
+    ),
+  ),
+  $text-icon-colors: (
+    "base": (
+      "default": black,
+    ),
+  ),
+  $border-colors: (
+    "base": (
+      "default": #001b1f,
+    ),
+  ),
+  $search-modal-layout: "classic"
+);
+
+@include plp-styling.default-theme("both");

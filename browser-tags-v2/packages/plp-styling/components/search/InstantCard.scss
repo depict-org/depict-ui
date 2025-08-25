@@ -1,0 +1,204 @@
+@use "../../helpers/utils";
+@use "../../helpers/supports-hover";
+@use "../../variables";
+
+/// Mixin that styles the idividual product cards in the InstantResults in the SearchModal
+
+@mixin InstantCard() {
+  .instant-results {
+    .instant-card {
+      $card-gap: 1.5vw;
+      $image-border-radius: calc(#{variables.$border-radius} * 4);
+      overflow: hidden;
+      flex: 1 1 100%;
+      display: flex;
+      background: variables.get-background-color("base", "default");
+      @if variables.$search-modal-layout == "classic" {
+        border-radius: variables.$border-radius;
+        @include utils.flex-gap($card-gap, "row nowrap");
+        padding-left: 20px;
+        padding-top: 5px;
+        padding-bottom: 5px;
+        padding-right: 20px;
+        &:hover,
+        &:focus {
+          box-shadow:
+            2px 2px 4px rgba(0, 0, 0, 0.15),
+            -4px -4px 4px rgba(255, 255, 255, 0.3);
+          z-index: 2;
+        }
+      } @else if variables.$search-modal-layout == "v2" {
+        flex-direction: column;
+        gap: 12px;
+        &:focus-visible {
+          $distance-to-outline: 6px;
+          border-radius: calc(#{$image-border-radius} + #{$distance-to-outline});
+          outline: none;
+          box-shadow:
+            0 0 0 #{$distance-to-outline} variables.get-background-color("base", "default"),
+            0 0 0 8px variables.get-border-color("base", "default");
+        }
+        &:active {
+          $active-bg: rgba(variables.get-background-color("inverse", "default"), 3%);
+          background: $active-bg;
+          box-shadow: 0 0 0 12px $active-bg;
+        }
+      }
+
+      .img-part {
+        @if variables.$search-modal-layout == "v2" {
+          border-radius: $image-border-radius;
+          overflow: hidden;
+          position: relative;
+          .s-responsive-image {
+            // Zoom in on on the images in case some have different aspect ratios.
+            // We're using autoAdjustAspectRatio so the aspect ratio of the most used imaged will be used
+            // And it's not super important that the placeholders are wrong because there's no scroll restoration here anyway
+            object-fit: cover;
+          }
+          .s-image-container.secondary {
+            // We only create this element (hover image) if hover is supported so no need to check for that here
+            position: absolute;
+            opacity: 0;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            transition: opacity 0.2s ease-in-out;
+          }
+        } @else if variables.$search-modal-layout == "classic" {
+          flex: 0 0 100px;
+        }
+      }
+
+      @if variables.$search-modal-layout == "v2" {
+        &.selected {
+          .title {
+            text-decoration: underline;
+          }
+          .img-part > :nth-child(2) {
+            opacity: 1;
+          }
+        }
+      }
+
+      .right-part {
+        flex-grow: 1;
+        display: flex;
+        justify-content: space-between;
+
+        @if variables.$search-modal-layout == "classic" {
+          @include utils.flex-gap($card-gap, "row nowrap");
+        } @else if variables.$search-modal-layout == "v2" {
+          flex-direction: column;
+          gap: 4px;
+
+          .price.orig,
+          .tagline {
+            color: variables.get-text-icon-color("subtle", "default");
+          }
+        }
+
+        @if variables.$search-modal-layout == "classic" {
+          .title-brand-tagline {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            @media (min-width: 601px) {
+              @include utils.flex-gap($card-gap, "row nowrap");
+            }
+
+            @media (max-width: 600px) {
+              @include utils.flex-gap($card-gap, "column nowrap");
+              flex-direction: column;
+              align-items: flex-start;
+            }
+          }
+        }
+        .title {
+          // Override shopify themes' default margin on all .title elements
+          margin: 0;
+          @if variables.$search-modal-layout == "v2" {
+            -webkit-line-clamp: 1;
+          } @else if variables.$search-modal-layout == "classic" {
+            -webkit-line-clamp: 2;
+          }
+        }
+
+        @if variables.get-merged(variables.$instant-card-defaults, variables.$instant-card, "show-tagline") {
+          .tagline {
+            -webkit-line-clamp: 1;
+            @if variables.$search-modal-layout == "classic" {
+              font-size: 0.9em;
+              color: variables.get-text-icon-color("subtle", "default");
+            } @else if variables.$search-modal-layout == "v2" {
+              order: 2;
+            }
+          }
+        } @else {
+          .tagline {
+            display: none;
+          }
+        }
+
+        .price-container {
+          @if variables.get-merged(variables.$instant-card-defaults, variables.$instant-card, "show-price") {
+            display: flex;
+
+            @if variables.$search-modal-layout == "classic" {
+              justify-content: center;
+              align-items: center;
+              @media (min-width: 601px) {
+                @include utils.flex-gap($card-gap, "row nowrap");
+              }
+            } @else if variables.$search-modal-layout == "v2" {
+              gap: 4px;
+            }
+
+            .price {
+              &:not(.orig) {
+                @if variables.$search-modal-layout == "classic" {
+                  font-weight: 700;
+                  color: variables.get-text-icon-color("neutral", "default");
+                }
+              }
+              &.orig {
+                text-decoration: line-through;
+                @if variables.$search-modal-layout == "classic" {
+                  color: variables.get-text-icon-color("subtle", "default");
+                }
+              }
+              &.sales-price {
+                @if variables.$search-modal-layout == "v2" {
+                  order: -1;
+                } @else if variables.$search-modal-layout == "classic" {
+                  color: variables.get-merged(
+                    variables.$instant-card-defaults,
+                    variables.$instant-card,
+                    "sales-price-color"
+                  );
+                }
+              }
+            }
+            @if variables.$search-modal-layout == "classic" {
+              @media (max-width: 600px) {
+                @include utils.flex-gap($card-gap, "column nowrap");
+                flex-direction: column;
+
+                .price:not(.orig) {
+                  order: 0;
+                }
+
+                .price.orig {
+                  order: 1;
+                }
+              }
+            }
+          } @else {
+            display: none;
+          }
+        }
+      }
+    }
+  }
+}

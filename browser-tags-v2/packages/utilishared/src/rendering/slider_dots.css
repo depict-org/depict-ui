@@ -1,0 +1,60 @@
+/* basically copy pasted from https://www.w3schools.com/howto/tryit.asp?filename=tryhow_css_custom_radio */
+
+/* The container */
+.depict .checkbox_container {
+  display: block;
+  position: relative;
+  padding-left: 28px;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Hide the browser's default radio button */
+.depict .checkbox_container input {
+  position: absolute;
+  opacity: 0;
+  display: none;
+  cursor: pointer;
+}
+
+/* Create a custom radio button */
+.depict .checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 16px;
+  width: 16px;
+  background-color: #b2b7b9;
+  border-radius: 50%;
+}
+
+/* On mouse-over, add a grey background color */
+.depict .checkbox_container:hover input ~ .checkmark {
+  background-color: #838788;
+}
+
+/* When the radio button is checked, add a blue background */
+.depict .checkbox_container input:checked ~ .checkmark {
+  background-color: #24a9e8;
+}
+
+/* Create the indicator (the dot/circle - hidden when not checked) */
+.depict .checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+/* Show the indicator (dot/circle) when checked */
+.depict .checkbox_container input:checked ~ .checkmark:after {
+  display: block;
+}
+
+.depict .navigation_dots {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}

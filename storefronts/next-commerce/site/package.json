@@ -1,0 +1,102 @@
+{
+  "name": "next-commerce",
+  "version": "0.0.1",
+  "license": "MIT",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "analyze": "BUNDLE_ANALYZE=both next build",
+    "lint": "next lint",
+    "prettier-fix": "prettier --write .",
+    "find:unused": "npx next-unused"
+  },
+  "sideEffects": false,
+  "dependencies": {
+    "@depict-ai/dpc": "^2.0.5",
+    "@depict-ai/react-ui": "^4.0.0",
+    "@radix-ui/react-dropdown-menu": "^1.0.0",
+    "@react-spring/web": "^9.7.2",
+    "@vercel/commerce": "workspace:*",
+    "@vercel/commerce-local": "workspace:*",
+    "@vercel/commerce-shopify": "workspace:*",
+    "autoprefixer": "^10.4.14",
+    "body-scroll-lock": "4.0.0-beta.0",
+    "clsx": "^1.2.1",
+    "email-validator": "^2.0.4",
+    "js-cookie": "^3.0.5",
+    "keen-slider": "^6.8.5",
+    "lodash.random": "^3.2.0",
+    "lodash.throttle": "^4.1.1",
+    "next": "13.2.3",
+    "next-themes": "latest",
+    "postcss": "^8.4.24",
+    "postcss-nesting": "^10.2.0",
+    "react": "latest",
+    "react-dom": "latest",
+    "react-fast-marquee": "^1.6.0",
+    "react-merge-refs": "^2.0.2",
+    "react-use-measure": "^2.1.1",
+    "sass": "^1.63.2",
+    "tabbable": "^5.3.3",
+    "tailwindcss": "^3.3.2"
+  },
+  "devDependencies": {
+    "@next/bundle-analyzer": "^12.3.4",
+    "@types/body-scroll-lock": "^3.1.0",
+    "@types/js-cookie": "^3.0.3",
+    "@types/lodash.random": "^3.2.7",
+    "@types/lodash.throttle": "^4.1.7",
+    "@types/node": "^18.16.16",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "eslint": "^8.42.0",
+    "eslint-config-next": "^12.3.4",
+    "eslint-config-prettier": "^8.8.0",
+    "lint-staged": "^13.2.2",
+    "postcss-flexbugs-fixes": "^5.0.2",
+    "postcss-preset-env": "^7.8.3",
+    "prettier": "^2.8.8",
+    "typescript": "4.7.4"
+  },
+  "lint-staged": {
+    "**/*.{js,jsx,ts,tsx}": [
+      "eslint",
+      "prettier --write",
+      "git add"
+    ],
+    "**/*.{md,mdx,json}": [
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "next-unused": {
+    "alias": {
+      "@lib/*": [
+        "lib/*"
+      ],
+      "@assets/*": [
+        "assets/*"
+      ],
+      "@config/*": [
+        "config/*"
+      ],
+      "@components/*": [
+        "components/*"
+      ],
+      "@utils/*": [
+        "utils/*"
+      ]
+    },
+    "debug": true,
+    "include": [
+      "components",
+      "lib",
+      "pages"
+    ],
+    "exclude": [],
+    "entrypoints": [
+      "pages"
+    ]
+  }
+}

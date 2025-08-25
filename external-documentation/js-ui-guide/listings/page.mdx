@@ -1,0 +1,121 @@
+---
+title: "Adding the CategoryPage to your site"
+---
+
+## The CategoryPage component
+
+Like [for the search page](/js-ui-guide/search/creating-page), we're layering an SPA on top of your site to enable fast client side routing between the category pages.
+
+Set up and configure your product listing pages using the `CategoryPage` component and a PageReplacer as follows.
+
+```tsx tsx
+import { CategoryPage, SetupPageReplacer } from "@depict-ai/js-ui";
+
+SetupPageReplacer({
+    // this should return true for pages that are a category page
+    isPageToReplace: url => url.pathname == "/category.html",
+    // selector of the element that should be replaced with the CategoryPage
+    selectorToReplace: `.replace-for-depict`,
+    renderContent: () =>
+      CategoryPage({
+        categoryProvider, // The categoryProvider instance you created in the previous step
+        productCard, // The productCard component you created in a previous step
+      }),
+  });
+```
+
+
+<Note>Review the types or [reference](/reference/listing-sdk/js-ui#categorypage-function) for other configurable properties</Note>
+
+## Different layout possibilities
+
+The default configuration displays the current category title above the product cards.
+<i>If</i> you want to render the title of the category yourself, do the following to remove the default title and also make the CategoryPage as compact as possible:
+
+```tsx
+import { CategoryPage, SetupPageReplacer, EmbeddedNumProducts } from "@depict-ai/js-ui";
+
+SetupPageReplacer({
+    isPageToReplace: url => url.pathname == "/category.html",
+    selectorToReplace: `.replace-for-depict`,
+    renderContent: () =>
+      CategoryPage({
+        categoryTitlePlugin: EmbeddedNumProducts, // <- Add this
+        categoryProvider,
+        productCard,
+      }),
+  });
+```
+
+
+<Frame caption="The CategoryPage in its most compact version, optimizing for the content being above the fold">
+    <img src="/images/category_compact.svg" style={{ width: "100%", aspectRatio: 7/13 }} ref={async element => {
+        if(!element) return;
+        // In prod, they have some zoom thing which breaks aspectRatio, work around that. Unfortunately this is not in the SSR'd output so there's still some CLS.
+        const direct_parent = element?.parentElement;
+        if(direct_parent?.matches?.("[data-rmiz-content]")) {
+            Object.assign(direct_parent.style, {
+                width: "100%",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center"
+            })
+        }
+        const parents_parent = direct_parent?.parentElement;
+        if(parents_parent?.matches?.("[aria-owns^='rmiz-modal']")) {
+            parents_parent.style.width = "100%";
+        }
+
+        // Fix background color in dark mode while still having cool, transparent light mode background
+        if(!window.utilishared_promise) {
+            window.utilishared_promise = new Promise(resolve => {
+                window.resolve_utilishared = resolve;
+                const script = document.createElement("script");
+                script.type = "module";
+                script.append(`
+            import * as utilishared from "https://esm.run/@depict-ai/utilishared@latest/latest";
+            window?.resolve_utilishared(utilishared);
+            `)
+                document.head.append(script);
+            })
+        }
+
+        const utilishared = await utilishared_promise;
+
+        const { style } = element;
+        const update_styling = () => {
+            const dark = document.documentElement.classList.contains("dark");
+            style.background = dark ? "white" : "";
+            style.padding = dark ? "5px" : "";
+            style.borderRadius = dark ? "0.75rem" : "";
+        };
+        const m_o = new MutationObserver(utilishared.catchify(update_styling));
+        m_o.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ["class"]
+        })
+        update_styling();
+        utilishared.observer.onremoved(element, () => m_o.disconnect());
+    }}  />
+</Frame>
+
+## Navigating to category pages without reloading the page
+
+You can link to the category pages and then PageReplacer will only single-page-navigate between the different category pages.
+
+If you, however, want to replace the current page with a category page without a reload, you can do the following:
+
+```html
+<a href="URL_OF_CATEGORY" data-category-id="CATEGORY-ID" class="category-link">CATEGORY_NAME</a>
+```
+
+```tsx
+import { onExistsObserver } from "@depict-ai/js-ui";
+
+onExistsObserver("a.category-link", element => element.addEventListener("click", ev => {
+  if (ev.button || ev.metaKey || ev.ctrlKey) return; // Still allow cmd-click to open in new tab
+  const new_id = element.dataset.listingId!;
+  history.pushState({ ...history.state }, "", element.href; // change URL to the product listing page
+  categoryProvider.listingQuery = { type: "listingId", id: new_id }; // change what product listing is being displayed to the new product listing page
+}));
+```

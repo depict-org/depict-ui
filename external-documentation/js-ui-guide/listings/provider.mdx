@@ -1,0 +1,29 @@
+---
+title: "Configuring the category provider"
+---
+
+Import the `DepictCategoryProvider` component from the installed package and create an instance of DepictCategoryProvider:
+
+```tsx
+import { DepictCategoryProvider } from "@depict-ai/js-ui";
+import { en_GB } from "@depict-ai/js-ui/locales";
+import { YourDisplay } from "./display-types.ts"
+
+const categoryProvider = new DepictCategoryProvider<YourDisplay>({
+  // Wondering what your MERCHANT_ID is? Depict engineers aren't very creative here, so you can probably guess. Odds are it's your company name or an abbreviation thereof, all lower case and only a-z or 1-9. Ask us if you can't get it working.
+  merchant: "MERCHANT_ID",
+  // Wondering what your MARKET(s) is/are? Check on demo.depict.ai
+  market: "MARKET",
+  // Your listingQuery, as per last page
+  listingQuery: myListingQuery,
+  // A JavaScript object that handles UI translations, price formatting as well as what language the backend responds with. Check what locales are available for you on demo.depict.ai, then import them from the `@depict-ai/react-ui/locales` subpackage. You can also extend them using spread.
+  locale: en_GB,
+  // sessionId: "USER_ID", // <- Optionally you can override the default session id used for personalization here
+});
+```
+
+<Note>
+    Review the types or the [reference](/reference/listing-sdk/js-ui#depictcategoryprovider-class) to see what you can configure on DepictProvider.
+</Note>
+
+<Tip>If you're seeing a type error after providing YourDisplay, don't fret and go to the next step</Tip>

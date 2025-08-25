@@ -1,0 +1,202 @@
+---
+title: "Adding a way to open the Search Modal"
+---
+
+The search modal is what's used to make a search and get to the results page. You need to add a way for the user to open the modal.
+
+There are three ways to do this:
+
+<AccordionGroup>
+    <Accordion title="Option 1: Re-using your existing search button">
+        <Steps>
+            <Step title="First Step">
+                Remove any event listeners from your existing search button so that nothing happens when clicking it
+            </Step>
+            <Step title="Second Step">
+                Add the `open-depict-search` class to your search button to make it open the Depict search modal.
+            </Step>
+            <Step title="Done">
+                Clicking the search button should now open the Depict search modal.
+            </Step>
+        </Steps>
+    </Accordion>
+    <Accordion title="Option 2: Adding a Depict search button">
+        <Steps>
+            <Step title="First Step">
+                Add a search button block in the theme editor (Or manually add `<div class="depict-search-button"></div>` in your theme)
+
+                <Frame caption="Adding a search button block in the theme editor" style={{maxWidth: "500px"}}>
+                    <img src="https://cdn.statically.io/gh/depict-org/documentation-images/main/shopify/adding-search-button.svg" style={{aspectRatio: 1280/2144, width: "100%"}} ref={element => {
+                        // In prod, they have some zoom thing which breaks aspectRatio, work around that. Unfortunately this is not in the SSR'd output so there's still some CLS.
+                        const direct_parent = element?.parentElement;
+                        if(direct_parent?.matches?.("[data-rmiz-content]")) {
+                            Object.assign(direct_parent.style, {
+                                width: "100%",
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center"
+                            })
+                        }
+                        const parents_parent = direct_parent?.parentElement;
+                        if(parents_parent?.matches?.("[aria-owns^='rmiz-modal']")) {
+                            parents_parent.style.width = "100%";
+                        }
+                    }} />
+                </Frame>
+            </Step>
+            <Step title="Second Step">
+                Style the button using the style editor in the Depict app configuration interface.
+            </Step>
+            <Step title="Done">
+                Clicking the search button should now open the Depict search modal.
+            </Step>
+        </Steps>
+    </Accordion>
+    <Accordion title="Option 3: Adding a Depict search field">
+        If you prefer a visible search field in your header instead of just a button, there is a "Depict Search Field" block that you can use which will automatically align and connect to the modal.
+
+        <Steps>
+            <Step title="First Step">
+            Add a search field block in the theme editor (Or manually add `<div class="depict-search-field"></div>` in your theme)
+                <Frame caption="Adding a search field block in the theme editor" style={{maxWidth: "500px"}}>
+                    <img src="https://cdn.statically.io/gh/depict-org/documentation-images/main/shopify/adding-search-field.svg" style={{aspectRatio: 1280/2144, width: "100%"}} ref={element => {
+                        // In prod, they have some zoom thing which breaks aspectRatio, work around that. Unfortunately this is not in the SSR'd output so there's still some CLS.
+                        const direct_parent = element?.parentElement;
+                        if(direct_parent?.matches?.("[data-rmiz-content]")) {
+                            Object.assign(direct_parent.style, {
+                                width: "100%",
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center"
+                            })
+                        }
+                        const parents_parent = direct_parent?.parentElement;
+                        if(parents_parent?.matches?.("[aria-owns^='rmiz-modal']")) {
+                            parents_parent.style.width = "100%";
+                        }
+                    }} />
+                </Frame>
+            </Step>
+            <Step title="Done">
+            You now have a search field that will open the Depict search modal, aligned to it, as you can see in the following screenshots.
+
+                <Frame caption='The "Depict Search Field" block'>
+                    <img src="https://cdn.statically.io/gh/depict-org/documentation-images/main/shopify/search-field-block-added.svg" style={{aspectRatio: 3268/2830, width: "100%"}} ref={element => {
+                        // In prod, they have some zoom thing which breaks aspectRatio, work around that. Unfortunately this is not in the SSR'd output so there's still some CLS.
+                        const direct_parent = element?.parentElement;
+                        if(direct_parent?.matches?.("[data-rmiz-content]")) {
+                            Object.assign(direct_parent.style, {
+                                width: "100%",
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center"
+                            })
+                        }
+                        const parents_parent = direct_parent?.parentElement;
+                        if(parents_parent?.matches?.("[aria-owns^='rmiz-modal']")) {
+                            parents_parent.style.width = "100%";
+                        }
+                    }} />
+                </Frame>
+
+                  <Frame caption='The search modal that aligns to the search field when focusing/clicking it'>
+                    <img src="https://cdn.statically.io/gh/depict-org/documentation-images/main/shopify/search-field-aligned-modal.svg" style={{aspectRatio: 3268/2830, width: "100%"}} ref={element => {
+                        // In prod, they have some zoom thing which breaks aspectRatio, work around that. Unfortunately this is not in the SSR'd output so there's still some CLS.
+                        const direct_parent = element?.parentElement;
+                        if(direct_parent?.matches?.("[data-rmiz-content]")) {
+                            Object.assign(direct_parent.style, {
+                                width: "100%",
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center"
+                            })
+                        }
+                        const parents_parent = direct_parent?.parentElement;
+                        if(parents_parent?.matches?.("[aria-owns^='rmiz-modal']")) {
+                            parents_parent.style.width = "100%";
+                        }
+                    }} />
+                </Frame>
+            </Step>
+        </Steps>
+    </Accordion>
+</AccordionGroup>
+
+
+<Tip>Now that you have added the Depict search to your site, we recommend removing all traces (including JavaScript) of your old search to improve pagespeed.</Tip>
+
+
+## Optional: Alignment options
+
+When using the <b>search field</b>, the modal will automatically align to the SearchField (landscape modal) or align to it initially and then animate the X-direction to be centered (portrait modal).
+
+When using a <b>search button</b>, there are two different alignment modes available, provided you're using the landscape search modal:
+
+<CardGroup cols={2}>
+    <Frame caption="Center aligned (default), Click to enlarge">
+        <img src="https://cdn.statically.io/gh/depict-org/documentation-images/main/shopify/search-modal-center-aligned.svg" style={{aspectRatio: 6634.667/3602.667, width: "100%"}} ref={element => {
+            // In prod, they have some zoom thing which breaks aspectRatio, work around that. Unfortunately this is not in the SSR'd output so there's still some CLS.
+            const direct_parent = element?.parentElement;
+            if(direct_parent?.matches?.("[data-rmiz-content]")) {
+                Object.assign(direct_parent.style, {
+                    width: "100%",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center"
+                })
+            }
+            const parents_parent = direct_parent?.parentElement;
+            if(parents_parent?.matches?.("[aria-owns^='rmiz-modal']")) {
+                parents_parent.style.width = "100%";
+            }
+        }} />
+    </Frame>
+    <Frame caption="Vertically aligned to button, click to enlarge">
+    <img src="https://cdn.statically.io/gh/depict-org/documentation-images/main/shopify/search-modal-button-aligned.svg" style={{aspectRatio: 6634.667/3602.667, width: "100%"}} ref={element => {
+        // In prod, they have some zoom thing which breaks aspectRatio, work around that. Unfortunately this is not in the SSR'd output so there's still some CLS.
+        const direct_parent = element?.parentElement;
+        if(direct_parent?.matches?.("[data-rmiz-content]")) {
+            Object.assign(direct_parent.style, {
+                width: "100%",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center"
+            })
+        }
+        const parents_parent = direct_parent?.parentElement;
+        if(parents_parent?.matches?.("[aria-owns^='rmiz-modal']")) {
+            parents_parent.style.width = "100%";
+        }
+    }} />
+</Frame>
+</CardGroup>
+
+<br />
+<b>One advantage of aligning the modal to the button is that the position of the modal won't shift as the content in it changes.</b>
+
+### Enabling the vertically-aligned-to-button mode
+
+1. When re-using your existing search button, add `data-align-to-self="true"` to the element.
+2. When using the "Depict Search Button"-block, check the "enable button to modal in y-axis" box in the block settings
+
+<Frame caption='Block settings of the "Depict Search Button"'>
+    <img src="https://cdn.statically.io/gh/depict-org/documentation-images/main/shopify/button-alignment-option.svg" style={{aspectRatio: 1111.608/1764.897, width: "100%", maxWidth: "400px"}} ref={element => {
+        // In prod, they have some zoom thing which breaks aspectRatio, work around that. Unfortunately this is not in the SSR'd output so there's still some CLS.
+        const direct_parent = element?.parentElement;
+        if(direct_parent?.matches?.("[data-rmiz-content]")) {
+            Object.assign(direct_parent.style, {
+                width: "100%",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center"
+            })
+        }
+        const parents_parent = direct_parent?.parentElement;
+        if(parents_parent?.matches?.("[aria-owns^='rmiz-modal']")) {
+            parents_parent.style.width = "100%";
+        }
+    }} />
+</Frame>
+
+
+<Info>Please give us feedback if you want to align the modal to other, arbitrary DOM elements.</Info>

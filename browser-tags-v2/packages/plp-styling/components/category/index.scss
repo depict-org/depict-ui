@@ -1,0 +1,6 @@
+/// Component style mixins for Category styling
+/// Don't forget to also include PLP styling
+
+@forward "QuickLinks";
+@forward "CategoryTitle";
+@forward "../PLP/ProductListingPage";

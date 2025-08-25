@@ -1,0 +1,104 @@
+---
+title: "Adding the CategoryPage to your site"
+---
+
+## The CategoryPage component
+
+After setting up dynamic routing to your product listing pages pages, you must set up and configure your product listing pages using the `CategoryPage` component. Import the component from the Depict UI and nest it into your applications category page component.
+
+```tsx tsx
+import { CategoryPage } from "@depict-ai/react-ui";
+import ProductCard from "./ProductCard";
+
+function Category() {
+  return (
+    <div>
+      <CategoryPage
+        listingQuery={{ type: "listingId", id: YOUR_LISTING_ID }}
+        productCard={ProductCard}
+      />
+    </div>
+  );
+}
+
+export default Category;
+
+```
+
+* The `productCard` prop accepts your custom `ProductCard` component that receives and renders your category data.
+* The `listingQuery` prop accepts the unique identifier for the current category/collection, see [the last page](/react-ui-guide/listings/id-source-of-truth).
+
+
+<Tip>To change what category the `CategoryPage` component is displaying, change the `listingQuery` prop to the new category's unique identifier. Make sure to update it as the user navigates.</Tip>
+
+
+<Note>Review the types or <u>[reference](/reference/listing-sdk/listing-page-react-sdk#the-categorypage-component)</u> for other <b>configurable properties</b></Note>
+
+## Different layout possibilities
+
+The default configuration displays the current category title above the product cards.
+<i>If</i> you want to render the title of the category yourself, do the following to remove the default title and also make the CategoryPage as compact as possible:
+
+```tsx
+import { EmbeddedNumProducts } from "@depict-ai/react-ui"; // <- Add this import
+
+ <CategoryPage
+    categoryId="CATEGORY_IDENTIFIER"
+    productCard={ProductCard}
+    categoryTitlePlugin={EmbeddedNumProducts} // <- Add this property
+  />
+
+```
+
+
+<Frame caption="The CategoryPage in its most compact version, optimizing for the content being above the fold">
+    <img src="/images/category_compact.svg" style={{ width: "100%", aspectRatio: 7/13 }} ref={async element => {
+        if(!element) return;
+
+        // In prod, they have some zoom thing which breaks aspectRatio, work around that. Unfortunately this is not in the SSR'd output so there's still some CLS.
+        const direct_parent = element?.parentElement;
+        if(direct_parent?.matches?.("[data-rmiz-content]")) {
+            Object.assign(direct_parent.style, {
+                width: "100%",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center"
+            })
+        }
+        const parents_parent = direct_parent?.parentElement;
+        if(parents_parent?.matches?.("[aria-owns^='rmiz-modal']")) {
+            parents_parent.style.width = "100%";
+        }
+
+        // Fix background color in dark mode while still having cool, transparent light mode background
+        if(!window.utilishared_promise) {
+            window.utilishared_promise = new Promise(resolve => {
+                window.resolve_utilishared = resolve;
+                const script = document.createElement("script");
+                script.type = "module";
+                script.append(`
+            import * as utilishared from "https://esm.run/@depict-ai/utilishared@latest/latest";
+            window?.resolve_utilishared(utilishared);
+            `)
+                document.head.append(script);
+            })
+        }
+
+        const utilishared = await utilishared_promise;
+
+        const { style } = element;
+        const update_styling = () => {
+            const dark = document.documentElement.classList.contains("dark");
+            style.background = dark ? "white" : "";
+            style.padding = dark ? "5px" : "";
+            style.borderRadius = dark ? "0.75rem" : "";
+        };
+        const m_o = new MutationObserver(utilishared.catchify(update_styling));
+        m_o.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ["class"]
+        })
+        update_styling();
+        utilishared.observer.onremoved(element, () => m_o.disconnect());
+    }}  />
+</Frame>

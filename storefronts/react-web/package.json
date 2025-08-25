@@ -1,0 +1,39 @@
+{
+  "name": "react-web",
+  "packageManager": "yarn@4.0.2",
+  "private": true,
+  "scripts": {
+    "dev": "yarn parcel serve src/index.html -p 3000 --no-cache",
+    "link-all": "yarn link ../../browser-tags-v2/packages/types/ && yarn link ../../browser-tags-v2/packages/utilishared/ && yarn link ../../browser-tags-v2/packages/performance-client/ && yarn link ../../browser-tags-v2/packages/plp-styling/ && yarn link ../../browser-tags-v2/packages/ui/ && yarn link ../../browser-tags-v2/packages/react-ui/",
+    "unlink-all": "yarn unlink ../../browser-tags-v2/packages/react-ui/ && yarn unlink ../../browser-tags-v2/packages/ui/ && yarn unlink ../../browser-tags-v2/packages/plp-styling/ && yarn unlink ../../browser-tags-v2/packages/performance-client/ && yarn unlink ../../browser-tags-v2/packages/utilishared/ && yarn unlink ../../browser-tags-v2/packages/types/",
+    "build": "parcel build src/index.html",
+    "start": "http-server dist -p 3000",
+    "clean": "rm -rf dist .parcel-cache node_modules"
+  },
+  "@parcel/resolver-default": {
+    "packageExports": true
+  },
+  "devDependencies": {
+    "@babel/core": "latest",
+    "@parcel/core": "^2.9.3",
+    "@parcel/transformer-inline-string": "^2.9.3",
+    "@parcel/transformer-sass": "^2.9.3",
+    "http-server": "^14.1.1",
+    "parcel": "^2.9.3",
+    "prettier": "^2.8.1",
+    "process": "^0.11.10",
+    "sass": "^1.56.2",
+    "typescript": "^4.9.4"
+  },
+  "dependencies": {
+    "@depict-ai/react-ui": "^3.0.1",
+    "@types/react": "^18.2.39",
+    "react": "16.14.0",
+    "react-dom": "16.14.0",
+    "react-router-dom": "6.10.0"
+  },
+  "resolutions": {
+    "htmlnano": "2.0.3",
+    "@parcel/workers@2.9.3": "patch:@parcel/workers@npm%3A2.9.3#./.yarn/patches/@parcel-workers-npm-2.9.3-b0559c8ccb.patch"
+  }
+}

@@ -1,0 +1,93 @@
+---
+title: "React UI Reference"
+description: "Reference of the depict Recommendations React components"
+---
+
+Functions are exported from `@depict-ai/react-ui`.
+
+## RecommendationSlider component
+
+Renders a slider of product cards, to be used for displaying recommendations.
+See [this guide](/api-guide/recommendations/introduction) for how to fetch recommendations to provide as `recommendations`.
+
+The following table shows the `RecommendationSlider`'s configuration properties, their types, and descriptions:
+
+<ResponseField name="recommendations" type="Promise<T[]>">
+  A promise resolving to an array of recommendations.
+</ResponseField>
+
+<ResponseField name="productCard" type="React.Element<typeof Component>">
+  The React component to use for rendering products.
+</ResponseField>
+
+<ResponseField
+  name="columnsAtSize"
+  type="SDKColsAtSize?"
+  default="[[2, 901], [3, 1024], [4]]"
+>
+  How many columns to show at each media size.
+</ResponseField>
+
+<ResponseField name="gridSpacing" type="SDKGridSpacing?" default="2%">
+  The spacing between products.
+</ResponseField>
+
+## RecommendationGrid component
+
+Renders a grid of product cards, to be used for displaying recommendations.
+See [this guide](/api-guide/recommendations/introduction) for how to fetch recommendations to provide as `recommendations`.
+
+The following table shows the `RecommendationGrid`'s configuration properties, their types, and descriptions:
+
+<ResponseField name="recommendations" type="Promise<T[]>">
+  A promise resolving to an array of recommendations/displays.
+</ResponseField>
+
+<ResponseField name="productCard" type="React.Element<typeof Component>">
+  The React component to use for rendering products.
+</ResponseField>
+
+<ResponseField
+  name="gridSpacing"
+  type="(string | {
+    horizontal: string;
+    vertical: string;
+})?"
+  default="2%"
+>
+  The spacing between the product cards.
+</ResponseField>
+
+<ResponseField
+    name="maxRows"
+    type="number?"
+>
+    The number of rows to limit the grid to. Won't work if columnsAtSize is an empty array as it is used to calculate the number of rows dynamically depending on screen size.
+</ResponseField>
+
+<ResponseField
+  name="columnsAtSize"
+  type="[number, number?][]?"
+  default="[[2, 901], [3, 1024], [4]]"
+>
+  How many columns to show at each media size. For example, `[[2, 901], [3,
+  1024], [4]]` means 2 columns at sizes up to 901px, 3 columns at sizes up to
+  1024px and after that 4 columns at any viewport size.
+</ResponseField>
+
+<ResponseField
+  name="viewMoreButton"
+  type="{ text: string; startRows?: number; rowsPerClick?: number; }?"
+>
+  Optional configuration for the view more button. If unset, all products will
+  be shown by default. Otherwise, a view more button with the given text will be
+  shown. With the properties startRows and rowsPerClick, you can configure how
+  many rows should be shown initially and how many rows should be added on each
+  click.
+</ResponseField>
+
+<Tip>
+  Looking for a translation for the view more button? The locales exported from
+  `@depict-ai/react-ui/locales` should have a `view_more_` property that you can
+  use.
+</Tip>

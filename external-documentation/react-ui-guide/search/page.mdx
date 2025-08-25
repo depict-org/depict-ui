@@ -1,0 +1,26 @@
+---
+title: "Adding the SearchPage to your site"
+---
+
+The next step is to add the `SearchPage` component to the search results page you created, on the URL matching the `searchPagePath`. `SearchPage` is the component that will be used to display the search results.
+
+You will need to add the product card you created in [a previous step](/react-ui-guide/setup/product-card) here.
+
+An example looks like this:
+
+```tsx
+import { SearchPage } from "@depict-ai/react-ui";
+import { ProductCard } from "../../components/ProductCard";
+
+export default function SearchResultsPage() {
+  return (
+    <main>
+      <SearchPage productCard={ProductCard} />
+    </main>
+  );
+}
+```
+
+Use the `columnsAtSize` prop to handle breakpoints on your search results page. It defines the number of product card columns displayed at each screen size.
+
+<Note>To find out more about the Search UI SDK's components and hooks and their usage configurations, see [React component API](/reference/search-sdk/search-react-sdk#the-searchpage-component).</Note>

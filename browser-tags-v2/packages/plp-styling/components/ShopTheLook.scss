@@ -1,0 +1,121 @@
+@use "../helpers/utils";
+@use "../helpers/modal-backdrop";
+@use "../variables";
+@use "./Tabs";
+
+$spacing-unit: 2px;
+
+@mixin ShopTheLook() {
+  .depict.shop-the-look {
+    @include Tabs.Tabs();
+
+    .shop-the-look-backdrop {
+      @include modal-backdrop.modal-backdrop(
+        $background: rgba(variables.get-background-color("inverse", "default"), 0.2),
+        $z-index: variables.$base-z-index
+      );
+    }
+
+    a,
+    button {
+      &:focus-visible {
+        outline: 1px solid variables.get-border-color("base", "default");
+      }
+    }
+
+    .modal-contents {
+      max-height: min(90vh, 800px);
+      overflow: hidden;
+      width: min(100vw, 1000px);
+      position: fixed;
+      left: 50%;
+      z-index: calc(#{variables.$base-z-index} + 1);
+      background: variables.get-background-color("base", "default");
+      display: flex;
+      flex-direction: column;
+      @media (min-height: 740px) and (min-width: 740px) {
+        padding: calc(#{$spacing-unit} * 12);
+        top: 50%;
+        transform: translate(-50%, -50%);
+        border-radius: calc(#{variables.$border-radius} * 2.5);
+      }
+      @media (max-height: 739px), (max-width: 739px) {
+        padding: calc(#{$spacing-unit} * 6);
+        transform: translateX(-50%);
+        bottom: 0;
+        border-top-left-radius: calc(#{variables.$border-radius} * 2.5);
+        border-top-right-radius: calc(#{variables.$border-radius} * 2.5);
+      }
+
+      h2 {
+        font-size: 1.5em;
+        text-align: center;
+        margin: 0;
+      }
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: flex-end;
+
+      .close {
+        border: none;
+        background: none;
+        cursor: pointer;
+        padding: 4px;
+        display: flex;
+        path {
+          fill: variables.get-text-icon-color("neutral", "default");
+        }
+      }
+    }
+
+    .below-top-bar {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      gap: #{$spacing-unit * 24};
+
+      .tabs {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+      }
+      .recommendation-grid .cards {
+        padding: #{$spacing-unit * 6};
+      }
+      section.tabs-body {
+        flex-grow: 1;
+        border-left: 1px solid variables.get-border-color("subtle", "default");
+        border-bottom: 1px solid variables.get-border-color("subtle", "default");
+        border-right: 1px solid variables.get-border-color("subtle", "default");
+        border-bottom-right-radius: variables.$border-radius;
+        border-bottom-left-radius: variables.$border-radius;
+        overflow: auto;
+      }
+
+      nav.tabs-bar {
+        align-self: stretch;
+        a {
+          padding: #{$spacing-unit * 4} #{$spacing-unit * 6};
+        }
+      }
+
+      .image-and-suggestions {
+        display: flex;
+        gap: #{$spacing-unit * 8};
+        min-height: 0;
+
+        .image-container {
+          @media (max-width: 651px) {
+            display: none;
+          }
+          flex-shrink: 0;
+          width: calc(100% / 3);
+          border-radius: variables.$border-radius;
+          overflow: hidden;
+        }
+      }
+    }
+  }
+}

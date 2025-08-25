@@ -1,0 +1,14 @@
+#!/bin/bash
+# https://stackoverflow.com/a/246128
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+node "$SCRIPT_DIR/pre_build.cjs"
+NO_PRIVATE_TRANSPILATION=true parcel build --no-source-maps
+node "$SCRIPT_DIR/post_build.cjs"
+
+node "$SCRIPT_DIR/../../../build_scripts/organise_transpiled_package_exports.cjs" performance-client
+
+
+# The sole reason the dist folder still exists is to not break people importing from "https://esm.run/@depict-ai/dpc@1.0/dist/module.js"
+mkdir -p "$SCRIPT_DIR/../dist"
+cp "$SCRIPT_DIR"/../ES10/* "$SCRIPT_DIR/../dist"

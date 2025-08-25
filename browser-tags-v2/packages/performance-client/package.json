@@ -1,0 +1,100 @@
+{
+  "name": "@depict-ai/dpc",
+  "version": "2.6.1",
+  "packageManager": "yarn@3.2.2",
+  "source": "./src/index.ts",
+  "types": "ES10/index.d.ts",
+  "description": "Depict Performance Client",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "type": "module",
+  "scripts": {
+    "serve": "yarn workspace depict-ai parcel serve --port 1234 --target dev --hmr-port 2345 ./packages/performance-client/index_cdn.ts",
+    "build": "./scripts/build",
+    "publish": "yarn build && yarn npm publish",
+    "print-included-package-files": "yarn pack --dry-run",
+    "typecheck": "yarn g:tsc --build tsconfig.json"
+  },
+  "targets": {
+    "module_latest": {
+      "outputFormat": "esmodule",
+      "isLibrary": true,
+      "context": "node",
+      "engines": {
+        "browsers": "last 1 chrome version"
+      },
+      "optimize": false
+    },
+    "main_latest": {
+      "outputFormat": "commonjs",
+      "isLibrary": true,
+      "context": "node",
+      "engines": {
+        "browsers": "last 1 chrome version"
+      },
+      "optimize": false
+    },
+    "module_es10": {
+      "outputFormat": "esmodule",
+      "isLibrary": true,
+      "context": "node",
+      "engines": {
+        "browsers": "supports array-flat"
+      },
+      "optimize": false
+    },
+    "main_es10": {
+      "outputFormat": "commonjs",
+      "isLibrary": true,
+      "context": "node",
+      "engines": {
+        "browsers": "supports array-flat"
+      },
+      "optimize": false
+    }
+  },
+  "exports": {
+    ".": {
+      "types": "./ES10/index.d.ts",
+      "import": "./ES10/index.js",
+      "require": "./ES10/index.cjs"
+    },
+    "./latest": {
+      "types": "./latest/index.d.ts",
+      "import": "./latest/index.js",
+      "require": "./latest/index.cjs"
+    },
+    "./ES10": {
+      "types": "./ES10/index.d.ts",
+      "import": "./ES10/index.js",
+      "require": "./ES10/index.cjs"
+    },
+    "./dist/*": {
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "/latest",
+    "/ES10",
+    "./multi_import_deduplicator.mjs",
+    "./multi_import_deduplicator.cjs",
+    "./dist"
+  ],
+  "devDependencies": {
+    "@babel/core": "latest",
+    "@parcel/resolver-default": "^2.10.3",
+    "@types/node": "^18.11.10",
+    "parcel": "^2.10.3"
+  },
+  "dependencies": {
+    "@babel/plugin-transform-typescript": "^7.22.9",
+    "@babel/runtime": "latest",
+    "@babel/runtime-corejs3": "^7.22.6",
+    "@depict-ai/types": "workspace:^",
+    "@depict-ai/utilishared": "workspace:^"
+  },
+  "main": "ES10/index.cjs",
+  "module": "ES10/index.js"
+}

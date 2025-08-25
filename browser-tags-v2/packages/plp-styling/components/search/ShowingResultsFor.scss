@@ -1,0 +1,7 @@
+/// This is the styling for the text that says "Showing __30__ result(s) for __falk__"
+@mixin ShowingResultsFor() {
+  .results-for {
+    font-size: 1.5em;
+    overflow-wrap: anywhere;
+  }
+}

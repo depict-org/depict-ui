@@ -1,0 +1,61 @@
+@use "sass:color";
+@use "customised-plp-styling";
+
+input[type="text"],
+select {
+  border: 1px solid customised-plp-styling.get-border-color("subtle", "default");
+  padding: customised-plp-styling.get-spacing("xs") customised-plp-styling.get-spacing("sm");
+  border-radius: calc(#{customised-plp-styling.$border-radius} * 2);
+  color: customised-plp-styling.get-text-icon-color("base", "default");
+
+  &:focus {
+    border: 1px solid customised-plp-styling.get-border-color("accent", "default");
+    outline: none;
+  }
+}
+
+input[type="text"]:not(.query),
+select {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  background-color: color.change(customised-plp-styling.get-background-color("base", "default"), $alpha: 0.6);
+}
+
+input::placeholder {
+  color: customised-plp-styling.get-text-icon-color("neutral", "default");
+  opacity: 1;
+}
+
+select {
+  // Learn about this solution to creating custom select styles:
+  // @link https://moderncss.dev/custom-select-styles-with-pure-css/
+
+  // A reset of styles, including removing the default dropdown arrow
+  appearance: none;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  font-family: inherit;
+  font-size: inherit;
+  cursor: inherit;
+  line-height: inherit;
+  // Inspired by https://stackoverflow.com/questions/14218307/select-arrow-style-change
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 11 11" fill="none"><path d="M8.317 4.619L5.253 7.683 2.188 4.619" stroke="#{if(customised-plp-styling.$darkmode, white, black)}" stroke-width=".735" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+  background-repeat: no-repeat;
+  background-position-x: calc(100% - 10px);
+  background-position-y: 50%;
+  padding-right: customised-plp-styling.get-spacing("xl");
+}
+
+.depict.plp button.major:disabled {
+  cursor: default;
+  &,
+  &:hover,
+  &:active {
+    @if customised-plp-styling.$darkmode {
+      background: color.adjust(customised-plp-styling.get-background-color("inverse", "default"), $lightness: -30%);
+    } @else {
+      background: color.adjust(customised-plp-styling.get-background-color("inverse", "default"), $lightness: 30%);
+    }
+  }
+}

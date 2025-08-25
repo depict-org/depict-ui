@@ -1,0 +1,300 @@
+---
+title: "React UI Reference"
+description: "Learn more about the Depict Search UI React SDK, its components and configuration."
+---
+
+The Depict UI React SDK enables seamless integration of Depict Search UI into your React web applications. With our developer-friendly components and wrappers, you can effortlessly add powerful search functionality to your eCommerce website.
+
+Please find the guide on how to integrate with depict if you're using react [here](/react-ui-guide/introduction).
+
+## The Depict search modal
+
+The Depict search modal is the component that captures users' queries in a text field. This component is triggered when either of the following events occurs:
+
+- The `open` callback function, returned by the `useDepictSearchModal hook`, is called.
+- When a click event occurs on the `DepictSearchField` component.
+  In both cases, you can align the top of the modal to the top of another DOM element by using the `alignerRef` property.
+
+<Note>
+📘 **Modal alignment on smaller screens**
+
+When the viewport height is below 900px, the search modal will overlook the element reference passed to the `alignerRef` property and center the search modal to the top of the viewport.
+
+</Note>
+
+## React component API
+
+The SDK is pre-built with React components and wrappers, making it a perfect fit for React.js and Next.js web applications. The following sections describe these components and their configuration.
+
+### The `DepictProvider` component
+
+The `DepictProvider` is a wrapper component for the root component of your entire application. It provides configuration to all Depict UI components beneath it
+
+```typescript TypeScript
+return (
+  <DepictProvider
+    merchant="MERCHANT_ID"
+    market="MARKET_IDENTIFIER"
+    search={{
+      searchPagePath: "SEARCH_RESULTS_PAGE_PATH",
+    }}
+  >
+    <div className="App">...</div>
+  </DepictProvider>
+);
+```
+
+The following table shows all `DepictProvider` configuration properties, their types, and descriptions:
+
+<ResponseField name="merchant" type="string">
+  This is the unique merchant identifier given by Depict.
+</ResponseField>
+
+<ResponseField name="market" type="string">
+  This specifies the market identifier.
+</ResponseField>
+
+<ResponseField name="locale" type="Locale">
+    Locale object imported from `@depict-ai/react-ui/locales`. Determines
+    1. The translations for the UI
+    2. The locale to request from backend
+    3. The currency formatting used on the frontend
+
+    You have to check [demo.depict.ai](https://demo.depict.ai) to see which locales the Depict backend accepts for your specific merchant.
+    The different objects exported from `@depict-ai/js-ui/locales` have a `backend_locale_` property equivalent to their name, so either import the locale with the correct name (recommended) or just set the `backend_locale_` property to the correct value.
+
+    You can modify or create your own locale object as long as it's the same format as the ones in `@depict-ai/js-ui/locales`.
+</ResponseField>
+
+<ResponseField name="search" type="object">
+  Configuration object lets you customize your website's search parameters, see further below.
+</ResponseField>
+
+<ResponseField name="navigateFunction" type="(href: string) => void">
+  This function will be used internally by our components to navigate between
+  Depict Search UI pages.This prop is required in all applications that don’t
+  use Next.JS
+</ResponseField>
+
+<ResponseField name="sessionId" type="string?">
+    Optionally you can override the default session id used for personalization here. This is the ID that will be used to tie together the different tracking events for a user.
+</ResponseField>
+
+<ResponseField name="metaData" type="object">
+A `<string, string>` map of custom metadata to include in API requests to Depict
+</ResponseField>
+
+<ResponseField name="displayTransformers?" type="DisplayTransformers">
+    DisplayTransformers are functions that take in a list of categories, content search results or products and then can transform or enrich the data for each category, content search result or product card in a batched way. See
+    [Creating page URLs and enriching product
+    data](/reference/listings-search/display-transformers).
+</ResponseField>
+
+The `search` property on the `DepictProvider` wrapper is a configuration object that allows you to modify search parameters on your website. Use the config to tailor your search URL and behavior. The following table shows the `search` object's configuration properties:
+
+<ResponseField name="searchPagePath" type="string" default="undefined">
+  The unique URL path to your website's search page.
+</ResponseField>
+
+<ResponseField name="urlParamName" type="string" default="search_query">
+  The URL parameter (or query string) for each search on your website.
+</ResponseField>
+
+<ResponseField name="enableCategorySuggestions" type="boolean" default="false">
+    Whether to enable showing product listing pages matching the search query, in the search modal and search page.
+</ResponseField>
+
+<ResponseField name="enableContentSearch" type="boolean" default="false">
+  Enable or disable content search (seeing articles, FAQ, blog posts, etc in
+  search results).
+</ResponseField>
+
+<ResponseField name="searchModalComponent" type="typeof SearchModalV2 | typeof ClassicSearchModal" default="typeof SearchModalV2">
+    The search modal component to use. You can switch between the classic and the new search modal. See [here](/react-ui-guide/search/overview#2-the-search-modal-opens-this-is-what-the-user-sees-while-typing-a-query) for screenshots. Provide one of the components here that you can import from the same package as the one you're using to see this message (`SearchModalV2` or `ClassicSearchModal`).
+    You also need to reflect the choice in SCSS, example:
+    ```scss
+    @use "@depict-ai/js-ui" as plp-styling with (
+      $search-modal-layout: "v2" // or "classic"
+    );
+    ```
+    The default is SearchModalV2. That means that ClassicSearchModal can get tree-shaken if you use v2 but not vice-versa. To force SearchModalV2 from being tree-shaken, set process.env.NO_SEARCH_MODAL_DEFAULT to "true".
+</ResponseField>
+
+### The `useSearchField` hook
+
+Use the `useSearchField` hook to render a search field on your site. The destructured value is the `SearchField` component to be nested within your application.
+The `SearchField` component displays a search field that opens the Depict search modal.
+
+**SearchField with the modal aligned to the search field**
+
+```typescript TypeScript
+import React from "react";
+import { useSearchField } from "@depict-ai/react-ui";
+
+const App = () => {
+  const { SearchField } = useSearchField();
+
+  return (
+    <div>
+      <SearchField />
+    </div>
+  );
+};
+```
+
+**SearchField with the modal aligned to another DOM element**
+
+```typescript TypeScript
+import React from "react";
+import { ComponentAligner, useSearchField } from "@depict-ai/react-ui";
+
+const App = () => {
+  const ref = useRef(null);
+  const { SearchField } = useSearchField({
+    alignerRef: ref,
+  });
+
+  return (
+    <div>
+      <ComponentAligner ref={ref} />
+      <SearchField />
+    </div>
+  );
+};
+```
+
+The following table shows the `useSearchField` hook's configuration properties, their types, and descriptions:
+
+<ResponseField name="alignerRef" type="React.RefObject" default="undefined">
+  This is the ref of the element in the DOM to which you intend to align the
+  resulting modal.When not provided, the modal aligns on the SearchField itself.
+</ResponseField>
+
+<ResponseField name="stateKey" type="string | undefined">
+  When using multiple search instances on the same page, you need to set a
+  unique stateKey for each one. When only using one instance, leave this unset.
+  We recommend using an incrementing number, such as "1", "2", "3", etc. To
+  associate a SearchField with a SearchPage keyed component, set the same
+  stateKey on both. If no stateKey is provided, the "default" instance will be
+  used.
+</ResponseField>
+
+### The `useSearchModal` hook
+
+Use the `useSearchModal` hook in place of the `SearchField` component to dynamically open the search modal.
+
+```typescript TypeScript
+const { open } = useSearchModal({
+  location: "centered",
+});
+```
+
+The destructured value is a function that opens the modal in response to user events. For example:
+
+```typescript TypeScript
+return (
+  <div>
+    <button onClick={open}>Search</button>
+  </div>
+);
+```
+
+The following table shows the `useSearchModal` hook's configuration properties, their types, and descriptions:
+
+<ResponseField name="location" type=" centered | aligned" default="centered">
+  This represents the location on the DOM to which the modal should be aligned.
+  Set this value to aligned to align the modal to an element on your website.
+</ResponseField>
+
+<ResponseField name="alignerRef" type="React.RefObject">
+  This is the ref of the element in the DOM to which you intend to align the
+  modal.
+</ResponseField>
+
+<ResponseField name="stateKey" type="string | undefined">
+  When using multiple search instances on the same page, you need to set a
+  unique stateKey for each one. When only using one instance, leave this unset.
+  We recommend using an incrementing number, such as "1", "2", "3", etc. To
+  associate a modal with a SearchPage keyed component, set the same stateKey on
+  both. If no stateKey is provided, the "default" instance will be used.
+</ResponseField>
+
+### The `SearchPage` component
+
+The `SearchPage` component acts as the search results page on your site. It is responsible for rendering results from each search.
+
+```typescript TypeScript
+import SearchProductCard from "./SearchProductCard.js";
+
+export default function SearchResultsPage() {
+  return (
+    <SearchPage
+      productCard={SearchProductCard}
+      columnsAtSize={[[1, 500], [2, 1000], [3]]}
+    />
+  );
+}
+```
+
+The following table shows all `SearchPage` configuration properties, their types, and descriptions:
+
+<ResponseField name="productCard" type="React.Element<typeof Component>">
+  The React component to use for rendering products.
+</ResponseField>
+
+<ResponseField
+  name="columnsAtSize"
+  type="array"
+  default="[[2,901],[3,1024],[4]]"
+>
+  Used to customize breakpoints on the search results page. Handles the number
+  of product card columns displayed at each screen size.
+</ResponseField>
+
+<ResponseField
+  name="gridSpacing"
+  type="string |  { horizontal: string; vertical: string }"
+  default="2%"
+>
+  The spacing between products.
+</ResponseField>
+
+<ResponseField name="includeInputField" type="boolean" default="true">
+  Visibility of the search input field that's part of SearchPage.
+</ResponseField>
+
+<ResponseField name="stateKey" type="string | undefined">
+  When using multiple search instances on the same page, you need to set a
+  unique stateKey for each one. When only using one instance, leave this unset.
+  We recommend using an incrementing number, such as "1", "2", "3", etc. To
+  associate a modal with a SearchPage keyed component, set the same stateKey on
+  both. If no stateKey is provided, the "default" instance will be used.
+</ResponseField>
+
+<ResponseField name="contentBlocksByRow" type="(undefined | ReactContentBlock)[]?">
+    A sparse array containing content blocks to show (or an empty slot or undefined if there's no block at that index). See ReactContentBlock for how a content block looks like. The index is the row where the content block should be shown.
+
+    <Accordion title={<><code>ReactContentBlock</code> type definition</>}>
+
+```ts
+/**
+ * The interface for a content block.
+ * Please make sure that you don't have content blocks overlap as that will cause undefined behavior.
+ * The height of the content block will be the height of the tallest item in a row, so if there are no products in a row the content block needs to "bring its own height".
+ * If you need to load any data in the content block, please make sure to return a placeholder while you're doing so (see `ImagePlaceholder`), to avoid layout shifts and ensure scroll restoration works correctly.
+ *
+ * - `spanColumns`: How many columns the block should span. This will be capped to the number of columns available.
+ * - `spanRows`: How many rows the block should span.
+ * - `position`: Where the block should be positioned. Can be `left`, `center` or `right`.
+ * - `content`: The content to render in the block - please provide a React component.
+ */
+export type ReactContentBlock = {
+  spanColumns: number;
+  spanRows: number;
+  position: "left" | "center" | "right";
+  content: React.FC;
+};
+```
+
+    </Accordion>
+    </ResponseField>

@@ -1,0 +1,87 @@
+---
+title: "Customising price formatting"
+---
+
+Price formatting can be customised as part of the `locale` property on the provider that you're using. The price formatting customised according to this article will be reflected in the price filter, number formatting of the number of results/products and in the prices in the SearchModal. You are responsible yourself for the price formatting in your `productCard`.
+
+The type looks as follows:
+
+```ts
+type PriceFormatting = {
+    pre_: string;
+    post_: string;
+    decimal_places_delimiter_: string;
+    thousands_delimiter_: string;
+    places_after_comma_: number | "auto";
+}
+```
+
+The default value is:
+
+```ts
+({
+    pre_: "",
+    post_: "",
+    decimal_places_delimiter_: ".",
+    thousands_delimiter_: ",",
+    places_after_comma_: 2
+})
+```
+
+To customise it, spread it into the locale you're importing.
+
+Example:
+
+<CodeGroup>
+```tsx React
+import { DepictProvider } from "@depict-ai/react-ui";
+import { en } from "@depict-ai/react-ui/locales";
+import { YourDisplay } from "./display-types.ts"
+
+function App() {
+  return (
+    <DepictProvider<YourDisplay>
+      merchant="MERCHANT_ID"
+      market="MARKET"
+      locale={{
+        ...en,
+        price_formatting_: {
+          pre_: "",
+          post_: "kr",
+          decimal_places_delimiter_: ",",
+          thousands_delimiter_: " ",
+          places_after_comma_: "auto",
+        },
+      }}
+    >
+      <div className="App">...</div>
+    </DepictProvider>
+  );
+}
+
+export default App;
+```
+
+```ts Vanilla JavaScript
+import { DepictSearchProvider } from "@depict-ai/js-ui";
+import { en } from "@depict-ai/js-ui/locales";
+import { YourDisplay } from "./display-types.ts"
+
+const searchProvider = new DepictSearchProvider<YourDisplay>({
+  merchant: "MERCHANT_ID",
+  market: "MARKET",
+  searchPagePath: "PATH_TO_SEARCH_PAGE",
+  locale: {
+    ...en,
+    price_formatting_: {
+      pre_: "",
+      post_: "kr",
+      decimal_places_delimiter_: ",",
+      thousands_delimiter_: " ",
+      places_after_comma_: "auto",
+    },
+  },
+});
+
+```
+</CodeGroup>

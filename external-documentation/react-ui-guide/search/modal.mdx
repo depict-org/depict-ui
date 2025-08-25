@@ -1,0 +1,98 @@
+---
+title: "Adding a way to open the SearchModal"
+---
+
+Expand and use one or multiple of the following examples to add a way to open the SearchModal.
+
+See [overview](/react-ui-guide/search/overview) for a disambiguation of the different search components.
+
+<AccordionGroup>
+    <Accordion title="Open centered modal">
+        ```tsx
+        import React from "react";
+        import { useSearchModal } from "@depict-ai/react-ui";
+
+        const Component = () => {
+          const { open } = useSearchModal({
+            location: "centered",
+          });
+
+          return (
+            <div>
+              <button onClick={open}>Search</button>
+            </div>
+          );
+        };
+```
+    </Accordion>
+
+
+    <Accordion title="Open aligned modal">
+      ```tsx
+      import React from "react";
+      import { ComponentAligner, useSearchModal } from "@depict-ai/react-ui";
+
+      const App = () => {
+        const ref = React.createRef();
+
+        const { open } = useSearchModal({
+          location: "aligned",
+          alignerRef: ref,
+        });
+
+        return (
+          <div>
+            <ComponentAligner ref={ref} />{/* You can also pass the ref to any other existing element you want to align to, ComponentAligner is just a div with height: 100% */}
+            <button onClick={open}>Search</button>
+          </div>
+        );
+      };
+      ```
+    </Accordion>
+
+    <Accordion title="Render a SearchField that opens a modal aligned to the SearchField itself:">
+        ```tsx
+        import React from "react";
+        import { useSearchField } from "@depict-ai/react-ui";
+
+        const Component = () => {
+          const { SearchField } = useSearchField();
+
+          return (
+           <div>
+              <SearchField />
+           </div>
+          );
+        };
+        ```
+    </Accordion>
+
+    <Accordion title="Render a SearchField that opens a modal aligned to another DOM element">
+```tsx
+import React from "react";
+import { ComponentAligner, useSearchField } from "@depict-ai/react-ui";
+
+const Component = () => {
+  const ref = useRef(null);
+  const { SearchField } = useSearchField({
+    alignerRef: ref
+  });
+
+  return (
+    <div>
+      <ComponentAligner ref={ref} />{/* You can also pass the ref to any other existing element you want to align to, ComponentAligner is just a div with height: 100% */}
+      <SearchField />
+    </div>
+  );
+};
+```
+</Accordion>
+</AccordionGroup>
+
+<Note>
+    📘 **Modal alignment on smaller screens**
+
+    When the viewport height is below 900px, the search modal will overlook the element reference passed to the `alignerRef` property and center the search modal to the top of the viewport. This is to use the available space as efficiently as possible.
+</Note>
+
+<Info>You can find the related [reference](/reference/search-sdk/search-react-sdk#the-usesearchfield-hook) here</Info>

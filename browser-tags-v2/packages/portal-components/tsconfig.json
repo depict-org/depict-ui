@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig_base.json",
+  "compilerOptions": {
+    "composite": true,
+    "types": ["node"],
+    "skipLibCheck": true
+  },
+  "exclude": ["./dist/*"],
+  "include": ["./"]
+}

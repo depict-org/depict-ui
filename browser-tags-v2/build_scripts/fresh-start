@@ -1,0 +1,19 @@
+#!/bin/bash
+set -e
+
+if [ "$1" != "fast" ]
+then
+  for d in ./
+  do
+    echo "removing trash in $d"
+    pushd $d
+    rm -rf .parcel-cache .cache node_modules package-lock.json dist dev_dist .yarn/cache .pnp* .yarn/unplugged .yarn/install-state.gz
+    popd
+  done
+else
+  echo "fast was specifiecd, only running yarn install and yarn update"
+fi
+
+
+yarn
+yarn build_packages

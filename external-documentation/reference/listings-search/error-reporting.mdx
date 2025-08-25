@@ -1,0 +1,28 @@
+---
+title: "Debugging and Error reporting"
+---
+
+The Depict UI SDK monitors itself internally for error occurrence and automatically sends an event to Depict once this occurs. This reporting lets us quickly notice if something is broken in our SDK and offers insight into fixing bugs. This reporting is, however, suppressed by default on your browser. You can show these events to gain insights into the SDK's internals.
+
+To view event logs from the SDK, run the following command in your browser console:
+
+```javascript JavaScript
+localStorage.debug = true
+```
+
+Similarly, you can disable sending these error reports to Depict by setting the value of the `SENTRY` environment variable to false, as shown:
+
+<CodeGroup>
+    ```text Vanilla JavaScript
+    SENTRY=false
+    ```
+
+    ```text React.js
+    REACT_APP_SENTRY=false
+    ```
+
+    ```text Next.js
+    NEXT_PUBLIC_SENTRY=false
+    ```
+
+</CodeGroup>

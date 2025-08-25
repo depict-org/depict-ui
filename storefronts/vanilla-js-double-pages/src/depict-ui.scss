@@ -1,0 +1,31 @@
+@use "sass:color";
+@use "@depict-ai/js-ui" as plp-styling
+  with(
+    $border-radius: 4px,
+    // $page-background-color: #fff,
+    // $background-colors: (
+    //   "base": (
+    //     "default": #fff,
+    //   ),
+    //   "inverse": (
+    //     "default": #000,
+    //   ),
+    // ),
+    // $text-icon-colors: (
+    //   "base": (
+    //     "default": #000,
+    //   ),
+    // )
+  );
+
+// See some more SCSS documentation at https://scss-docs.depict.ai
+
+@include plp-styling.default-theme("both");
+@include plp-styling.recommendations();
+
+.depict.plp {
+  .listing-page {
+    max-width: 1440px;
+    margin: auto;
+  }
+}

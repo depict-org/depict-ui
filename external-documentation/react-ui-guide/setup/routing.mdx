@@ -1,0 +1,39 @@
+---
+title: "Setting up routing"
+---
+
+
+You need to set up page routing to redirect users to different pages based on their search requests or when clicking on a category in the category navigation.
+
+<Note>
+    The SDK supports page routing in Next.js applications without any extra configuration. If you're using next.js, [skip to the next step](/react-ui-guide/setup/display-transformers).
+</Note>
+
+ However, React.js applications using other routing solutions must use the `navigateFunction` property on the `DepictProvider` wrapper to handle routing to search result pages as shown:
+
+```tsx When using React Router
+import { Routes, Route, useNavigate } from "react-router-dom";
+import { DepictProvider } from "@depict-ai/react-ui";
+
+function App() {
+  const navigate = useNavigate();
+
+  return (
+    <DepictProvider
+      merchant="MERCHANT_ID"
+      market="MARKET_IDENTIFIER"
+      navigateFunction={navigate} // <-- Pass a navigate function here if not using next.js
+    >
+      <Routes>
+        <Route path="/" exact element={<Home />} />
+        <Route path="/search" element={<Search />} />
+      </Routes>
+    </DepictProvider>
+  );
+}
+```
+
+<Note>
+    📘 If using another routing library, you can define your navigation function compatible with React Router's [NavigateFunction](https://reactrouter.com/en/main/hooks/use-navigate#type-declaration) type. (Note: you have to support the `replace` option)
+</Note>
+

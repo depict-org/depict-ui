@@ -1,0 +1,66 @@
+---
+title: "Query Suggestions"
+---
+
+<Warning>This guide has not been updated for our v3 API. The `endpoints` section in the navigation has, though.</Warning>
+
+Query suggestions is an important part of a smooth and inspiring search journey. Normally it is presented in a drop down as soon as you click on the search input field.
+
+### Request
+
+They are queried by a GET request to `https://api.depict.ai/v2/search/suggestions` with query parameters.
+
+The available query parameters are:
+
+* _query_ (can be empty string)
+* _tenant_
+* _market_
+* _user\_id_ (optional)
+* _sessions\_id_ (optional)
+
+### Response
+
+```typescript TypeScript
+export type ECategoryType = "TAG" | "CATEGORY" | "TENANT_CATEGORY" | "TENANT_SECONDARY_CATEGORY" | "CAMPAIGN";
+
+export interface SearchSuggestionsResponse {
+  suggestions_request_id: string;
+  /**
+   * List of suggestions for search queries that should be shown to the user while they are typing.
+   */
+  suggestions: (QuerySuggestion | CategorySuggestion)[];
+}
+export interface QuerySuggestion {
+  type?: "query";
+  /**
+   * Title for suggestion.
+   */
+  title: string;
+  suggestions_result_id: string;
+}
+export interface CategorySuggestion {
+  /**
+   * Unique identifier of the category.
+   */
+  category_id: string;
+  /**
+   * The title of the category
+   */
+  title: string;
+  /**
+   * The full URL to the category page
+   */
+  page_url: string;
+  /**
+   * Optionally a unique query ID for the category
+   */
+  query_id?: string;
+  /**
+   * The type of category, for example CAMPAIGN, TAG, or CATEGORY
+   */
+  category_type?: ECategoryType;
+  filter: SearchFilter;
+  suggestions_result_id: string;
+}
+
+```

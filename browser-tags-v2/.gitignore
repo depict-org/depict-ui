@@ -1,0 +1,29 @@
+dist/
+node_modules/
+.parcel-cache/
+package-lock.json
+dev_dist/
+.cache/
+src/*/babel.config.js
+src/test
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+!.env
+!build
+
+ES10
+latest
+
+# For temporary files made by: build_scripts/define_vars & build_scripts/build
+.terserrc
+src/*/temp-[0-9]*.tsx
+
+# Typescript
+**/*.tsbuildinfo
+
+.vscode

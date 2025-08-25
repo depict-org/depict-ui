@@ -1,0 +1,53 @@
+/// This is for all product lists, meaning PLP  (category + search), as well as recommendations
+@mixin Cards() {
+  .cards:not(.css-grid) {
+    flex-wrap: wrap;
+    display: flex;
+    flex-direction: row;
+  }
+  .cards {
+    flex-grow: 1;
+    align-content: flex-start;
+    overflow: hidden;
+  }
+  .load-more-container,
+  .load-less-container {
+    display: flex;
+    justify-content: center;
+  }
+  .content-block-wrapper {
+    position: relative;
+
+    .d-standard-content {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    &:has(.d-standard-content-wrapper) {
+      display: flex;
+    }
+    .d-standard-content-wrapper {
+      flex-grow: 1;
+      flex-basis: 100%;
+      .depict-placeholder {
+        position: absolute;
+      }
+    }
+
+    &.spans-whole-row {
+      .d-standard-content-wrapper {
+        // Set aspect ratio of the container to the aspect ratio of the media. This is because we store the media aspect ratio in history.state, so when going back to a page we can hold the aspect ratio already before the image has loaded, therefore making scroll restoration work
+        aspect-ratio: var(--media-aspect-ratio);
+      }
+    }
+
+    &:not(.spans-whole-row) {
+      // So we don't push up the size of the parent element and create gaps in the cards, when there are cards besides us
+      .d-standard-content {
+        position: absolute;
+        inset: 0;
+      }
+    }
+  }
+}

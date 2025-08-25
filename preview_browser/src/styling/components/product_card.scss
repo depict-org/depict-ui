@@ -1,0 +1,92 @@
+@use "../customised-plp-styling";
+
+.rec_outer {
+  border: 2px solid customised-plp-styling.contrasty-alpha(0.2);
+  border-radius: customised-plp-styling.$border-radius;
+  padding: 8px;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  color: customised-plp-styling.get-text-icon-color("base", "default");
+  container-type: inline-size;
+  &:hover {
+    color: customised-plp-styling.get-text-icon-color("base", "hover");
+    .rec_title {
+      text-decoration: underline;
+    }
+  }
+  .rec_title {
+    text-overflow: ellipsis;
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+    word-break: break-word;
+    text-align: left;
+    margin-top: 3mm;
+  }
+
+  .color_container {
+    display: flex;
+    flex-grow: 1;
+    gap: 5px;
+  }
+
+  .text_container {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+    flex-grow: 1;
+    gap: 5px;
+  }
+
+  .price-container {
+    font-size: 15px;
+    .price {
+      &.original {
+        text-decoration: line-through;
+      }
+    }
+  }
+
+  .badges {
+    position: absolute;
+    z-index: 2;
+    display: flex;
+    top: 2mm;
+    left: 2mm;
+    gap: 10%; // this won't work in IE11 and other older browsers but it won't be much uglier
+
+    .badge {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 10cm;
+      min-width: 50px;
+      min-height: 50px;
+      &.sale {
+        background: rgba(255, 0, 0, 0.5);
+      }
+      &.new {
+        background: rgba(255, 255, 0, 0.4);
+      }
+    }
+  }
+
+  .contained_image_container {
+    min-height: 1px; // IE11 bug workaround
+    flex-shrink: 0; // Another IE11 bug workaround
+  }
+
+  .buttons {
+    display: grid;
+    gap: 8px;
+    grid-template-columns: 1fr 1fr;
+    @container (max-width: 250px) {
+      grid-template-columns: 1fr;
+    }
+  }
+}

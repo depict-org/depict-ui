@@ -1,0 +1,19 @@
+diff --git a/lib/summarizeRequest.js b/lib/summarizeRequest.js
+index d13efe8fcaf441d5488b60c0e666deff568389d9..6736674448e373f7e9dea9df7e3e640cb6002143 100644
+--- a/lib/summarizeRequest.js
++++ b/lib/summarizeRequest.js
+@@ -56,6 +56,14 @@ async function summarizeRequest(fs, req) {
+ }
+ 
+ function isFilePathSource(fs, filePath) {
++  if (process.env.FORCE_TRANSPILE) {
++    for (const thing of process.env.FORCE_TRANSPILE.split(",")) {
++      if (filePath.includes(thing)) {
++        console.log("FORCE TRANSPILING", filePath);
++        return true;
++      }
++    }
++  }
+   return !filePath.includes(NODE_MODULES);
+ }
+ 

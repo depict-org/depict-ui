@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "target": "esnext",
+    "jsx": "preserve",
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "resolveJsonModule": true,
+    "types": ["solid-js", "solid-js/web", "node"],
+    "jsxImportSource": "solid-js"
+  }
+}

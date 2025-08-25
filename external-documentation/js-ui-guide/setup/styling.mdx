@@ -1,0 +1,16 @@
+---
+title: "Import styling"
+description: "How to import the SDK styling into your project"
+---
+
+To start out with the default styling, import the SDK styling into you <b>SCSS</b> file as follows:
+
+```scss SCSS
+@use "@depict-ai/js-ui" as plp-styling; // If your bundler doesn't support the package.json#exports field, try importing from @depict-ai/js-ui/styles or @depict-ai/plp-styling
+
+@include plp-styling.default-theme("VALUE"); // Replace VALUE with "search", "category", or "all" depending on what you are integrating
+// comment out below line if you're not using recommendations to save some bundle size
+@include plp-styling.recommendations();
+```
+
+This includes all the default styling for all Depict Category Page UI components. You can also customize the SDK styling to fit your website's specifications. For more information, see [Modify and Customize Styling](/reference/listings-search/customize-plp-styling-with-scss) in the reference section.

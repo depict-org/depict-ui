@@ -1,0 +1,216 @@
+@use "../../variables";
+@use "../../helpers/supports-hover";
+@use "../../helpers/utils";
+@use "sass:color";
+@use "sass:map";
+
+/// Used to get the current properties of the primary button. (`Buttons.$primary-button-overrides` merged into the default properties.) This is so that parts of the button styling can be re-used in other mixins in the state they were in as the mixins get called.
+/// @example
+///  filter: map.get(Buttons.get-primary-button-properties(), "focus-visible-filter");
+@function get-primary-button-properties() {
+  $primary-button-properties: (
+    "background": variables.get-background-color("inverse", "default"),
+    "hover-background": variables.get-background-color("inverse", "hover"),
+    "active-background": variables.get-background-color("inverse", "pressed"),
+    "color": variables.get-text-icon-color("inverse", "default"),
+    "border": 1px solid transparent,
+    "border-radius": variables.$border-radius,
+    "hover-filter": drop-shadow(-2px -2px 4px rgba(255, 255, 255, 0.25)) drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.15)),
+    "active-filter": drop-shadow(2px 2px 4px rgba(255, 255, 255, 0.25)) drop-shadow(-2px -2px 4px rgba(0, 0, 0, 0.15)),
+    "disabled-background": variables.get-background-color("inverse", "disabled"),
+    "padding": 10px 20px,
+    "disabled-color": variables.get-text-icon-color("inverse", "disabled"),
+    "focus-visible-ring-color": variables.get-border-color("base", "default"),
+    "focus-visible-ring-distance": 2px,
+    "focus-visible-ring-thickness": 2px,
+  );
+  @return map.deep-merge($primary-button-properties, variables.$primary-button);
+}
+
+/// Used to get the current properties of the secondary button. (`Buttons.$secondary-button-overrides` merged into the default properties.) This is so that parts of the button styling can be re-used in other mixins in the state they were in as the mixins get called.
+/// @example
+///  filter: map.get(Buttons.get-secondary-button-properties(), "focus-visible-filter");
+@function get-secondary-button-properties() {
+  $secondary-button-properties: (
+    "background": variables.get-background-color("base", "default"),
+    "hover-background": variables.get-background-color("base", "hover"),
+    "hover-border": variables.get-border-color("base", "hover") 1px solid,
+    "active-background": variables.get-background-color("base", "pressed"),
+    "color": variables.get-text-icon-color("base", "default"),
+    "border": variables.get-border-color("base", "default") 1px solid,
+    "border-radius": variables.$border-radius,
+    "hover-filter": drop-shadow(-2px -2px 4px rgba(255, 255, 255, 0.25)) drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.15)),
+    "active-filter": drop-shadow(2px 2px 4px rgba(255, 255, 255, 0.25)) drop-shadow(-2px -2px 4px rgba(0, 0, 0, 0.15)),
+    "disabled-background": variables.get-background-color("base", "disabled"),
+    "padding": 10px 20px,
+    "disabled-color": variables.get-text-icon-color("base", "disabled"),
+    "disabled-border": variables.get-border-color("base", "disabled") 1px solid,
+    "active-border": variables.get-border-color("neutral", "pressed") 1px solid,
+    "focus-visible-ring-color": variables.get-border-color("base", "pressed"),
+    "focus-visible-ring-distance": 2px,
+    "focus-visible-ring-thickness": 2px,
+  );
+  @return map.deep-merge($secondary-button-properties, variables.$secondary-button);
+}
+
+/// Button not used by Depict UI currently, only used internally
+@function get-subtle-secondary-button-properties() {
+  $subtle-secondary-button-properties: (
+    "background": variables.get-background-color("base", "default"),
+    "hover-background": variables.get-background-color("base", "hover"),
+    "hover-border": variables.get-border-color("subtle", "hover") 1px solid,
+    "active-background": variables.get-background-color("base", "pressed"),
+    "color": variables.get-text-icon-color("neutral", "default"),
+    "border": variables.get-border-color("subtle", "default") 1px solid,
+    "border-radius": variables.$border-radius,
+    "hover-filter": none,
+    "active-filter": none,
+    "disabled-background": variables.get-background-color("base", "disabled"),
+    // The other buttons should also be updated to this padding at some point in the future
+    "padding": 12px 16px,
+    "disabled-color": variables.get-text-icon-color("subtle", "disabled"),
+    "disabled-border": variables.get-border-color("subtle", "disabled") 1px solid,
+    "active-border": variables.get-border-color("subtle", "pressed") 1px solid,
+    "focus-visible-ring-color": variables.get-border-color("subtle", "default"),
+    "focus-visible-ring-distance": 2px,
+    "focus-visible-ring-thickness": 2px,
+  );
+  @return map.deep-merge($subtle-secondary-button-properties, variables.$subtle-secondary-button);
+}
+
+/// Generates styling for our primary buttons, including hover, active and focus-visible states
+@mixin PrimaryButton() {
+  button.major,
+  a.major-button {
+    @include ButtonFromMap(get-primary-button-properties()) {
+      @content;
+    }
+  }
+}
+
+/// Generates styling for our secondary buttons, including hover, active and focus-visible states
+@mixin SecondaryButton() {
+  button.minor,
+  a.minor-button {
+    @include ButtonFromMap(get-secondary-button-properties()) {
+      @content;
+    }
+  }
+}
+
+/// A secondary button styled like the "Secondary-Outline-Small" button in Depict's design system
+@mixin SubtleSecondaryButton() {
+  button.minor-subtle,
+  a.minor-subtle-button {
+    @include ButtonFromMap(get-subtle-secondary-button-properties()) {
+      @content;
+    }
+  }
+}
+
+@mixin ButtonFromMap($map) {
+  @include Button(
+    $background: map.get($map, "background"),
+    $hover-background: map.get($map, "hover-background"),
+    $hover-border: map.get($map, "hover-border"),
+    $active-background: map.get($map, "active-background"),
+    $color: map.get($map, "color"),
+    $border: map.get($map, "border"),
+    $border-radius: map.get($map, "border-radius"),
+    $hover-filter: map.get($map, "hover-filter"),
+    $active-filter: map.get($map, "active-filter"),
+    $padding: map.get($map, "padding"),
+    $disabled-background: map.get($map, "disabled-background"),
+    $disabled-color: map.get($map, "disabled-color"),
+    $disabled-border: map.get($map, "disabled-border"),
+    $active-border: map.get($map, "active-border"),
+    $focus-visible-ring-color: map.get($map, "focus-visible-ring-color"),
+    $focus-visible-ring-distance: map.get($map, "focus-visible-ring-distance"),
+    $focus-visible-ring-thickness: map.get($map, "focus-visible-ring-thickness")
+  ) {
+    @content;
+  }
+}
+
+@mixin Button(
+  $background,
+  $hover-background,
+  $hover-border,
+  $active-background,
+  $color,
+  $border,
+  $border-radius,
+  $hover-filter,
+  $active-filter,
+  $padding,
+  $disabled-background,
+  $disabled-color,
+  $disabled-border,
+  $active-border,
+  $focus-visible-ring-color,
+  $focus-visible-ring-distance,
+  $focus-visible-ring-thickness
+) {
+  background: $background;
+  color: $color;
+  border: $border;
+  border-radius: $border-radius;
+  @if $padding {
+    padding: $padding;
+  }
+  display: flex;
+  white-space: pre-wrap; // can't have spaces otherwise
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition:
+    filter 150ms ease-in-out,
+    background 100ms ease-in-out;
+
+  &[disabled] {
+    cursor: not-allowed;
+    background: $disabled-background;
+    color: $disabled-color;
+    @if $disabled-border and $disabled-border != none {
+      border: $disabled-border;
+    }
+  }
+
+  svg path {
+    fill: $color; // treat icons the same as text
+  }
+
+  @include supports-hover.supports-hover() {
+    &:not([disabled]):hover {
+      @if $hover-filter != none {
+        filter: $hover-filter;
+      }
+      background: $hover-background;
+      @if $hover-border and $hover-border != none {
+        border: $hover-border;
+      }
+    }
+  }
+  &:not([disabled]):active {
+    @if $active-filter != none {
+      filter: $active-filter;
+    }
+    background: $active-background;
+    @if $active-border {
+      border: $active-border;
+    }
+  }
+  &:focus {
+    outline-style: none;
+  }
+  &:focus-visible {
+    @if $focus-visible-ring-color {
+      box-shadow:
+        0 0 0 $focus-visible-ring-distance variables.$page-background-color,
+        0 0 0 calc(#{$focus-visible-ring-distance} + #{$focus-visible-ring-thickness}) $focus-visible-ring-color;
+    } @else {
+      background: $hover-background;
+    }
+  }
+  @content;
+}

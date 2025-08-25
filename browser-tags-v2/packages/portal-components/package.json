@@ -1,0 +1,113 @@
+{
+  "name": "@depict-ai/portal-components",
+  "version": "2.9.7",
+  "packageManager": "yarn@3.2.2",
+  "source": "src/index.ts",
+  "main": "dist/main.js",
+  "module": "dist/module.js",
+  "types": "dist/index.d.ts",
+  "sass": "dist/styles/index.scss",
+  "license": "MIT",
+  "description": "Components for the Depict Portal",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "clear-dist": "rm -r -f ./dist",
+    "build": "node ./build-scripts/pre_build.js && mkdir -p dist/styles && NO_PRIVATE_TRANSPILATION=true parcel build --no-source-maps && node ./build-scripts/post_build.js",
+    "print-included-package-files": "yarn pack --dry-run",
+    "typecheck": "yarn g:tsc --build tsconfig.json",
+    "publish": "yarn build && yarn npm publish"
+  },
+  "targets": {
+    "main": {
+      "isLibrary": true,
+      "context": "node",
+      "engines": {
+        "browsers": "last 1 chrome version"
+      },
+      "optimize": false
+    },
+    "module": {
+      "isLibrary": true,
+      "context": "node",
+      "engines": {
+        "browsers": "last 1 chrome version"
+      },
+      "optimize": false
+    }
+  },
+  "exports": {
+    ".": {
+      "browser": {
+        "development": {
+          "import": {
+            "types": "./dist/index.d.ts",
+            "default": "./dist/module.js"
+          },
+          "require": "./dist/main.js"
+        },
+        "import": {
+          "types": "./dist/index.d.ts",
+          "default": "./dist/module.js"
+        },
+        "require": "./dist/main.js",
+        "sass": "./dist/styles/index.scss"
+      },
+      "development": {
+        "import": {
+          "types": "./dist/index.d.ts",
+          "default": "./dist/module.js"
+        },
+        "require": "./dist/main.js",
+        "sass": "./dist/styles/index.scss"
+      },
+      "import": {
+        "sass": "./dist/styles/index.scss",
+        "types": "./dist/index.d.ts",
+        "default": "./dist/module.js"
+      },
+      "require": "./dist/main.js",
+      "sass": "./dist/styles/index.scss"
+    },
+    "./styles/*": "./dist/styles/*",
+    "./src/specialForShopify/DefaultSolidProductCard.tsx": "./src/specialForShopify/DefaultSolidProductCard.tsx",
+    "./src/specialForShopify/DefaultSolidProductCard": "./src/specialForShopify/DefaultSolidProductCard.tsx"
+  },
+  "files": [
+    "/dist",
+    "README.md",
+    "src/specialForShopify/DefaultSolidProductCard.tsx"
+  ],
+  "peerDependencies": {
+    "react": ">= 16.14.0",
+    "react-dom": ">= 16.14.0",
+    "sass": ">= 1.54.6"
+  },
+  "devDependencies": {
+    "@babel/core": "latest",
+    "@babel/preset-env": "latest",
+    "@babel/preset-typescript": "latest",
+    "@parcel/babel-preset-env": "^2.10.3",
+    "@parcel/resolver-default": "^2.10.3",
+    "@parcel/transformer-sass": "^2.10.3",
+    "@types/node": "^18.11.11",
+    "@types/react": "^18.0.26",
+    "@types/react-dom": "^18.0.10",
+    "babel-preset-solid": "^1.9.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "ts-jest": "^29.0.5"
+  },
+  "dependencies": {
+    "@babel/runtime": "latest",
+    "@babel/runtime-corejs3": "^7.22.6",
+    "@depict-ai/plp-styling": "workspace:^",
+    "@depict-ai/react-ui": "workspace:^",
+    "@depict-ai/types": "workspace:^",
+    "@depict-ai/ui": "workspace:^",
+    "@depict-ai/utilishared": "workspace:^",
+    "parcel": "^2.10.3",
+    "solid-js": "^1.9.3"
+  }
+}

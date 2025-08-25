@@ -1,0 +1,328 @@
+@use "sass:map";
+@use "sass:color";
+@use "./helpers/utils";
+@use "helpers/color_inference";
+
+/// Deep merged two maps and gives you the value of a key in the merged map.
+/// @param {Map} $map - The base map, whose keys will be overridden by the keys in $map2.
+/// @param {Map} $map2 - The map whose keys will override the keys in $map.
+/// @param {String} $key - The key whose value you want to get from the merged map.
+@function get-merged($map, $map2, $key) {
+  @return map.get(map.deep-merge($map, $map2), $key);
+}
+
+/// Set this to the background color of your page. It's needed for example for some things that fade into the background color (that are over another element).
+$page-background-color: white !default;
+
+/// The colors to be used across the UI
+/// We're trying to avoid getting colours from this map directly in style declarations, instead there's a layer of abstraction on top of this map.
+/// That is because different things in the UI need to have different colours from the palette, depending on the palette.
+/// See the maps below for text and icon colours, border colors and background colors.
+$base-colors: () !default;
+$base-colors-defaults: (
+  1000: #000,
+  800: #0f0f0f,
+  600: #333335,
+  500: #868689,
+  400: #cbcbcc,
+  300: #e4e4e5,
+  200: #f3f3f5,
+  100: #fafafc,
+  0: #fff,
+);
+
+$text-icon-colors: () !default;
+$text-icon-colors-defaults: (
+  "base": (
+    "default": get-merged($base-colors-defaults, $base-colors, 800),
+    "hover": get-merged($base-colors-defaults, $base-colors, 600),
+    "pressed": get-merged($base-colors-defaults, $base-colors, 1000),
+    "disabled": get-merged($base-colors-defaults, $base-colors, 400),
+  ),
+  "neutral": (
+    "default": get-merged($base-colors-defaults, $base-colors, 600),
+    "hover": get-merged($base-colors-defaults, $base-colors, 800),
+    "pressed": get-merged($base-colors-defaults, $base-colors, 1000),
+    "disabled": get-merged($base-colors-defaults, $base-colors, 400),
+  ),
+  "subtle": (
+    "default": get-merged($base-colors-defaults, $base-colors, 500),
+    "hover": get-merged($base-colors-defaults, $base-colors, 600),
+    "pressed": get-merged($base-colors-defaults, $base-colors, 800),
+    "disabled": get-merged($base-colors-defaults, $base-colors, 400),
+  ),
+  "inverse": (
+    "default": get-merged($base-colors-defaults, $base-colors, 0),
+    "hover": get-merged($base-colors-defaults, $base-colors, 200),
+    "pressed": get-merged($base-colors-defaults, $base-colors, 300),
+    "disabled": get-merged($base-colors-defaults, $base-colors, 500),
+  ),
+);
+
+/// Makes it easy to get the text color
+/// @param {"base" | "neutral" | "subtle" | "inverse"} $type - What type of color
+/// @param {"default" | "hover" | "pressed" | "disabled"} $state ["base"] - The state
+@function get-text-icon-color($type, $state) {
+  @return color_inference.get-possible-inferred-or-merged-something(
+    $text-icon-colors-defaults,
+    $text-icon-colors,
+    $type,
+    $state
+  );
+}
+
+$border-colors: () !default;
+$border-colors-defaults: (
+  "base": (
+    "default": get-merged($base-colors-defaults, $base-colors, 800),
+    "hover": get-merged($base-colors-defaults, $base-colors, 600),
+    "pressed": get-merged($base-colors-defaults, $base-colors, 1000),
+    "disabled": get-merged($base-colors-defaults, $base-colors, 400),
+  ),
+  "neutral": (
+    "default": get-merged($base-colors-defaults, $base-colors, 400),
+    "hover": get-merged($base-colors-defaults, $base-colors, 500),
+    "pressed": get-merged($base-colors-defaults, $base-colors, 700),
+    "disabled": get-merged($base-colors-defaults, $base-colors, 300),
+  ),
+  "subtle": (
+    "default": get-merged($base-colors-defaults, $base-colors, 300),
+    "hover": get-merged($base-colors-defaults, $base-colors, 400),
+    "pressed": get-merged($base-colors-defaults, $base-colors, 500),
+    "disabled": get-merged($base-colors-defaults, $base-colors, 200),
+  ),
+  "inverse": (
+    "default": get-merged($base-colors-defaults, $base-colors, 0),
+    "hover": get-merged($base-colors-defaults, $base-colors, 400),
+    "pressed": get-merged($base-colors-defaults, $base-colors, 300),
+    "disabled": get-merged($base-colors-defaults, $base-colors, 500),
+  ),
+);
+
+/// Makes it easy to get the border color
+/// @param {"base" | "neutral" | "subtle" | "inverse"} $type - What type of color
+/// @param {"default" | "hover" | "pressed" | "disabled"} $state ["base"] - The state
+@function get-border-color($type, $state) {
+  @return color_inference.get-possible-inferred-or-merged-something(
+    $border-colors-defaults,
+    $border-colors,
+    $type,
+    $state
+  );
+}
+
+$background-colors: () !default;
+$background-colors-defaults: (
+  "base": (
+    "default": get-merged($base-colors-defaults, $base-colors, 0),
+    "hover": get-merged($base-colors-defaults, $base-colors, 200),
+    "pressed": get-merged($base-colors-defaults, $base-colors, 300),
+    "disabled": get-merged($base-colors-defaults, $base-colors, 100),
+  ),
+  "neutral": (
+    "default": get-merged($base-colors-defaults, $base-colors, 300),
+    "hover": get-merged($base-colors-defaults, $base-colors, 400),
+    "pressed": get-merged($base-colors-defaults, $base-colors, 200),
+    "disabled": get-merged($base-colors-defaults, $base-colors, 100),
+  ),
+  "subtle": (
+    "default": get-merged($base-colors-defaults, $base-colors, 200),
+    "hover": get-merged($base-colors-defaults, $base-colors, 300),
+    "pressed": get-merged($base-colors-defaults, $base-colors, 400),
+    "disabled": get-merged($base-colors-defaults, $base-colors, 100),
+  ),
+  "inverse": (
+    "default": get-merged($base-colors-defaults, $base-colors, 800),
+    "hover": get-merged($base-colors-defaults, $base-colors, 600),
+    "pressed": get-merged($base-colors-defaults, $base-colors, 1000),
+    "disabled": get-merged($base-colors-defaults, $base-colors, 400),
+  ),
+);
+
+/// Makes it easy to get the background color
+/// @param {"base" | "neutral" | "subtle" | "inverse"} $type - What type of color
+/// @param {"default" | "hover" | "pressed" | "disabled"} $state ["base"] - The state
+@function get-background-color($type, $state) {
+  @return color_inference.get-possible-inferred-or-merged-something(
+    $background-colors-defaults,
+    $background-colors,
+    $type,
+    $state
+  );
+}
+
+/// What font weights to use for the different font weights. The main reason to allow customisation for this is to allow for custom fonts that don't have the same font weights as the default font. So for example if your font doesn't have a "light" (300) font weight then you can set it to 400 and it will use the "regular" (400) font weight instead.
+/// @prop {Number} font-weights.300 [300] - The font weight to use for "light" (300) text
+/// @prop {Number} font-weights.400 [400] - The font weight to use for "regular" (400) text
+/// @prop {Number} font-weights.500 [500] - The font weight to use for "medium" (500) text
+/// @prop {Number} font-weights.600 [600] - The font weight to use for "semibold" (600) text
+/// @prop {Number} font-weights.700 [700] - The font weight to use for "bold" (700) text
+$font-weights: () !default;
+$font-weights-defaults: (
+  300: 300,
+  400: 400,
+  500: 500,
+  600: 600,
+  700: 700,
+);
+
+/// Makes it easy to get font weight
+/// @param {300 | 400 | 500 | 600} $type - What type of font weight to get (light, regular, medium or bold)
+@function get-font-weight($type) {
+  @return get-merged($font-weights-defaults, $font-weights, $type);
+}
+
+/// The base z-index of the modal
+$base-z-index: 5000 !default;
+/// The z-index of the search page
+$search-page-base-z-index: 1 !default;
+/// The border radius to use. This is used in many places and not often exactly this value. Sometimes a multiple is used and if it's 0 then everything will be square
+$border-radius: 4px !default;
+/// The search modal layout to use. Set it to "v2" for the new layout. The v2 layout uses modern css features such as :has(), container queries and grid.
+$search-modal-layout: "v2" !default;
+
+// The color of the progress bar below the toast that shows when it will auto-close
+$toast-progress-bar-color: get-text-icon-color("base", "default") !default;
+
+/// Sometimes text is all uppercase in the UI. This is the default text transform used to do that that. For example, if you don't want uppercase text, you can set this to `none`
+$uppercase-text-transform: uppercase !default;
+
+/// Configuration for the filters on the right
+/// @prop {Number with size unit} filters-configuration.spacing-between-input-rows [10px] - How much space should be between the input rows. Input row being a checkbox/radio button and its label.
+/// @prop {Number with size unit} filters-configuration.input-row-height-goal [20px] - How high an "input row" should try to be. Input row being a checkbox/radio button and its label. If this is smaller than the text size, it will be ignored. If this is an odd number, the filled-in part of checked radio buttons look off-center in google chrome on macOS on 1440p screens.
+/// @prop {Border} filters-configuration.radio-checkbox-border [1px solid variables.get-border-color("base", "default")] - The border on radio buttons and checkboxes. The reason for this being a variable is that its width is extracted and used in calculations to make the input element fit into to "input-row-height-goal".
+/// @prop {Border} filters-configuration.hovered-radio-checkbox-border [2px solid variables.get-border-color("base", "default")] - The border on radio buttons and checkboxes, when hovered. You might want to change this to be 1px wide if you want the hover effect to be less pronounced (and only change the background).
+/// @prop {Border} filters-configuration.disabled-radio-checkbox-border [2px solid variables.get-border-color("base", "disabled")] - The border on radio buttons and checkboxes, when disabled.
+/// @prop {Color} filters-configuration.mobile-modal-background-color [variables.get-background-color("base", "default")] - The background color of the SortAndFilterModal, a modal containing the sorting and filters on smaller displays. We need this as a variable to calculate a border color that blends with a shadow (apart from setting the background color).
+$filters-configuration: () !default;
+$filters-configuration-defaults: (
+  "spacing-between-input-rows": 10px,
+  "input-row-height-goal": 20px,
+  "radio-checkbox-border": 1px solid get-border-color("base", "default"),
+  "disabled-radio-checkbox-border": 1px solid get-border-color("base", "disabled"),
+  "hovered-radio-checkbox-border": 2px solid get-border-color("base", "default"),
+  "mobile-modal-background-color": get-background-color("base", "default"),
+);
+
+/// Configuration for the search modal.
+/// @prop {Number with size unit} search-modal.max-width [800px/1400px] - The max width of the modal. When using the classic layout this is also used for the max width of SearchField on the search page.
+/// @prop {Boolean} search-modal.top-snapping [true] - If the modal should snap to the top at certain screen sizes, only recommended to disable if you take care of this via JS
+/// @prop {Number with size unit} search-modal.stacked-side-padding [16px] - The padding on the sides of the modal when stacked (mobile layout), only applicable when $search-modal-layout is set to v2
+$search-modal: () !default;
+$search-modal-defaults: (
+  "max-width": if($search-modal-layout == "v2", 1500px, 800px),
+  "top-snapping": true,
+  "stacked-side-padding": 16px,
+);
+
+/// Configuration for the buttons that show up when scrolling up after not being too close to the top on mobile
+/// @prop {Number with size unit} floating-buttons.bottom-distance [12px] - The distance from the bottom of the buttons to the bottom of the screen.
+/// @prop {Number with size unit} floating-buttons.side-distance [12px] - The distance from the `$position`-side of the buttons to the `$position`-side of the screen.
+/// @prop {"left" | "right"} floating-buttons.position ["left"] - The side of the screen the buttons should be aligned to. Can be "left" or "right".
+$floating-buttons: () !default;
+$floating-buttons-defaults: (
+  "bottom-distance": 12px,
+  "side-distance": 12px,
+  "position": "left",
+);
+
+/// Configuration for the search field, that is inside the search modal or on the search page.
+/// @prop {Color} search-field.background [map.get(get-merged($background-colors-defaults, $background-colors, "base"), "default")] - The background color of the input field, clear button and back button
+/// @prop {Number with size unit} search-modal.max-width [600px] - The max width of the input field, only used when v2 search modal is used
+/// @prop {Number with size unit} search-field.border-radius [variables.$border-radius * 2.5] - Border radius of the outer edges of the whole SearchField
+$search-field: () !default;
+$search-field-defaults: (
+  "background":
+    if($search-modal-layout == "v2", get-background-color("subtle", "default"), get-background-color("base", "default")),
+  "border-radius": if($search-modal-layout == "v2", calc(#{$border-radius} * 20), calc(#{$border-radius} * 2.5)),
+  "max-width": 600px,
+);
+
+/// Not all gaps can currently be customised using this but some of them do. If this is useful for you and you think we should make it more consistent, please let us know.
+/// @prop {Number with size unit} gaps.between-instant-results [5px] - The gap between the individual instant results in the modal, unused when $search-modal-layout is set to v2
+/// @prop {Number with size unit} gaps.autocomplete.between-items-in-row-mode [5px] - The vertical gap between the "list-style items", the individual suggestions that have the full width.
+/// @prop {Number with size unit} gaps.autocomplete.between-category-and-other [20px] - The vertical gap between the category and query suggestion sections
+/// @prop {Number with size unit} gaps.autocomplete.between-compact-suggestions [5px] - The horizontal gap between the individual query suggestions that show up in "compact" mode (multiple in the same row) when no query has been entered
+/// @prop {Map} gaps.listing-page - The product listing page (PLP) overall. Note that for the gaps here not the exact values will always be used but often multiples for different places where it's appropriate.
+/// @prop {Number with size unit} gaps.listing-page.spacing-to-filters [12px] - The spacing between the filters and content.
+/// @prop {Number with size unit} gaps.listing-page.desktop-item-gap [20px] - The vertical gap between the different items on desktop.
+/// @prop {Number with size unit} gaps.listing-page.mobile-item-gap [16px] - The vertical gap between the different items on mobile.
+/// @prop {Number with size unit} gaps.listing-page.above-and-below-selected-filters.mobile [10px] - The spacing above and below the selected filters on mobile.
+/// @prop {Number with size unit} gaps.listing-page.above-and-below-selected-filters.desktop [0] - The spacing above and below the selected filters on desktop.
+/// @prop {Boolean} gaps.listing-page.search.spacing-above-search-field [true] - Whether to add equal spacing above the search field as below.
+/// @prop {Number with size unit} gaps.listing-page.search.gaps-to-refactor [3] - the factor to multiply the gaps with to get the spacing above the recommendations.
+$gaps: () !default;
+$gaps-defaults: (
+  "between-instant-results": 5px,
+  "autocomplete": (
+    "between-items-in-row-mode": 5px,
+    "between-category-and-other": 20px,
+    "between-compact-suggestions": 5px,
+  ),
+  "listing-page": (
+    "spacing-to-filters": 12px,
+    "desktop-item-gap": 20px,
+    "mobile-item-gap": 16px,
+    "above-and-below-selected-filters": (
+      "mobile": 10px,
+      "desktop": 0,
+    ),
+    "search": (
+      "spacing-above-search-field": true,
+      "gap-to-recs-factor": 3,
+    ),
+  ),
+);
+
+/// Makes it easy to get a gap value from the $gaps map
+/// @param {String} $name - The name of the property to get
+@function get-gap($name) {
+  @return get-merged($gaps-defaults, $gaps, $name);
+}
+
+/// Styling overrides for the InstantCard component - the component which shows 4 search results in the SearchModal.
+/// @prop {Color} instant-card.sales-price-color [#ff2e3e] - The color of the sales price, only applicable to the modal if $search-modal-layout is set to "classic". Also applies to the Looks component.
+/// @prop {Boolean} instant-card.show-price [true] - Whether to show the price
+/// @prop {Boolean} instant-card.show-tagline [true] - Whether to show the "tagline" (different for different customers, some show for example the material of the product)
+$instant-card: () !default;
+$instant-card-defaults: (
+  "sales-price-color": #ff2e3e,
+  "show-price": true,
+  "show-tagline": true,
+);
+
+/// See [documentation of Autocomplete mixin](https://scss-docs.depict.ai/#mixin-Autocomplete) for explanation of this map.
+/// It allows customizing the highlighting in the query suggestions
+$autocomplete-entries-without-highlight: () !default;
+/// See [documentation of Autocomplete mixin](https://scss-docs.depict.ai/#mixin-Autocomplete) for explanation of this map.
+/// It allows customizing the highlighting in the query suggestions
+$autocomplete-entries-with-highlight: () !default;
+
+/// Styling overrides for our primary buttons (`button.major`, styled by the PrimaryButton mixin)
+/// @prop {Color} primary-button.background [variables.get-background-color("inverse", "default")] - The background color of the primary button
+/// @prop {Color} primary-button.hover-background [variables.get-background-color("inverse", "hover")] - The hovered background color of the primary button
+/// @prop {Color} primary-button.active-background [variables.get-background-color("inverse", "pressed")] - The active background color of the primary button
+/// @prop {Color} primary-button.color [variables.get-text-icon-color("inverse", "default")] - The text color of the primary button
+/// @prop {Border} primary-button.border [1px solid transparent] - The border of the primary button
+/// @prop {Number with size unit} primary-button.border-radius [variables.$border-radius] - The border radius of the primary button
+/// @prop {Filter} primary-button.hover-filter [drop-shadow(-2px -2px 4px rgba(255, 255, 255, 0.25)) drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.15))] - The filter to apply to the primary button when hovered
+/// @prop {Filter} primary-button.active-filter [drop-shadow(2px 2px 4px rgba(255, 255, 255, 0.25)) drop-shadow(-2px -2px 4px rgba(0, 0, 0, 0.15))] - The filter to apply to the primary button when active
+/// @prop {Filter} primary-button.focus-visible-filter [drop-shadow(2px 2px 4px rgba(65, 143, 195, 0.8))
+///      drop-shadow(-2px -2px 4px rgba(65, 143, 195, 0.8))] - The filter to apply to the primary button when focused with keyboard navigation.
+/// @prop {Color} primary-button.disabled-background [variables.get-background-color("inverse", "disabled")] - The background color of the primary button when disabled
+$primary-button: () !default;
+/// Styling overrides for our secondary buttons (`button.minor`, styled by the SecondaryButton mixin)
+/// @prop {Color} secondary-button.background [variables.get-background-color("base", "default")] - The background color of the secondary button
+/// @prop {Color} secondary-button.hover-background [variables.get-background-color("base", "hover")] - The hovered background color of the secondary button
+/// @prop {Color} secondary-button.active-background [variables.get-background-color("base", "pressed")] - The active background color of the secondary button
+/// @prop {Color} secondary-button.color [variables.get-text-icon-color("base", "default")] - The text color of the secondary button
+/// @prop {Border} secondary-button.border [variables.get-border("base", "default") 1px solid] - The border of the secondary button
+/// @prop {Number with size unit} secondary-button.border-radius [variables.$border-radius] - The border radius of the secondary button
+/// @prop {Filter} secondary-button.hover-filter [drop-shadow(-2px -2px 4px rgba(255, 255, 255, 0.25)) drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.15))] - The filter to apply to the secondary button when hovered
+/// @prop {Filter} secondary-button.active-filter [drop-shadow(2px 2px 4px rgba(255, 255, 255, 0.25)) drop-shadow(-2px -2px 4px rgba(0, 0, 0, 0.15))] - The filter to apply to the secondary button when active
+/// @prop {Filter} secondary-button.focus-visible-filter [drop-shadow(-2px -2px 4px rgba(65, 143, 195, 0.8))
+///      drop-shadow(2px 2px 4px rgba(65, 143, 195, 0.8))] - The filter to apply to the secondary button when focused with keyboard navigation.
+/// @prop {Color} secondary-button.disabled-background [variables.get-background-color("base", "disabled")] - The background color of the secondary button when disabled
+$secondary-button: () !default;
+
+$subtle-secondary-button: () !default;

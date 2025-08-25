@@ -1,0 +1,110 @@
+@use "../../variables";
+@use "../../helpers/utils";
+@use "../base/Buttons";
+@use "sass:map";
+
+/// This styling is applied to the matches in the SearchModal and matches in the filters when searching for a specific filter
+/// Only the "entries-with-highlight" styling applies to the filters though
+/// ### Explanation of "entries without highlight" and "entries with highlight"
+///
+/// When the user is typing in the input field, we show query and category suggestions from the API and suggestions from the previous searches of the user (which are saved in localStorage).
+/// While the user is typing, we highlight the *new* parts of the query that we are suggesting (what the user hasn't typed). This only happens *if* the suggestion contains the query the user has typed.
+///
+/// The most flexible yet simple way we could come up with to style this is by breaking it down as follows:
+/// Note: "entry" refers to a suggestion from the API or a previous search.
+/// <ol>
+/// <li><b>Entries without highlight:</b><br />
+/// This is the styling for the entries where nothing is highlighted. This is the case when the user hasn't typed anything yet, or when the suggestion doesn't contain the query the user has typed.</li>
+/// <li><b>Entries with highlight:</b><br />
+/// Something is highlighted in this suggestion. This is the case when the user has typed something and the suggestion contains the query the user has typed.
+/// There are two things you can style here:
+/// <ol><li><b>Highlighted part:</b><br />
+/// The styling for the highlighted part of the suggestion.</li>
+/// <li><b>Toned down part:</b><br />
+/// The styling for the part of the suggestion that is not highlighted. This is the part of the suggestion that the user has already typed.</li></ol></li></ol>
+///
+/// @param {Map} $entries-without-highlight [("color": variables.$brand-dark-grey, "font-weight": 400)] - Map between *any* CSS property key to CSS value. The styling for the entries where nothing is highlighted, see the explanation above.
+/// @param {Map} $entries-with-highlight [(
+///    "highlighted-part": (
+///      "color": variables.$brand-dark-grey,
+///      "font-weight": 500
+///    ),
+///    "toned-down-part": (
+///      "color": variables.$brand-dark-grey,
+///      "font-weight": 400
+///    )
+///  )] - Map containing either "toned-down-part" which is a map and/or "highlighted-part" which is also a map. Both of the aforementioned maps can contain *any* CSS property key to CSS value. See the explanation above in the `Explanation of "entries without highlight" and "entries with highlight"`-section.
+/// @example scss - Simple example adding a custom font for the highlighted part of the suggestions
+///   @include search.Autocomplete(
+///    $entries-with-highlight: (
+///      "highlighted-part": (
+///        "font-family": "Gotham Medium",
+///      ),
+///    )
+///  );
+/// @example scss - Example if having bold text doesn't fit your brand and you instead want to make what the user typed "light" but keep the rest "regular":
+///   @include search.Autocomplete(
+///    $entries-without-highlight: (
+///      "font-weight": 400
+///    ),
+///    $entries-with-highlight: (
+///      "highlighted-part": (
+///        "font-weight": 400
+///      ),
+///      "toned-down-part": (
+///        "font-weight": 300
+///      )
+///    )
+///  );
+@mixin HighlightedText(
+  $entries-without-highlight: variables.$autocomplete-entries-without-highlight,
+  $entries-with-highlight: variables.$autocomplete-entries-with-highlight
+) {
+  $entries-without-highlight-defaults: (
+    "color": variables.get-text-icon-color("neutral", "default"),
+    "font-weight": variables.get-font-weight(400),
+  );
+  $entries-with-highlight-defaults: (
+    "highlighted-part": (
+      "color": variables.get-text-icon-color("neutral", "default"),
+      "font-weight": variables.get-font-weight(500),
+    ),
+    "toned-down-part": (
+      "color": variables.get-text-icon-color("neutral", "default"),
+      "font-weight": variables.get-font-weight(400),
+    ),
+  );
+  $merged-entries-without-highlight: map.deep-merge($entries-without-highlight-defaults, $entries-without-highlight);
+  $merged-entries-with-highlight: map.deep-merge($entries-with-highlight-defaults, $entries-with-highlight);
+
+  // Sorry for putting this here but we don't have access to the mixin arguments from Autocomplete.scss
+  .previous-searches,
+  .suggestions {
+    .item,
+    .suggestion {
+      @each $property, $value in $merged-entries-without-highlight {
+        #{$property}: $value;
+      }
+    }
+  }
+
+  // This is the styling that applies to the filters when searching for a specific filter and in the search modal
+  .has-match {
+    @each $property, $value in map.get($merged-entries-with-highlight, "toned-down-part") {
+      #{$property}: $value;
+    }
+    .highlighted-part {
+      @each $property, $value in map.get($merged-entries-with-highlight, "highlighted-part") {
+        #{$property}: $value;
+      }
+    }
+  }
+
+  // For highlighted text on major buttons which are inverted
+  button.major .has-match {
+    color: variables.get-text-icon-color("inverse", "hover");
+    .highlighted-part {
+      color: variables.get-text-icon-color("inverse", "default");
+    }
+  }
+}

@@ -1,0 +1,28 @@
+---
+title: "Adding Depict blocks to your theme"
+---
+
+Now that you've set up your theme you need to add Depict blocks in the theme editor to where you want in the page. 
+
+Get started by opening the theme editor:
+
+<Frame caption="Guide to opening the theme editor">
+    <img src="https://cdn.statically.io/gh/depict-org/documentation-images/main/shopify/open-theme-editor2.svg" alt="" style={{aspectRatio: 1.8423913043, width: "100%"}} ref={element => {
+        // In prod, they have some zoom thing which breaks aspectRatio, work around that. Unfortunately this is not in the SSR'd output so there's still some CLS.
+        const direct_parent = element?.parentElement;
+        if(direct_parent?.matches?.("[data-rmiz-content]")) {
+            Object.assign(direct_parent.style, {
+                width: "100%",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center"
+            })
+        }
+        const parents_parent = direct_parent?.parentElement;
+        if(parents_parent?.matches?.("[aria-owns^='rmiz-modal']")) {
+            parents_parent.style.width = "100%";
+        }
+    }} />
+</Frame>
+
+We suggest you do this by first creating a copy of your current live theme and adding the Depict blocks there. This way, you'll be able to preview all your changes without affecting your live site. Once you are happy with your changes, you can set the edited theme live by clicking "Publish".

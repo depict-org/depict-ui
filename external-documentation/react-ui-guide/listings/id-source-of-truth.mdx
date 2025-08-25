@@ -1,0 +1,51 @@
+---
+title: "Choosing a source of truth"
+description: "Who owns your listing pages? Let's find out!"
+---
+
+We want you to be able to create all sorts of product listing pages inside the Depict portal ([app.depict.ai](https://app.depict.ai)), like brand pages, category pages, campaign pages and collections.
+
+For the next step, you will need to provide to the `CategoryPage` component what page it should show, in the form of an ID. And the type of that ID depends on the setup the merchant has chosen.
+
+For each [product listing page](/reference/glossary/types-of-listing-pages):
+
+<AccordionGroup>
+    <Accordion title="Option 1: Depict owns the listing">
+        Depict is what decides that this listing page exists. Your page's menu/navigation and routing gets the information from Depict's [Get Listings API](https://api.depict.ai/docs#tag/Listing-(v3)/operation/Get_Listings_v3_listings_get). This means adding a new category or brand page in the Depict portal will automatically make it available in your menu/navigation and routing.
+
+        Pros:
+        - Works with all types of listing pages
+        - You get full support for re-arranging the category hierarchy in the Depict portal
+
+        Cons:
+        - Need to re-implement menu/navigation and routing if already implemented using another source of truth (e.g. Centra)
+
+        You will provide listing ids to the Depict components as `listingQuery` in the format of:
+
+    ```json
+    {
+        "type": "listingId",
+        "id": "cbf88de7-86cb-49d0-93a7-34fb2b2029fb"
+    }
+    ```
+    </Accordion>
+    <Accordion title="Option 2: Your PIM owns the listing">
+    You retain your PIM as source of truth for your routing and for rendering the menu/navigation elements of your page.
+
+    Pros:
+        - Don't need to re-implement menu/navigation and routing using Depict
+
+    Cons:
+        - Does not work <i>at all</i> for listings that can't be requested with `externalId` [see table](/reference/glossary/types-of-listing-pages).
+
+    You will provide external ids to the Depict components as `listingQuery` in the format of:
+
+    ```json
+    {
+        "type": "externalId",
+        "id": "135"
+    }
+    ```
+
+    </Accordion>
+</AccordionGroup>

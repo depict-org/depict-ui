@@ -1,0 +1,35 @@
+@use "../../variables";
+@use "../../helpers/utils";
+@use "../../helpers/supports-hover";
+
+/// CategoryTitle is the component that shows the title of the current category along with the number of products in it.
+/// This component is optional. When setting up the SDK in TypeScript you can choose between using this component (CategoryTitle) or embedded_num_products which will only show the number of products in the category, and allow you to add a title outside of the category page yourself.
+/// You only need to call the mixin if you're using the CategoryTitle component.
+
+@mixin CategoryTitle() {
+  .category-title {
+    overflow-wrap: anywhere;
+    font-size: 1.5em;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    * {
+      display: flex;
+      align-items: center;
+    }
+    .title {
+      // Override default shopify theme adding margin on all .title elements
+      margin: 0;
+      margin-right: 10px;
+      font-weight: 700;
+      font-size: inherit;
+    }
+    .explanation {
+      color: variables.get-text-icon-color("subtle", "default");
+      font-weight: 500;
+      .product-count {
+        margin-left: 10px;
+      }
+    }
+  }
+}

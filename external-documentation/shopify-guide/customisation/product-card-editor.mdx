@@ -1,0 +1,31 @@
+---
+title: "The product card editor"
+---
+
+
+This page is for visibility of our insanely powerful product card editor.
+
+If you chose option 2 [in this step](/shopify-guide/setup/edit-theme-body), you get to write your product cards in a WYSIWYG editor using TSX, with a live preview on the right hand side. After you hit save, we will transpile and bundle your code, upload it to our CDN and it will automatically go live on your website (without downtime).
+
+This enables <b>unlimited customisation of your product cards</b>. If you wanted to, you could have Google Maps in one product card. And Figma in another. Or let someone book an Uber. The sky's the limit!
+
+
+<Frame caption="Screenshot of the product card editor with the default product card">
+    <img src="https://cdn.statically.io/gh/depict-org/documentation-images/main/shopify/populated-product-card-editor.svg" style={{aspectRatio: 5994.667/3336, width: "100%"}} ref={element => {
+        // In prod, they have some zoom thing which breaks aspectRatio, work around that. Unfortunately this is not in the SSR'd output so there's still some CLS.
+        const direct_parent = element?.parentElement;
+        if(direct_parent?.matches?.("[data-rmiz-content]")) {
+            Object.assign(direct_parent.style, {
+                width: "100%",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center"
+            })
+        }
+        const parents_parent = direct_parent?.parentElement;
+        if(parents_parent?.matches?.("[aria-owns^='rmiz-modal']")) {
+            parents_parent.style.width = "100%";
+        }
+    }} />
+</Frame>
+

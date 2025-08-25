@@ -1,0 +1,42 @@
+---
+title: "Depict UI migration v2 -> v3"
+---
+
+With the major version `3` of the Depict UI there some breaking changes that apply to everyone.
+
+The reason for most of them is that Depict is now designed to <i>own</i> your categories, brand pages, campaign pages, etc.
+That means that when creating a category, you'd go into Depict. And this in turn means that your routing should have Depict as source of truth. Use the [get listings API](https://api.depict.ai/docs#tag/Listing-(v3)/operation/Get_Listings_v3_listings_get) to know which product listings are available and render the menu and navigation on your site - let us know how we can simplify that part.
+
+As for the Depict UI, you have to do the following things to update to version 3:
+
+1. Update all depict packages to the **latest version** (`@depict-ai/react-ui` to **at least** version `3.0.18` or `@depict-ai/js-ui` to **at least** `3.0.16`).
+
+## Changes applicable to all Depict UI users
+
+1. You now <i>must</i> specify a `locale` object to the provider(s). This locale object now both dictates the UI language as well as the language used in the response of the Depict Backend. Please see the locale selector in the header of [demo.depict.ai](http://demo.depict.ai) for what locales you should use.
+2. For product listing pages (the `CategoryPage` component), what products to show is now decided by a new property called `listingQuery` instead of `categoryId`. See [this excerpt of the integration guide](/react-ui-guide/listings/id-source-of-truth) for more details on what to specify. The type of that property looks as follows:
+    ```typescript
+    /**
+     * The listing to query Depict for. `type` can be `"listingId"` or `"externalId"`..
+     * If `id` is `"listingId"`, it should be a UUID where Depict is the source of truth, you can get them here: https://api.depict.ai/docs#tag/Listing/operation/Get_Listings_v3_listings_get.
+     * If `id` is `"externalId"`, it should be the id of the product listing in your system - whatever was passed to Depict during data ingestion.
+     */
+    export type ListingQuery = {
+      type: typeof IdTypes.LISTING_ID | typeof IdTypes.EXTERNAL_ID;
+      id: string;
+    };
+    ```
+
+## Changes that might affect you
+
+
+1. The the type for QuickLinks, BreadCrumbs and Category Suggestions that you receive in the displayTransformers has changed, please refer to the latest type definitions for the new format.
+2. Every object in the array you return from the displayTransformers now has to contain all data that was originally passed to the displayTransformer. This enables you to fully delete or add objects in the display transformer.
+3. `pageURLCreator` has been removed, please migrate your code to use `displayTransformers` instead.
+4. `userId` has been removed, there is now only one id used to tie together tracking events for personalisation and analytics: `sessionId`. If you specify something falsey as sessionId, Depict will generate a random string and store it in `localStorage._dep_id` and use that as session id, otherwise the provided value will be used.
+5. The property `disableOverrideQueryId` has been renamed to `disableOverrideListingId`
+6. `onCategoryIdChange` has been renamed to `onListingQueryChange` and now receives a `ListingQuery` instead of a `string` for the previous and next query
+7. No `merchant` or `market` is passed to your ProductCard anymore which you might have received before
+8. The `ProductCardTemplateWithoutMerchantAndMarket` type is no longer exported
+9. `metaTitleSuffix` is deleted
+10. Some minor changes have been made to the styling to accommodate for supporting product listing pages as sliders, please check your styling to make sure everything looks as expected

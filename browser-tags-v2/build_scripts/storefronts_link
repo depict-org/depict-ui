@@ -1,0 +1,33 @@
+#!/bin/bash
+
+set -e
+
+# Function to link packages for a storefront
+link_packages() {
+  local storefront=$1
+  echo "Linking packages for $storefront..."
+
+  # Updating the directory structure here
+  cd ../storefronts/$storefront
+
+  # Package manager logic
+  if [[ -f "pnpm-lock.yaml" ]]; then
+    pnpm link-all
+  elif [[ -f "yarn.lock" ]]; then
+    yarn link-all
+  fi
+
+  cd ../../browser-tags-v2
+}
+
+# Main script
+storefronts=("next-commerce" "next-web" "react-web" "vanilla-js")
+
+if [[ $1 == "--only-"* ]]; then
+  only_storefront="${1:7}"
+  link_packages $only_storefront
+else
+  for storefront in "${storefronts[@]}"; do
+    link_packages $storefront
+  done
+fi

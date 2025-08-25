@@ -1,0 +1,50 @@
+$noimportant: false !default;
+
+.depict-slider {
+  .sliding {
+    > * {
+      flex: 0 0 auto; // Don't shrink or grow
+    }
+    display: flex;
+    flex-wrap: nowrap;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+    overflow: auto;
+  }
+  position: relative;
+  .hidden {
+    opacity: 0;
+  }
+  .d-navbutton {
+    svg {
+      height: 100%;
+      width: 100%;
+    }
+    z-index: 1;
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    transform: translate(0, -50%);
+    padding: 0.5rem;
+    width: 3rem;
+    height: 3rem;
+    margin: 0;
+    @if $noimportant {
+      border: none;
+      background: none;
+    } @else {
+      border: none !important;
+      background: none !important;
+    }
+
+    &.d-left {
+      left: 0;
+    }
+    &.d-right {
+      right: 0;
+    }
+  }
+}

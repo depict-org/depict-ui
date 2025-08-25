@@ -1,0 +1,36 @@
+{
+  "name": "vanilla-js",
+  "packageManager": "yarn@4.0.2",
+  "private": true,
+  "source": [
+    "src/index.html",
+    "src/pdp.html",
+    "src/category.html",
+    "src/search.html"
+  ],
+  "scripts": {
+    "dev": "parcel serve -p 3000 --no-cache",
+    "build": "parcel build",
+    "start": "http-server dist -p 3000",
+    "link-all": "yarn link ../../browser-tags-v2/packages/types/ && yarn link ../../browser-tags-v2/packages/plp-styling/ && yarn link ../../browser-tags-v2/packages/utilishared/ && yarn link ../../browser-tags-v2/packages/performance-client/ && yarn link ../../browser-tags-v2/packages/ui/ && yarn link ../../browser-tags-v2/packages/js-ui/",
+    "unlink-all": "yarn unlink ../../browser-tags-v2/packages/js-ui/ && yarn unlink ../../browser-tags-v2/packages/ui/ && yarn unlink ../../browser-tags-v2/packages/performance-client/ && yarn unlink ../../browser-tags-v2/packages/utilishared/ && yarn unlink ../../browser-tags-v2/packages/plp-styling/ && yarn unlink ../../browser-tags-v2/packages/types/"
+  },
+  "@parcel/resolver-default": {
+    "packageExports": true
+  },
+  "devDependencies": {
+    "@babel/core": "^7.12.0",
+    "@babel/plugin-transform-react-jsx": "^7.20.13",
+    "@parcel/core": "nightly",
+    "@parcel/transformer-sass": "nightly",
+    "http-server": "^14.1.1",
+    "parcel": "nightly",
+    "prettier": "^2.8.3",
+    "typescript": "^4.9.4"
+  },
+  "dependencies": {
+    "@depict-ai/js-ui": "^2.1.11",
+    "@depict-ai/utilishared": "^1.0.51",
+    "solid-js": "^1.7.6"
+  }
+}

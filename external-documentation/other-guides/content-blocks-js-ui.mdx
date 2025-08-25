@@ -1,0 +1,109 @@
+---
+title: "A guide to setting up content blocks (JS UI)"
+---
+
+Want content blocks on your product listing/search pages? This guide is for you, who have already integrated with `@depict-ai/js-ui`.
+
+1. Make sure you're at least on version `2.1.9` of `@depict-ai/js-ui`.
+2. Provide a function that returns an array of content blocks to the `CategoryPage`/`SearchPage` function, like in the example below
+
+<AccordionGroup>
+  <Accordion title="Basic example">
+  
+```tsx
+import { CategoryPage, SetupPageReplacer } from "@depict-ai/js-ui";
+
+const BLOCK = () => {
+  return <div style="background:green">I'm a content block</div>;
+};
+
+const contentBlocksByRow = [
+  ,
+  ,
+  // Show first content block on the third row (index 0 is the first row)
+  {
+    spanColumns: 2,
+    spanRows: 2,
+    position: "left" as const,
+    content: BLOCK,
+  },
+];
+
+SetupPageReplacer({
+  isPageToReplace: url => url.pathname == "/category.html",
+  selectorToReplace: `.replace-for-depict`,
+  renderContent: () =>
+    CategoryPage({
+      categoryProvider,
+      productCard,
+      getContentBlocksByRow: () => contentBloocks, // <- pass in content blocks when you call CategoryPage/SearchPage
+    }),
+});
+```
+  </Accordion>
+  <Accordion title="Dynamically add/remove blocks depending on screen size">
+```tsx
+import { CategoryPage, SetupPageReplacer, contentBlockStore } from "@depict-ai/js-ui";
+
+const BLOCK1 = () => {
+  return <div style="background:green">I'm the first content block</div>;
+};
+const BLOCK2 = () => {
+  return <div style="background:red">I'm the second content block</div>;
+};
+
+const { getContentBlocksByRow, setContentBlocksByRow } = contentBlockStore([
+  ,
+  ,
+  // Always show first content block on the third row (index 0 is the first row)
+  {
+    spanColumns: 2,
+    spanRows: 2,
+    position: "left" as const,
+    content: BLOCK1,
+  },
+]);
+
+// only on desktop, show another block on row 4
+const changeBlocks = ({ matches }: { matches: boolean }) => {
+  const currentBlocks = getContentBlocksByRow();
+  if (matches) {
+    // not on desktop, delete block on the fourth row if it exists
+    delete currentBlocks[3];
+  } else {
+    // on desktop, add a block on the fourth row
+    currentBlocks[3] = {
+      spanColumns: 1,
+      spanRows: 3,
+      position: "right" as const,
+      content: BLOCK2,
+    };
+  }
+  // update the content blocks
+  setContentBlocksByRow(currentBlocks);
+};
+
+const mql = window.matchMedia("(max-width: 1024px)");
+changeBlocks(mql);
+mql.addEventListener("change", changeBlocks);
+
+SetupPageReplacer({
+  isPageToReplace: url => url.pathname == "/category.html",
+  selectorToReplace: `.replace-for-depict`,
+  renderContent: () =>
+    CategoryPage({
+      categoryProvider,
+      productCard,
+      getContentBlocksByRow, // <- pass in the function to get the content blocks when you call CategoryPage/SearchPage
+    }),
+});
+```
+
+  </Accordion>
+</AccordionGroup>
+
+<Info>
+  Looking for the
+  [reference](/reference/listing-sdk/js-ui)?
+  (⌘+f for `getContentBlocksByRow`)
+</Info>

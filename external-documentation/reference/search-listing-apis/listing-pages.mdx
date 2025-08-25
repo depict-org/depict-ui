@@ -1,0 +1,15 @@
+---
+title: "Product listing pages"
+---
+
+<Warning>This guide has not been updated for our v3 API. The `endpoints` section in the navigation has, though.</Warning>
+
+Listing pages pages work almost exactly the same as the [Search API](/reference/search-listing-apis/search-overview).
+
+There are two differences to keep in mind:
+
+1. Instead of a `query` attribute you pass a `query_id` . The query id is usually the slug of the category, for example `hoodies-and-sweaters`.
+2. The tracking id returned is not called `search_request_id` but `product_listing_request_id`
+3. If you have a collection called the same as a category, you have to also specify `listing_type` as `collection`
+
+<Note>This page applies only to the API and is outdated</Note>

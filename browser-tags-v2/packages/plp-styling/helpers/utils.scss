@@ -1,0 +1,96 @@
+@use "sass:math";
+@use "sass:color";
+
+/// This mixin sets the background property to the provided color but darkens it by the provided amounts if it is brighter or darker than 50%
+/// The purpose is to really easily create i.e. hover effects
+/// @param {Color} $normal-background - The color to darken or lighten
+/// @param {Percentage} $darken-factor [10%] - The amount to darken the color by
+/// @param {Percentage} $lighten-factor [10%] - The amount to lighten the color by
+/// @param {Percentage} $saturation-factor [$darken-factor] - The amount to decrease saturation by when the color is darkened
+@mixin highlight-background(
+  $normal-background,
+  $darken-factor: 10%,
+  $lighten-factor: 10%,
+  $saturation-factor: $darken-factor
+) {
+  @if color.lightness($normal-background) >= 50% {
+    background: color.adjust($normal-background, $lightness: -$darken-factor, $saturation: -$saturation-factor);
+  } @else {
+    background: color.adjust($normal-background, $lightness: $lighten-factor);
+  }
+}
+
+/// Like highlight-background mixin but returns color value
+@function highlight-color(
+  $normal-background,
+  $darken-factor: 10%,
+  $lighten-factor: 10%,
+  $saturation-factor: $darken-factor
+) {
+  @if color.lightness($normal-background) >= 50% {
+    @return color.adjust($normal-background, $lightness: -$darken-factor, $saturation: -$saturation-factor);
+  } @else {
+    @return color.adjust($normal-background, $lightness: $lighten-factor);
+  }
+}
+
+// source of below: https://gist.github.com/mashirozx/c0691c3b8ed3f1f63722883649d41c18
+/// We can't (or couldn't) use flex gap due to poor compatibility, this mixin is used instead of it and generates margins. We recommend reading the source code and applying thinking to the margin situation that will result.
+@mixin _flex-gap($gap, $row: true, $use_nth_child: true) {
+  $margin: math.div($gap, 2);
+  $transform: -$margin;
+
+  @if $use_nth_child {
+    > * {
+      @if $row {
+        // modified to be worse by Daniel (probable broke row-reverse and order property) due to him being opinionated on avoiding negative margins when possible
+        &:not(:first-child) {
+          margin-left: $margin;
+        }
+        &:not(:last-child) {
+          margin-right: $margin;
+        }
+      } @else {
+        &:not(:first-child) {
+          margin-top: $margin;
+        }
+        &:not(:last-child) {
+          margin-bottom: $margin;
+        }
+      }
+    }
+  } @else {
+    @if $row {
+      margin-left: $transform;
+      margin-right: $transform;
+    } @else {
+      margin-top: $transform;
+      margin-bottom: $transform;
+    }
+    > * {
+      @if $row {
+        margin-left: $margin;
+        margin-right: $margin;
+      } @else {
+        margin-top: $margin;
+        margin-bottom: $margin;
+      }
+    }
+  }
+}
+
+@mixin flex-gap($gap, $flex-flow: "row nowrap") {
+  @if $flex-flow== "row nowrap" or $flex-flow== "row-reverse nowrap" {
+    @include _flex-gap($gap, true);
+  } @else if $flex-flow== "column nowrap" or $flex-flow== "column-reverse nowrap" {
+    @include _flex-gap($gap, false);
+  } @else if $flex-flow== "row wrap" or $flex-flow== "row-reverse wrap" {
+    @include _flex-gap($gap, true, false);
+    @include _flex-gap($gap, false, false);
+  } @else if $flex-flow== "column wrap" or $flex-flow== "column-reverse wrap" {
+    @include _flex-gap($gap, true, false);
+    @include _flex-gap($gap, false, false);
+  } @else {
+    @error "The second paramater $flex-flow is set to be '#{$flex-flow}', which is illegal.";
+  }
+}

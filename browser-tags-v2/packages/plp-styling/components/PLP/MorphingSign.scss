@@ -1,0 +1,44 @@
+@use "../../variables";
+
+@mixin MorphingSign() {
+  .morphing-sign {
+    /* https://stackoverflow.com/a/38136283 */
+    border: 0;
+    position: relative;
+    width: 1.5em;
+    height: 1.5em;
+    --thickness: 10%;
+
+    span {
+      position: absolute;
+      background: variables.get-text-icon-color("neutral", "default");
+      border-radius: 2px;
+      transition-duration: 200ms;
+    }
+
+    /* Create the "+" shape by positioning the spans absolutely */
+    span:first-child {
+      top: 25%;
+      bottom: 25%;
+      width: var(--thickness);
+      left: calc(50% - calc(var(--thickness) / 2));
+    }
+
+    span:last-child {
+      left: 25%;
+      right: 25%;
+      height: var(--thickness);
+      top: calc(50% - calc(var(--thickness) / 2));
+    }
+
+    &.expanded {
+      span {
+        transform: rotate(90deg);
+        &:last-child {
+          left: 50%;
+          right: 50%;
+        }
+      }
+    }
+  }
+}

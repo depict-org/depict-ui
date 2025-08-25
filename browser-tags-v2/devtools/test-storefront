@@ -1,0 +1,68 @@
+#!/bin/bash
+
+storefront=$1
+
+if [ -z "$storefront" ]; then
+  echo "Usage: package-test-storefront <storefront>"
+  exit 1
+fi
+
+# Check if tmux is installed
+if ! command -v tmux &> /dev/null; then
+    echo "tmux is not installed. Attempting to install..."
+
+    # Check for Homebrew and install tmux if found
+    if command -v brew &> /dev/null; then
+        echo "Installing tmux with Homebrew..."
+        brew install tmux
+
+    # Check for APT (Debian/Ubuntu) and install tmux if found
+    elif command -v apt &> /dev/null; then
+        echo "Installing tmux with APT..."
+        sudo apt update
+        sudo apt install tmux -y
+
+    # Check for APK (Alpine Linux) and install tmux if found
+    elif command -v apk &> /dev/null; then
+        echo "Installing tmux with APK..."
+        sudo apk add tmux
+
+    # If none of the package managers are found, print an error message
+    else
+        echo "No recognized package manager found. Please install tmux manually."
+        exit 1
+    fi
+fi
+
+# Verify tmux installation
+if ! command -v tmux &> /dev/null; then
+    echo "Failed to install tmux."
+    exit 1
+fi
+
+echo "This command assumes you have built and installed packages, run \`yarn\` and \`yarn build_packages\` if you haven't"
+
+./build_scripts/storefronts_install --only-$storefront
+./build_scripts/storefronts_link --only-$storefront
+./build_scripts/storefronts_build --only-$storefront
+
+# Start a new tmux session in detached mode
+tmux new-session -d -s mysession
+
+# Split the window horizontally
+tmux split-window -h
+
+# Select the first pane
+tmux select-pane -t 0
+
+# Run the first command in the first pane
+tmux send-keys -t 0 "./build_scripts/storefronts_serve --only-$storefront" C-m
+
+# Select the second pane
+tmux select-pane -t 1
+
+# Navigate to the desired directory and run the second command followed by tmux kill-session
+tmux send-keys -t 1 "cd testcafe/package-tests && store_path=$storefront yarn testcafe --debug-on-fail chrome plp-ui.ts --native-automation; echo press enter to exit tmux; read; tmux kill-session -t mysession" C-m
+
+# Attach to the tmux session
+tmux attach-session -t mysession

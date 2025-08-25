@@ -1,0 +1,108 @@
+@use "../customised-plp-styling";
+
+.listings-list {
+  display: flex;
+  flex-direction: column;
+  gap: customised-plp-styling.get-spacing("sm");
+  max-width: min(600px, 90vw);
+
+  .listing {
+    display: flex;
+    flex-direction: column;
+    gap: customised-plp-styling.get-spacing("xxs");
+    border-radius: customised-plp-styling.$border-radius;
+    min-width: 250px;
+
+    .title {
+      font-size: 1.2em;
+      font-weight: 600;
+      color: customised-plp-styling.get-text-icon-color("base", "default");
+      display: flex;
+      align-items: center;
+      gap: customised-plp-styling.get-spacing("xs");
+
+      .dot {
+        padding: 4px;
+        background: customised-plp-styling.get-background-color("inverse", default);
+        border-radius: 10px;
+        display: inline-block;
+      }
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
+    .children {
+      display: flex;
+      gap: customised-plp-styling.get-spacing("xs");
+      align-items: center;
+    }
+
+    .type {
+      color: customised-plp-styling.get-text-icon-color("subtle", "default");
+      font-family: monospace;
+    }
+
+    details {
+      @if customised-plp-styling.$darkmode {
+        background: rgba(255, 255, 255, 0.05);
+      } @else {
+        background: rgba(0, 0, 0, 0.05);
+      }
+      margin-top: customised-plp-styling.get-spacing("xxs");
+
+      &[open] {
+        & > summary {
+          font-weight: 700;
+          margin-bottom: customised-plp-styling.get-spacing("xs");
+        }
+        padding-bottom: customised-plp-styling.get-spacing("xs");
+      }
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 500;
+      padding: customised-plp-styling.get-spacing("xxs");
+    }
+    details > *:not(summary) {
+      padding-left: calc(customised-plp-styling.get-spacing("xl")); // 7 px for alignment, hacky but value first
+    }
+
+    .symbol {
+      position: relative;
+      span {
+        transition-duration: 100ms;
+      }
+      .plus {
+        position: absolute;
+        left: 0;
+      }
+      &.expanded {
+        .minus {
+          opacity: 1;
+          transition-timing-function: ease-out;
+        }
+        .plus {
+          opacity: 0;
+          transition-timing-function: ease-in;
+        }
+      }
+      &:not(.expanded) {
+        .minus {
+          opacity: 0;
+          transition-timing-function: ease-in;
+        }
+        .plus {
+          opacity: 1;
+          transition-timing-function: ease-out;
+        }
+      }
+    }
+
+    h2 {
+      margin: 0;
+    }
+  }
+}

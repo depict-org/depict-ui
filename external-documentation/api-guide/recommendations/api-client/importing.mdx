@@ -1,0 +1,20 @@
+---
+title: "Import"
+description: "How to import the Depict API client."
+---
+
+Add the following to the beginning of the file where you want to use the `fetchDepictRecommendations` function:
+
+<CodeGroup>
+    ```typescript js-ui
+    import { fetchDepictRecommendations } from "@depict-ai/js-ui";
+    ```
+    ```typescript react-ui
+    import { useFetchRecommendations } from "@depict-ai/react-ui";
+
+    // Then, in your component where you want to use fetchRecommendations:
+    const { fetchRecommendations } = useFetchRecommendations();
+    // You don't have to specify `merchant` and `market` to the `fetchRecommendations` function that you get from `useFetchRecommendations`.
+    // Since that will be taken from the provider automatically.
+    ```
+</CodeGroup>

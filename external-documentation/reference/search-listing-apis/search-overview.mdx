@@ -1,0 +1,287 @@
+---
+title: "Search API Overview"
+---
+
+<Warning>This guide has not been updated for our v3 API. The `endpoints` section in the navigation has, though.</Warning>
+
+
+Depict Search and PLP is provided through a number of API endpoints:
+
+1. Search Results
+2. Search Query Suggestions
+3. Search recommendations
+4. Category Listings
+
+Search and PLP have very similar functionality, which means that the API for Search Results and Category Listings are very similar.
+
+## Basic search
+
+Ignoring everything besides the result page, the flow looks like this:
+
+1. User inputs a query and hits enter
+2. Website sends a POST request to [https://api.depict.ai/v2/search/results](https://api.depict.ai/v2/search/results) containing a SearchRequest
+3. Depict responds with a SearchResponse -> the UI is updated.
+4. User refines the search, either through modifying the query or the filter states.
+5. Website sends another POST request with a modified SearchRequest.
+6. Depict responds with an updated SearchResponse -> the UI is once again updated.
+
+## API types specification
+
+### SearchRequest
+
+```typescript TypeScript
+export interface SearchRequest {
+  /**
+   * The search query.
+   */
+  query?: string;
+  /**
+   * Used for cursor-based pagination. To get the next page, set it to the cursor from the last response until no one is returned. If not set, will return the first results.
+   */
+  cursor?: string;
+  /**
+   * Maximum number of results per response.
+   */
+  limit?: number;
+  /**
+   * Customer name, you receive this from depict.
+   */
+  tenant: string;
+  /**
+   * Market. Inquire depict about what you should specify here.
+   */
+  market: string;
+  /**
+   * List of filters to apply to the results.
+   */
+  filters?: SearchFilter[];
+  /**
+   * Specifies the sorting method. By default, the results are ordered by relevance. To find the possible values for this field, look at the `sorts` field in the SearchResponse.
+   */
+  sort?: SortModel;
+  /**
+   * User identifier
+   */
+  user_id?: string;
+  /**
+   * Session identifier
+   */
+  session_id?: string;
+}
+```
+
+### SearchResponse
+
+```typescript TypeScript
+export interface SearchResponse {
+  /**
+   * Total number of results for this query. Not necessarily exact.
+   */
+  n_hits: number;
+  /**
+   * @deprecated
+   * Temporary during migration
+   */
+  page?: number;
+  /**
+   * The search results.
+   */
+  displays: {
+    [k: string]: unknown;
+  }[];
+  /**
+   * Available methods for sorting the response. Any element from this list can be sent as `sort` in subsequent requests (you're not required to send back the `meta` object).
+   */
+  sorts?: SortModel[];
+  /**
+   * Available filters that can be used for filtering in the subsequent request.
+   */
+  filters?: SearchFilter[];
+  search_request_id: string;
+  /**
+   * Cursor that can be used in the next request to get subsequent results. If this is not set, there are no more results.
+   */
+  cursor?: string;
+}
+```
+
+### SortModel
+
+Depending on merchant configuration, different sort modes might or might not be available. The default mode _relevance_ is always available.
+
+```typescript TypeScript
+export type SortingOrder = "asc" | "desc";
+export interface SortModel {
+  /**
+   * The field to sort by.
+   */
+  field: string;
+  /**
+   * The order to sort by.
+   */
+  order: SortingOrder;
+  /**
+   * Metadata about the sort that can be used for rendering.
+   */
+  meta?: SortMeta;
+}
+export interface SortMeta {
+  title: string;
+  /**
+   * Selectable values
+   */
+  values?: SortingOrder[];
+  /**
+   * Names for orders
+   */
+  names?: string[];
+}
+```
+
+### Filters
+
+Which filters are available depends on the merchant configuration so need to be handled dynamically. Depending on the setup different filters might be available for a subset of product attributes are.
+
+There are currently three types of filters:
+
+1. RangeFilter - lets the user filter numeric values, such as "price between 100 and 500"
+2. ValueFilter - lets the user filter discrete values, such as "Color is red or blue" or "Only second hand"
+3. HierarchicalValueFilter - like ValueFilter but presents items in a hierarchy, typically used for categories
+
+The base filter structure looks like this:
+
+```typescript TypeScript
+export interface SearchFilter {
+  field: string;
+  op: "eq" | "neq" | "in" | "nin" | "leq" | "geq" | "inrange";
+  data?: [number, number] | (string | number | "true" | "false")[] | string[][];
+  meta?: RangeFilterMeta | ValuesFilterMeta | HierarchicalValuesFilterMeta;
+  id?: string;
+}
+```
+
+When a user have interacted with a filter it should be included in the `filters` array of a new `SearchRequest`. When doing so, `field`, `data` and `op` are what's mandatory to include for every filter object. `data` is the field where the current state should be stored.
+
+#### RangeFilter
+
+For this filter `data` is an array containing the range selected, in the format `[min, max]`.
+
+```typescript TypeScript
+export interface RangeFilterMeta {
+  /**
+   * Title of the group, where a group consists of all the filters that share an ID.
+   */
+  group_title?: string;
+  /**
+   * Whether the filter group should be expanded by default or not.
+   */
+  group_expanded?: boolean;
+  type?: "range";
+  /**
+   * The minimum value that can be selected in the range.
+   */
+  min: number;
+  /**
+   * The maximum value that can be selected in the range.
+   */
+  max: number;
+  /**
+   * The unit of the range values.
+   */
+  unit?: string;
+  /**
+   * The currency of the range values.
+   */
+  currency?: string;
+}
+```
+
+#### ValuesFilter
+
+The type of the filter represents the UI behaviour. In a radio filter only one value can be selected at a time, where in a checkbox filter multiple values can be selected. A `checkbox-grid` works the same as a checkbox filter, but the UI should be more compact by being formatted as a grid instead of a list. `checkbox-grid` is usually used for sizes of clothes, where there are many options available.
+
+For this filter `data` should be a list containing the selected values.
+
+```typescript TypeScript
+export interface ValuesFilterMeta {
+  /**
+   * Title of the group, where a group consists of all the filters that share an ID.
+   */
+  group_title?: string;
+  /**
+   * Whether the filter group should be expanded by default or not.
+   */
+  group_expanded?: boolean;
+  /**
+   * Type of filter.
+   */
+  type?: "radio" | "checkbox" | "checkbox-grid";
+  /**
+   * Selectable values
+   */
+  values: (
+    | ("true" | "false")
+    | number
+    | string
+  )[];
+  /**
+   * Counts for values
+   */
+  counts?: number[];
+  /**
+   * Names for values
+   */
+  names?: string[];
+}
+```
+
+#### HierarchicalValuesFilter
+
+The data represents a tree of values, some of which might be selected. Note that if a parent is selected all children must also be selected.
+
+Here's an example of a category tree where the user has clicked on _Shirts_ and _Jeans_:
+
+1. Clothes
+   1. **Shirts**
+         1. **Cotton Shirts**
+         2. **Linen Shirts**
+   2. Pants
+         1. **Jeans**
+         2. Shorts
+
+The corresponding `data` is a list of lists representing the path of the selected nodes, like this:
+
+```typescript TypeScript
+[
+  ["Clothes", "Shirts"],
+  ["Clothes", "Shirts", "Cotton Shirts"],
+  ["Clothes", "Shirts", "Linen Shirts"],
+  ["Clothes", "Pants", "Jeans"],
+]
+```
+
+```typescript TypeScript
+export interface HierarchicalValuesFilterMeta {
+  /**
+   * Title of the group, where a group consists of all the filters that share an ID.
+   */
+  group_title?: string;
+  /**
+   * Whether the filter group should be expanded by default or not.
+   */
+  group_expanded?: boolean;
+  type?: "checkbox-hierarchical";
+  /**
+   * Selectable hierarchical values
+   */
+  values: (("true" | "false") | number | string)[][];
+  /**
+   * Counts for values
+   */
+  counts?: number[];
+  /**
+   * Names for hierarchical values
+   */
+  names?: string[];
+}
+```

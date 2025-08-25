@@ -1,0 +1,121 @@
+@use "../../variables";
+@use "../../helpers/utils";
+@use "PreviousSearches";
+@use "../base/Buttons";
+@use "sass:map";
+
+/// Autocomplete is the component that displays suggested Categories and Products in the SearchModal, both under the "Suggestions" heading (i18n key `suggestions_`) when the customer hasn't typed anything, and once the customer has started typing.
+/// It also includes previous searches inside of the suggestions provided from the API - when the user hasn't typed though, the PreviousSearches component is shown instead.
+/// See also HighlightedText
+/// This is not used at all if variables.$search-modal-layout is "v2"
+@mixin Autocomplete() {
+  @include PreviousSearches.PreviousSearches();
+  .previous-searches,
+  .suggestions {
+    .line-clamp {
+      -webkit-line-clamp: 1;
+    }
+    .text {
+      font-size: 16px;
+      font-weight: variables.get-font-weight(700);
+      color: variables.get-text-icon-color("neutral", "default");
+      margin-top: 0;
+    }
+    .item,
+    .suggestion {
+      background: variables.get-background-color("base", "default");
+      &.selected {
+        background: variables.get-background-color("neutral", "default");
+      }
+
+      &:focus-visible {
+        outline: none;
+        filter: map.get(Buttons.get-secondary-button-properties(), "focus-visible-filter");
+      }
+
+      &:active {
+        background: variables.get-background-color("subtle", "pressed");
+      }
+
+      // See HighlightedText.scss for a declaration written here
+
+      .with-icon {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        @include utils.flex-gap(8px, "row nowrap");
+      }
+    }
+  }
+  .suggestions {
+    display: flex;
+    flex-direction: column;
+    @include utils.flex-gap(map.get(variables.get-gap("autocomplete"), "between-category-and-other"), "column nowrap");
+
+    &:not(.compact) > .suggestion-container,
+    &.compact > .suggestion-container:not(.query) {
+      @include utils.flex-gap(map.get(variables.get-gap("autocomplete"), "between-items-in-row-mode"), "column nowrap");
+    }
+    .suggestion-container {
+      display: flex;
+      flex-direction: column;
+      .suggestion {
+        svg {
+          flex-shrink: 0;
+          path {
+            fill: variables.get-text-icon-color("neutral", "default");
+          }
+        }
+        display: flex;
+        justify-content: space-between;
+        overflow-wrap: anywhere;
+        align-items: center;
+        border-radius: variables.$border-radius;
+
+        padding: 10px 20px;
+
+        &.type-listing {
+          .with-parent-title {
+            display: flex;
+            padding-right: 8px;
+            align-items: center;
+            justify-content: center;
+          }
+        }
+
+        .search-icon {
+          max-width: 12px;
+          max-height: 13px;
+          svg {
+            transform: scale(0.6) translate(-6.9px, -7.2px);
+          }
+        }
+
+        @if variables.$search-modal-layout == "classic" {
+          .category {
+            margin-right: 20px;
+          }
+        }
+
+        .type {
+          color: variables.get-text-icon-color("subtle", "default");
+          text-transform: capitalize;
+          white-space: nowrap;
+        }
+      }
+
+      &.query {
+        flex-direction: column;
+        .suggestion {
+          justify-content: flex-start;
+          @include utils.flex-gap(8px, "row nowrap");
+        }
+      }
+    }
+    &.compact > .suggestion-container.query {
+      flex-direction: row;
+      flex-wrap: wrap;
+      @include utils.flex-gap(map.get(variables.get-gap("autocomplete"), "between-compact-suggestions"), "row wrap");
+    }
+  }
+}

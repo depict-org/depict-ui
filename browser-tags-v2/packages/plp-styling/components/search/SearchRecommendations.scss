@@ -1,0 +1,26 @@
+@use "../../variables";
+@use "../../helpers/utils";
+@use "../../helpers/supports-hover";
+
+/// SearchRecommendations is the component that shows recommendations below the SearchResults once the user has reached the end of the results.
+/// @param {Border} $border-top [2px solid variables.$brand-light-grey] - The border separating the results and recommendations
+
+@mixin SearchRecommendations() {
+  .listing-page {
+    .search-recs {
+      border-top: 2px solid variables.get-border-color("subtle", "default");
+      display: flex;
+      flex-direction: column;
+      .search-recs-title {
+        line-height: 1;
+        font-weight: 600;
+        font-size: 24px;
+        margin-top: 0;
+        margin-bottom: 20px;
+      }
+      .load-more-container {
+        margin-top: 30px;
+      }
+    }
+  }
+}

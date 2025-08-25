@@ -1,0 +1,84 @@
+@use "../../variables";
+@use "../../helpers/utils";
+@use "../base/Buttons";
+@use "sass:map";
+
+/// PreviousSearches is the component that shows the previous searches of the user in its own section, with a heading that says "Your previous searches" (key of the string is `previous_searches_text_` in the locales).
+/// The component is only shown if the user has previous searches and the search field is empty.
+///
+/// PreviousSearches is a sub-component of Autocomplete so you probably don't want to use it on its own.
+/// This is not used at all if variables.$search-modal-layout is "v2"
+
+@mixin PreviousSearches() {
+  .previous-searches {
+    display: flex;
+    flex-direction: column;
+    @include utils.flex-gap(15px, "column nowrap");
+    $icon-color: variables.get-text-icon-color("neutral", "default");
+
+    .list {
+      display: flex;
+      flex-direction: column;
+      @include utils.flex-gap(map.get(variables.get-gap("autocomplete"), "between-items-in-row-mode"), "column nowrap");
+      .item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        padding-left: 20px;
+        padding-right: 20px;
+        border-radius: variables.$border-radius;
+        overflow-wrap: anywhere;
+        .left {
+          @include utils.flex-gap(10px, "row nowrap");
+          display: flex;
+          align-items: center;
+          svg {
+            min-width: 12px;
+            path {
+              fill: $icon-color;
+            }
+          }
+        }
+        .delete {
+          height: 100%;
+          padding: 0 10px;
+          background: transparent;
+          cursor: pointer;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+
+          &:focus {
+            outline: none;
+          }
+
+          svg {
+            transition-duration: 150ms;
+            width: 13px;
+            height: 13px;
+            path {
+              fill: $icon-color;
+            }
+          }
+          &:hover svg {
+            transform: scale(1.2);
+            path {
+              fill: variables.get-text-icon-color("neutral", "pressed");
+            }
+          }
+          &:focus-visible {
+            filter: map.get(Buttons.get-secondary-button-properties(), "focus-visible-filter");
+            svg {
+              transform: scale(1.2);
+              path {
+                fill: variables.get-text-icon-color("neutral", "pressed");
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

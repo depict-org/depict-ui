@@ -1,0 +1,57 @@
+@use "../../variables";
+@use "../../helpers/utils";
+@use "../../helpers/supports-hover";
+@use "../base/Buttons";
+@use "sass:color";
+@use "sass:map";
+
+/// The QuickLinks show the quick links to the subcategories or sibling categories of the current category.
+/// It enables to user to navigate to a subcategory or sibling category without having to go back to the category page.
+
+@mixin QuickLinks() {
+  .quicklinks {
+    overflow: hidden;
+    .quicklink {
+      white-space: nowrap;
+      padding: 10px 20px;
+      background: variables.get-background-color("base", "default");
+      color: variables.get-text-icon-color("base", "default");
+      transition: all 75ms ease-in-out;
+      border-radius: variables.$border-radius;
+      border: 1px solid variables.get-border-color("neutral", "default");
+      &:focus {
+        outline: none;
+      }
+      @include supports-hover.supports-hover() {
+        &:hover {
+          background: variables.get-background-color("base", "hover");
+        }
+      }
+      &:focus-visible {
+        background: variables.get-background-color("base", "hover");
+        filter: map.get(Buttons.get-secondary-button-properties(), "focus-visible-filter");
+      }
+      &:active {
+        background: variables.get-background-color("base", "pressed");
+      }
+      &.selected {
+        color: variables.get-text-icon-color("inverse", "default");
+        background: variables.get-background-color("inverse", "default");
+        border: 1px solid transparent;
+        @include supports-hover.supports-hover() {
+          &:hover {
+            // should we have this? since it's selected, nothing will happen when clicked
+            background: variables.get-background-color("inverse", "hover");
+          }
+        }
+        &:focus-visible {
+          background: variables.get-background-color("inverse", "hover");
+          filter: map.get(Buttons.get-primary-button-properties(), "focus-visible-filter");
+        }
+        &:active {
+          background: variables.get-background-color("inverse", "pressed");
+        }
+      }
+    }
+  }
+}

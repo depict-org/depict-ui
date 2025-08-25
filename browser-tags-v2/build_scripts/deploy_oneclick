@@ -1,0 +1,55 @@
+#!/bin/bash
+
+input_addr="$1"
+customer="$2"
+
+function help {
+  echo "Usage: $0 <input site> <tenant>"
+  echo "input site: site to call mkdemo with, i.e. ikea.se or global.ecco.com"
+  echo "tenant: Please provide name of the customer. The resulting demo site will be <tenant>.demo.depict.ai"
+}
+
+if [ -z "$input_addr" ]
+  then
+    help
+    exit
+fi
+
+if [ -z "$customer" ]
+  then
+    help
+    exit
+fi
+
+echo "Setting up demo site"
+
+yarn mkdemo -s "$input_addr" -o "$customer.demo.depict.ai"
+
+set -e
+
+
+if ! command -v atom &> /dev/null
+then
+    echo "Please open this file in an editor: src/one_click_integration/.env"
+  else
+    atom "src/one_click_integration/.env"
+    echo "I have opened src/one_click_integration/.env"
+fi
+
+echo "Adjust the parameters"
+echo "Then press enter"
+
+read
+
+parcel_extraargs=""
+. ./build_scripts/build one_click_integration
+compatfn=$customer.compat.js
+modernfn=$customer.modern.js
+build_scripts/distributorify -m modern.js -i ie11.js -c $compatfn -d $dd
+cd $dd
+cp distributor.js $customer.js
+cp modern.js $modernfn
+cp ie11.js $compatfn
+# first set up ssh with gcloud, then this will work
+scp -vo IdentityFile=~/.ssh/google_compute_engine $compatfn $modernfn $customer.js root@demo-machine.europe-west1-b.depict-v2:/var/www/proxy/
+rm $customer.js $compatfn $modernfn

@@ -1,0 +1,40 @@
+---
+title: "Product Card Tracking"
+description: "How to make sure DPC tracks your product cards correctly"
+---
+
+<Warning>
+  Only follow these steps for product cards that are NOT rendered through the
+  Depict UI (SDK)
+</Warning>
+
+We need to tell DPC about the product cards that you created using Depict data. Also, you need to enable Depict to understand what product this product card is in our internal representation.
+
+In the response from all our API:s there's an id inside each display. You need to add this id to your product card template as a data attribute.
+
+The ID is called different things based on different endpoints
+
+| Endpoint you got product data from     | Name of ID in `display` (display = product data provided from API response) | Attribute name to be used      |
+| -------------------------------------- | --------------------------------------------------------------------------- | ------------------------------ |
+| /v3/listings/\*                        | product_listing_result_id                                                   | data-product-listing-result-id |
+| /v2/product-listing                    | product_listing_result_id                                                   | data-product-listing-result-id |
+| /v3/recommend/products                 | recommendation_id                                                           | data-recommendation-id         |
+| /v2/recommend/\*                       | recommendation_id                                                           | data-recommendation-id         |
+| /v3/search/\*                          | search_result_id                                                            | data-search-result-id          |
+| /v2/search/related, /v2/search/results | search_result_id                                                            | data-search-result-id          |
+
+This step enables DPC to add click tracking to the product cards as well as tracking when the product card is visible to the user according to certain criteria.
+
+## Examples:
+
+#### Category page:
+
+```html
+<div data-product-listing-result-id="7ad3110d-7cd6-4352-83da-b93fa1bfe645">
+  <!-- Product card -->
+</div>
+```
+
+#### Recommendations:
+
+![Recommendation id set on a div](/images/recommendation_id.webp)

@@ -1,0 +1,26 @@
+{
+  "name": "commerce",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "build": "turbo run build --filter=next-commerce...",
+    "dev": "turbo run dev",
+    "start": "turbo run start",
+    "types": "turbo run types",
+    "prettier-fix": "prettier --write .",
+    "link-all": "find node_modules/.pnpm/\\@depict-ai+*/node_modules/\\@depict-ai/* -type d | grep -E \"@depict-ai/(\\w|-)+$\" | xargs ./link-replace.sh",
+    "unlink-all": "rm -rf node_modules/.pnpm/\\@depict-ai* && pnpm install",
+    "clean": "rm -rf site/.next node_modules site/node_modules"
+  },
+  "devDependencies": {
+    "husky": "^8.0.3",
+    "prettier": "^2.8.8",
+    "turbo": "^1.10.6"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "turbo run lint"
+    }
+  },
+  "packageManager": "pnpm@8.6.5"
+}

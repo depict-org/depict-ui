@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig_base.json",
+  "compilerOptions": {
+    "composite": true,
+    "types": ["node", "jest", "solid-js", "solid-js/web"],
+    "skipLibCheck": true
+  },
+  "include": ["./src", "./src-server"],
+  "exclude": ["./dist/*", "./dist-server/*", "./latest/*", "./ES*/*", "./locales/*"]
+}

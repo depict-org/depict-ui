@@ -1,0 +1,183 @@
+@use "../../helpers/utils";
+@use "../../variables";
+@use "sass:map";
+
+/// Styling that ties together the different components that are common to both Category and Search pages. Mainly takes care of margins and paddings but also sets the styling for .cards which is in both PLPResults and SearchRecommendations.
+///
+/// Note that for the gaps not the exact values will always be used but often multiples for different places where it's appropriate.
+
+@mixin ProductListingPage() {
+  $spacing-to-filters: map.get(variables.get-gap("listing-page"), "spacing-to-filters");
+  $desktop-item-gap: map.get(variables.get-gap("listing-page"), "desktop-item-gap");
+  $mobile-item-gap: map.get(variables.get-gap("listing-page"), "mobile-item-gap");
+  .listing-page {
+    padding: $desktop-item-gap calc(#{$desktop-item-gap} / 2);
+    @include mobile_sizes() {
+      padding: $mobile-item-gap calc(#{$mobile-item-gap} / 2);
+    }
+    & > .filter-results-for-one-row,
+    & > .results-for {
+      margin-bottom: calc(#{$desktop-item-gap} / 2);
+      @include mobile_sizes() {
+        margin-bottom: calc(#{$mobile-item-gap} / 2);
+      }
+    }
+
+    & > .sort-and-filter-buttons {
+      margin-top: calc(#{$desktop-item-gap} / 2);
+      margin-bottom: calc(#{$desktop-item-gap} / 2);
+      @include mobile_sizes() {
+        margin-top: calc(#{$mobile-item-gap} / 2);
+        margin-bottom: calc(#{$mobile-item-gap} / 2);
+      }
+    }
+    .PLP-results {
+      margin-top: calc(#{$desktop-item-gap} / 2);
+      @include mobile_sizes() {
+        margin-top: calc(#{$mobile-item-gap} / 2);
+      }
+      display: flex;
+      & > .depict-slider {
+        align-self: flex-start;
+      }
+      & > {
+        .filters,
+        .sorting {
+          margin-left: $spacing-to-filters;
+        }
+      }
+    }
+  }
+}
+
+/// Styling that ties together the different components on the SearchPage. Mainly takes care of margins and paddings.
+///
+/// Note that for the gaps not the exact values will always be used but often multiples for different places where it's appropriate.
+///
+
+@mixin SearchPage() {
+  $spacing-to-filters: map.get(variables.get-gap("listing-page"), "spacing-to-filters");
+  $desktop-item-gap: map.get(variables.get-gap("listing-page"), "desktop-item-gap");
+  $mobile-item-gap: map.get(variables.get-gap("listing-page"), "mobile-item-gap");
+  $gap-to-recs-factor: map.get(map.get(variables.get-gap("listing-page"), "search"), "gap-to-recs-factor");
+  $spacing-above-search-field: map.get(
+    map.get(variables.get-gap("listing-page"), "search"),
+    "spacing-above-search-field"
+  );
+
+  &.search-field-left {
+    .listing-page {
+      .search-field {
+        align-self: start;
+      }
+    }
+  }
+  &.search-field-center {
+    .listing-page {
+      .search-field {
+        align-self: center;
+      }
+    }
+  }
+  &.search-field-right {
+    .listing-page {
+      .search-field {
+        align-self: end;
+      }
+    }
+  }
+
+  .listing-page {
+    .content-results {
+      margin-bottom: $desktop-item-gap;
+      @include mobile_sizes() {
+        margin-bottom: $mobile-item-gap;
+      }
+    }
+    .search-field {
+      align-self: center;
+      @if variables.$search-modal-layout == "classic" {
+        $max-width: variables.get-merged(variables.$search-modal-defaults, variables.$search-modal, "max-width");
+        width: calc(min(100%, $max-width));
+      }
+
+      @if $spacing-above-search-field {
+        margin-top: calc(#{$desktop-item-gap} * 2);
+      }
+      margin-bottom: $desktop-item-gap;
+      @include mobile_sizes() {
+        margin-bottom: $mobile-item-gap;
+        @if $spacing-above-search-field {
+          margin-top: calc(#{$mobile-item-gap});
+        }
+      }
+      ~ .category-suggestions .category-suggestion {
+        &:last-child {
+          margin-right: auto;
+        }
+        &:first-child {
+          margin-left: auto;
+        }
+      }
+    }
+    .category-suggestions {
+      margin-bottom: $desktop-item-gap;
+      @include mobile_sizes() {
+        margin-bottom: $mobile-item-gap;
+      }
+    }
+    .search-field {
+      // if there are no category suggestions we should have 2x the gap between where they should be and what's there, only for desktop tho
+      & + .filter-results-for-one-row,
+      & + .results-for {
+        @media (min-width: 652px) {
+          margin-top: $desktop-item-gap;
+        }
+      }
+    }
+    .search-recs {
+      // whole gap here so that we don't have to make the margin bottom of search-results conditional
+      margin-top: calc(#{$desktop-item-gap} * #{$gap-to-recs-factor});
+      // in between these there's the border, a visual line separating the results and recs
+      padding-top: calc(#{$desktop-item-gap} * #{$gap-to-recs-factor});
+      @include mobile_sizes() {
+        margin-top: calc(#{$mobile-item-gap} * #{$gap-to-recs-factor});
+        padding-top: calc(#{$mobile-item-gap} * #{$gap-to-recs-factor});
+      }
+    }
+    .PLP-results.nothing + .search-recs {
+      // if no results, bring us closer
+      margin-top: calc(#{$desktop-item-gap} * 1.5);
+      padding-top: calc(#{$desktop-item-gap} * 1.5);
+      @include mobile_sizes() {
+        margin-top: calc(#{$mobile-item-gap} * 1.5);
+        padding-top: calc(#{$mobile-item-gap} * 1.5);
+      }
+    }
+  }
+}
+
+/// Styling that ties together the different components on the CategoryPage. Mainly takes care of margins and paddings.
+///
+
+@mixin CategoryPage() {
+  $desktop-item-gap: map.get(variables.get-gap("listing-page"), "desktop-item-gap");
+  $mobile-item-gap: map.get(variables.get-gap("listing-page"), "mobile-item-gap");
+  .listing-page {
+    .quicklinks,
+    .crumbs {
+      margin-bottom: $desktop-item-gap;
+      @include mobile_sizes() {
+        margin-bottom: $mobile-item-gap;
+      }
+    }
+  }
+}
+
+/// Internal mixin that dictates when the vertical spaces should switch to the "mobile" versions
+
+@mixin mobile_sizes() {
+  @media (max-width: 651px) {
+    @content;
+  }
+}

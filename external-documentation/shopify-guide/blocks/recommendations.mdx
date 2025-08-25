@@ -1,0 +1,105 @@
+---
+title: "Adding a Recommendation block"
+---
+
+There are two types of blocks available for recommendations:
+
+1. Grid (with or without a "view more" button)
+2. Slider
+
+They can be added to either:
+1. The product page
+2. The front page
+3. The cart page
+
+Here's an example how to add a grid of recommendations to the product page:
+
+<Steps>
+    <Step title="First Step">
+        Select the template that you want to edit
+        <Frame caption="Click to enlarge">
+            <img src="https://cdn.statically.io/gh/depict-org/documentation-images/main/shopify/selecting-product-template2.svg" alt="Opening product template in template editor" style={{aspectRatio: 1.7923041261, width: "100%"}} ref={element => {
+                // In prod, they have some zoom thing which breaks aspectRatio, work around that. Unfortunately this is not in the SSR'd output so there's still some CLS.
+                const direct_parent = element?.parentElement;
+                if(direct_parent?.matches?.("[data-rmiz-content]")) {
+                    Object.assign(direct_parent.style, {
+                        width: "100%",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center"
+                    })
+                }
+                const parents_parent = direct_parent?.parentElement;
+                if(parents_parent?.matches?.("[aria-owns^='rmiz-modal']")) {
+                    parents_parent.style.width = "100%";
+                }
+            }} />
+        </Frame>
+    </Step>
+    <Step title="Second Step">
+    Add the recs grid or recs slider block to the product template.
+    You might also want to hide your old recommendations block in this step.
+    <Frame caption="Adding a recommendation block to the product page">
+        <img src="https://cdn.statically.io/gh/depict-org/documentation-images/main/shopify/adding-recs-block2.svg" style={{aspectRatio: 1.4307920059, width: "100%",}} ref={element => {
+            // In prod, they have some zoom thing which breaks aspectRatio, work around that. Unfortunately this is not in the SSR'd output so there's still some CLS.
+            const direct_parent = element?.parentElement;
+            if(direct_parent?.matches?.("[data-rmiz-content]")) {
+                Object.assign(direct_parent.style, {
+                    width: "100%",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center"
+                })
+            }
+            const parents_parent = direct_parent?.parentElement;
+            if(parents_parent?.matches?.("[aria-owns^='rmiz-modal']")) {
+                parents_parent.style.width = "100%";
+            }
+        }} />
+    </Frame>
+    </Step>
+    <Step title="Third Step">
+    Enter one of the available recommendation types into the "recommendation type" field.
+
+    Configure other configurable options as you see fit.
+    <Frame caption="Configuring the recommendation block">
+        <img src="https://cdn.statically.io/gh/depict-org/documentation-images/main/shopify/recs-block-type2.svg" alt="" style={{aspectRatio: 1.4256084071, width: "100%"}} ref={element => {
+            // In prod, they have some zoom thing which breaks aspectRatio, work around that. Unfortunately this is not in the SSR'd output so there's still some CLS.
+            const direct_parent = element?.parentElement;
+            if(direct_parent?.matches?.("[data-rmiz-content]")) {
+                Object.assign(direct_parent.style, {
+                    width: "100%",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center"
+                })
+            }
+            const parents_parent = direct_parent?.parentElement;
+            if(parents_parent?.matches?.("[aria-owns^='rmiz-modal']")) {
+                parents_parent.style.width = "100%";
+            }
+        }} />
+    </Frame>
+</Step>
+<Step title="Done">
+    After finish settings up the recommendations block it should look something like this
+    <Frame caption="Enjoy">
+        <img src="https://cdn.statically.io/gh/depict-org/documentation-images/main/shopify/adding-recs-done.svg" alt="" style={{aspectRatio: 5155/3603, width: "100%"}} ref={element => {
+            // In prod, they have some zoom thing which breaks aspectRatio, work around that. Unfortunately this is not in the SSR'd output so there's still some CLS.
+            const direct_parent = element?.parentElement;
+            if(direct_parent?.matches?.("[data-rmiz-content]")) {
+                Object.assign(direct_parent.style, {
+                    width: "100%",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center"
+                })
+            }
+            const parents_parent = direct_parent?.parentElement;
+            if(parents_parent?.matches?.("[aria-owns^='rmiz-modal']")) {
+                parents_parent.style.width = "100%";
+            }
+        }} />
+    </Frame>
+</Step>
+</Steps>

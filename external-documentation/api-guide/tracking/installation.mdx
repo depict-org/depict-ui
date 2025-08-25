@@ -1,0 +1,24 @@
+---
+title: "Installing DPC"
+description: "We need to make sure you have DPC installed before we can use it."
+---
+
+<Warning>If you are also using `@depict-ai/react-ui`, skip this step.</Warning>
+
+The first step is to add the DPC dependency to your project. You can do this by running:
+
+<CodeGroup>
+
+```shell NPM
+npm i @depict-ai/dpc
+```
+
+```shell Yarn
+yarn add @depict-ai/dpc
+```
+</CodeGroup>
+
+
+If you're using `@depict-ai/js-ui`, DPC is also re-exported from it, and you can thus skip this step if you import DPC from `@depict-ai/js-ui` in the next step, instead of `@depict-ai/dpc`.
+
+If you do not use a module bundler, you can also include DPC from a CDN. In that case, skip this step.

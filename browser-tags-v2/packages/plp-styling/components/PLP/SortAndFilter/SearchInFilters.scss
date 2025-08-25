@@ -1,0 +1,108 @@
+@use "../../../variables";
+@use "../../base/Buttons";
+@use "sass:map";
+@use "../../../helpers/supports-hover";
+
+@mixin SearchInFilters() {
+  .search-in-filters {
+    $space-to-sides: 10px;
+    $icon-width: 16px;
+    display: flex;
+    position: relative;
+
+    & > :not(input) {
+      position: absolute;
+    }
+
+    .clear-filter-search {
+      right: $space-to-sides;
+      cursor: pointer;
+      display: flex;
+      background: transparent;
+      transition: transform 0.1s ease-in-out;
+
+      path {
+        transition-duration: 0.1s;
+      }
+
+      &:focus {
+        outline: none;
+      }
+      &:focus-visible {
+        $scale-factor: 1.4;
+        transform: scale(1.4) translateY(calc(-50% / #{$scale-factor}));
+        filter: map.get(Buttons.get-secondary-button-properties(), "focus-visible-filter");
+        svg path {
+          fill: variables.get-text-icon-color("neutral", "pressed");
+        }
+      }
+      @include supports-hover.supports-hover() {
+        &:hover {
+          svg path {
+            fill: variables.get-text-icon-color("neutral", "pressed");
+          }
+        }
+      }
+    }
+
+    .search-icon {
+      left: $space-to-sides;
+      order: 0;
+      pointer-events: none;
+      path {
+        transition-duration: 0.15s;
+      }
+    }
+
+    .clear-filter-search,
+    .search-icon {
+      top: 50%;
+      transform: translateY(-50%);
+      path {
+        fill: variables.get-text-icon-color("subtle", "default");
+      }
+    }
+
+    .query {
+      color: variables.get-text-icon-color("neutral", "default");
+      background: variables.get-background-color("base", "default");
+      padding: 10px calc(calc(#{$space-to-sides} + #{$icon-width}) + #{$space-to-sides});
+      border-radius: variables.$border-radius;
+      width: 100%;
+      border: 1px solid variables.get-border-color("neutral", "default");
+      line-height: 1;
+      font-size: 1em; // dunno really about this but many ppl seem to have smaller font size on input fields and idk if we want that here
+
+      &::-webkit-input-placeholder {
+        color: variables.get-text-icon-color("subtle", "default");
+      }
+      &:-moz-placeholder {
+        color: variables.get-text-icon-color("subtle", "default");
+      }
+      &::placeholder {
+        color: variables.get-text-icon-color("subtle", "default");
+      }
+
+      @include supports-hover.supports-hover() {
+        &:hover {
+          color: variables.get-text-icon-color("neutral", "hover");
+          ~ .search-icon path {
+            fill: variables.get-text-icon-color("neutral", "hover");
+          }
+        }
+      }
+
+      &:focus {
+        border: 1px solid variables.get-border-color("base", "default");
+        outline: none;
+        color: variables.get-text-icon-color("neutral", "pressed");
+        ~ {
+          svg path,
+          button svg path {
+            fill: variables.get-text-icon-color("neutral", "pressed");
+          }
+        }
+      }
+    }
+  }
+}

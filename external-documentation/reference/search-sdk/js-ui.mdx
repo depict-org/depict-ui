@@ -1,0 +1,239 @@
+---
+title: "JavaScript UI Reference"
+---
+
+Use our JavaScript UI SDK to integrate a Depict Search UI into your website.
+
+## Full example
+
+<iframe
+  src="https://codesandbox.io/embed/depict-js-ui-search-forked-7yhh4f?fontsize=14&hidenavigation=1&theme=dark"
+  style={{
+    width: "100%",
+    height: "500px",
+    border: 0,
+    borderRadius: "4px",
+    overflow: "hidden",
+  }}
+  title="depict-js-ui-search (forked)"
+  allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+  sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+/>
+
+## DepictSearchProvider class
+
+The `DepictSearchProvider` class is what ties together all the search configuration for the different components. It is used to open the search modal.
+
+If you want to dynamically change some properties, for example the market, please let us know and we'll help you out.
+
+<b>Example:</b>
+
+```ts
+import { DepictSearchProvider } from "@depict-ai/js-ui";
+import { en } from "@depict-ai/js-ui/locales";
+import { YourDisplay } from "./display-types.ts";
+
+const searchProvider = new DepictSearchProvider<YourDisplay>({
+  merchant: "MERCHANT_ID",
+  market: "MARKET",
+  searchPagePath: "PATH_TO_SEARCH_PAGE",
+  locale: en,
+});
+```
+
+The following table shows the `DepictSearchProvider`'s constructor properties, their types, and descriptions:
+
+<ResponseField name="merchant" type="string">
+  The merchant to use for the search.
+</ResponseField>
+
+<ResponseField name="market" type="string">
+  The market to use for the search.
+</ResponseField>
+
+
+<ResponseField name="locale" type="Locale">
+    Locale object imported from `@depict-ai/js-ui/locales`. Determines
+    1. The translations for the UI
+    2. The locale to request from backend
+    3. The currency formatting used on the frontend
+
+    You have to check [demo.depict.ai](https://demo.depict.ai) to see which locales the Depict backend accepts for your specific merchant.
+    The different objects exported from `@depict-ai/js-ui/locales` have a `backend_locale_` property equivalent to their name, so either import the locale with the correct name (recommended) or just set the `backend_locale_` property to the correct value.
+
+    You can modify or create your own locale object as long as it's the same format as the ones in `@depict-ai/js-ui/locales`.
+</ResponseField>
+
+
+<ResponseField name="sessionId" type="string?">
+    Optionally you can override the default session id used for personalization here. This is the ID that will be used to tie together the different tracking events for a user.
+</ResponseField>
+
+<ResponseField name="metaData" type="Record<string, string>?">
+  Custom metadata to be sent with each request to the Depict API. Only necessary
+  if specifically instructed by Depict.
+</ResponseField>
+
+<ResponseField name="uniqueInstanceKeyForState" type="string?">
+  A unique key for each instance, so that the state of each instance is kept
+  separate.
+</ResponseField>
+
+<ResponseField name="searchPagePath" type="string">
+  The path to the search page.
+</ResponseField>
+
+<ResponseField name="urlParamName" type="string?" default="'query'">
+  The name of the url parameter that will be used for the search query.
+</ResponseField>
+
+<ResponseField name="enableCategorySuggestions" type="boolean?" default="false">
+  Whether to enable showing product listing pages matching the search query, in the search modal and search page.
+</ResponseField>
+
+<ResponseField name="enableContentSearch" type="boolean" default="false">
+  Enable or disable content search (seeing articles, FAQ, blog posts, etc in
+  search results).
+</ResponseField>
+
+<ResponseField name="searchModalComponent" type="typeof SearchModalV2 | typeof ClassicSearchModal" default="typeof SearchModalV2">
+    The search modal component to use. You can switch between the classic and the new search modal. See [here](/js-ui-guide/search/overview#2-the-search-modal-opens-this-is-what-the-user-sees-while-typing-a-query) for screenshots. Provide one of the components here that you can import from the same package as the one you're using to see this message (`SearchModalV2` or `ClassicSearchModal`).
+    You also need to reflect the choice in SCSS, example:
+    ```scss
+    @use "@depict-ai/js-ui" as plp-styling with (
+      $search-modal-layout: "v2" // or "classic"
+    );
+    ```
+    The default is SearchModalV2. That means that ClassicSearchModal can get tree-shaken if you use v2 but not vice-versa. To force SearchModalV2 from being tree-shaken, set process.env.NO_SEARCH_MODAL_DEFAULT to "true".
+</ResponseField>
+
+<ResponseField name="displayTransformers?" type="DisplayTransformers">
+    DisplayTransformers are functions that take in a list of categories, content search results or products and then can transform or enrich the data for each category, content search result or product card in a batched way. See
+    [Creating page URLs and enriching product
+    data](/reference/listings-search/display-transformers).
+</ResponseField>
+
+The following table shows methods of the `DepictSearchProvider` class:
+
+<ResponseField name="openModal" type="(alignerElement?: HTMLElement) => void">
+  A function used to open the search modal. `alignerElement` is an element the
+  SearchModal should align too.
+</ResponseField>
+
+<ResponseField
+  name="fetchSearchResults"
+  type="(query: string, filters?: SearchFilter[], maxResults?: number) => Promise<YourDisplay>"
+>
+  A function used to fetch search results. `displayTransformers` will be ran on the
+  results before them being returned.
+</ResponseField>
+
+Generics:
+
+- `OriginalDisplay`: This generic represents the original display type that extends the `Display` type. Provide a type of your display here (e.g. `YourDisplay`). Ask Depict for the type of your display.
+- `OutputDisplay`: This generic represents the output display type (of the specified displayTransformer) that extends either the `ModernDisplay` type or `never`. Unelss specified, it is determined based on `OriginalDisplay`. If `OriginalDisplay` extends `ModernDisplay`, then `OutputDisplay` will be `ModernDisplayWithPageUrl<OriginalDisplay>`, otherwise it will be `never`.
+
+## SearchPage function
+
+The component displaying the search results page. See [screenshot](/js-ui-guide/search/overview#3-the-user-submits-a-query-and-goes-to-a-new-url-like-search).
+
+The following table shows the `SearchPage`'s configuration properties, their types, and descriptions:
+
+<ResponseField name="searchProvider" type="DepictSearchProvider">
+  The search provider instance.
+</ResponseField>
+
+<ResponseField name="includeInputField" type="boolean?" default="true">
+  Whether to show the search input field in the search page.
+</ResponseField>
+
+<ResponseField
+  name="gridSpacing"
+  type="(string | {
+    horizontal: string;
+    vertical: string;
+})?"
+  default="2%"
+>
+  The spacing between products.
+</ResponseField>
+
+<ResponseField
+  name="columnsAtSize"
+  type="[number, number?][]?"
+  default="[[2, 901], [3, 1024], [4]]"
+>
+  How many columns to show at each media size. For example, `[[2, 901], [3,
+  1024], [4]]` means 2 columns at sizes up to 901px, 3 columns at sizes up to
+  1024px and after that 4 columns at any viewport size.
+</ResponseField>
+
+<ResponseField
+  name="productCard"
+  type="(display: YourDisplay | null) => HTMLElement | HTMLElement[]"
+>
+  The product card function to use for rendering products.
+</ResponseField>
+
+<ResponseField
+  name="onQueryChange"
+  type="((newQuery?: ListingQuery | undefined, oldQuery?: ListingQuery | undefined) => void)?"
+  default="undefined"
+>
+  Can be used to know when the search query is changed and update other content
+  on the page accordingly. Will be called when the SearchPage is created, every
+  time the query changes and when the SearchPage is destroyed. When
+  newQuery is undefined it means the search page has been closed/left.
+</ResponseField>
+
+<ResponseField
+  name="getContentBlocksByRow"
+  type="Accessor<JSUIContentBlocksByRow>?"
+>
+  Function returned by contentBlockStore. See
+  [contentBlockStore](/reference/listings-search/js-ui#contentblockstore-function).
+</ResponseField>
+
+## SearchField function
+
+<Frame caption="A SearchField that can be used to make a query">
+  <img
+    src="/images/search_field.svg"
+    style={{ aspectRatio: 1083 / 81, width: "100%" }}
+    ref={(element) => {
+      // In prod, they have some zoom thing which breaks aspectRatio, work around that. Unfortunately this is not in the SSR'd output so there's still some CLS.
+      const direct_parent = element?.parentElement;
+      if (direct_parent?.matches?.("[data-rmiz-content]")) {
+        Object.assign(direct_parent.style, {
+          width: "100%",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        });
+      }
+      const parents_parent = direct_parent?.parentElement;
+      if (parents_parent?.matches?.("[aria-owns^='rmiz-modal']")) {
+        parents_parent.style.width = "100%";
+      }
+    }}
+  />
+</Frame>
+
+```ts
+import { SearchField, onExistsObserver } from "@depict-ai/js-ui";
+
+onExistsObserver(".search-field-wrapper", (element) =>
+  element.append(SearchField({ searchProvider }))
+);
+```
+
+The following table shows the `SearchField`'s configuration properties, their types, and descriptions:
+
+<ResponseField name="searchProvider" type="DepictSearchProvider<T>">
+  The search provider instance.
+</ResponseField>
+
+<ResponseField name="alignerRef" type="HTMLElement?">
+  A DOM element that the modal should be aligned to. If not provided, the modal
+  will be aligned to the search field itself.
+</ResponseField>

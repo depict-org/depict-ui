@@ -1,0 +1,140 @@
+---
+title: "Overview"
+---
+
+Product listing pages are quite similar to search, except that there's no search field/search modal. Instead of being based on a search query, they're based on a so-called `listingQuery` which is an id representing what products to show.
+
+### Why does "product listing page" mean something different in code?
+
+Please see [naming discrepancies](/reference/glossary/naming-discrepancies) in the reference section for more information.
+
+### The CategoryPage component
+
+<Frame caption="A default `CategoryPage` (with customised styling)">
+    <img src="/images/category_page_overview.svg" style={{ width: "100%", aspectRatio: 1913/1828 }} ref={async element => {
+        if(!element) return;
+        // In prod, they have some zoom thing which breaks aspectRatio, work around that. Unfortunately this is not in the SSR'd output so there's still some CLS.
+        const direct_parent = element?.parentElement;
+        if(direct_parent?.matches?.("[data-rmiz-content]")) {
+            Object.assign(direct_parent.style, {
+                width: "100%",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center"
+            })
+        }
+        const parents_parent = direct_parent?.parentElement;
+        if(parents_parent?.matches?.("[aria-owns^='rmiz-modal']")) {
+            parents_parent.style.width = "100%";
+        }
+
+        // Fix background color in dark mode while still having cool, transparent light mode background
+        if(!window.utilishared_promise) {
+            window.utilishared_promise = new Promise(resolve => {
+                window.resolve_utilishared = resolve;
+                const script = document.createElement("script");
+                script.type = "module";
+                script.append(`
+            import * as utilishared from "https://esm.run/@depict-ai/utilishared@latest/latest";
+            window?.resolve_utilishared(utilishared);
+            `)
+                document.head.append(script);
+            })
+        }
+
+        const utilishared = await utilishared_promise;
+
+        const { style } = element;
+        const update_styling = () => {
+            const dark = document.documentElement.classList.contains("dark");
+            style.background = dark ? "white" : "";
+            style.padding = dark ? "5px" : "";
+            style.borderRadius = dark ? "0.75rem" : "";
+        };
+        const m_o = new MutationObserver(utilishared.catchify(update_styling));
+        m_o.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ["class"]
+        })
+        update_styling();
+        utilishared.observer.onremoved(element, () => m_o.disconnect());
+    }} />
+</Frame>
+
+## Additional exported components
+
+Because you might want to have content between the BreadCrumbs, QuickLinks and the actual product listing, we also export the following components:
+
+<Frame caption="QuickLinks">
+    <img src="/images/quicklinks.svg" style={{ width: "100%", aspectRatio: 283/23 }} ref={element => {
+        // In prod, they have some zoom thing which breaks aspectRatio, work around that. Unfortunately this is not in the SSR'd output so there's still some CLS.
+        const direct_parent = element?.parentElement;
+        if(direct_parent?.matches?.("[data-rmiz-content]")) {
+            Object.assign(direct_parent.style, {
+                width: "100%",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center"
+            })
+        }
+        const parents_parent = direct_parent?.parentElement;
+        if(parents_parent?.matches?.("[aria-owns^='rmiz-modal']")) {
+            parents_parent.style.width = "100%";
+        }
+    }} />
+</Frame>
+<br />
+<Frame caption="BreadCrumbs">
+    <img src="/images/breadcrumbs.svg" style={{ width: "100%", aspectRatio: 253/29 }} ref={async element => {
+        if(!element) return;
+
+        // In prod, they have some zoom thing which breaks aspectRatio, work around that. Unfortunately this is not in the SSR'd output so there's still some CLS.
+        const direct_parent = element?.parentElement;
+        if(direct_parent?.matches?.("[data-rmiz-content]")) {
+            Object.assign(direct_parent.style, {
+                width: "100%",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center"
+            })
+        }
+        const parents_parent = direct_parent?.parentElement;
+        if(parents_parent?.matches?.("[aria-owns^='rmiz-modal']")) {
+            parents_parent.style.width = "100%";
+        }
+
+        // Fix background color in dark mode while still having cool, transparent light mode background
+        if(!window.utilishared_promise) {
+            window.utilishared_promise = new Promise(resolve => {
+                window.resolve_utilishared = resolve;
+                const script = document.createElement("script");
+                script.type = "module";
+                script.append(`
+            import * as utilishared from "https://esm.run/@depict-ai/utilishared@latest/latest";
+            window?.resolve_utilishared(utilishared);
+            `)
+                document.head.append(script);
+            })
+        }
+
+        const utilishared = await utilishared_promise;
+
+
+        const { style } = element;
+        const update_styling = () => {
+            const dark = document.documentElement.classList.contains("dark");
+            style.background = dark ? "white" : "";
+            style.padding = dark ? "5px" : "";
+            style.borderRadius = dark ? "0.75rem" : "";
+        };
+        const m_o = new MutationObserver(utilishared.catchify(update_styling));
+        m_o.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ["class"]
+        })
+        update_styling();
+        utilishared.observer.onremoved(element, () => m_o.disconnect());
+    }} />
+</Frame>
+
+See the [reference](/reference/listing-sdk/js-ui#breadcrumbs-function) for more information.

@@ -1,0 +1,262 @@
+@use "../../variables" as plp-styling;
+
+@mixin DefaultProductCardStylingWithoutSelector() {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  text-align: var(--alignment);
+  $gap: 5px;
+
+  &:has(.upper:focus-visible) {
+    $focus-visible-ring-distance: 6px;
+    $focus-visible-ring-thickness: 2px;
+    box-shadow:
+      0 0 0 $focus-visible-ring-distance plp-styling.$page-background-color,
+      0 0 0 calc(#{$focus-visible-ring-distance} + #{$focus-visible-ring-thickness})
+        plp-styling.get-border-color("base", "default");
+
+    &:has(.border-radius-sm) {
+      border-radius: plp-styling.$border-radius;
+    }
+    &:has(.border-radius-md) {
+      border-radius: calc(#{plp-styling.$border-radius} * 2);
+    }
+    &:has(.border-radius-lg) {
+      border-radius: calc(#{plp-styling.$border-radius} * 4);
+    }
+  }
+
+  .d-badges {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+    margin: 8px;
+    align-items: flex-start;
+
+    .d-badge {
+      padding: 6px 12px;
+      border-radius: plp-styling.$border-radius;
+    }
+  }
+
+  .upper:focus-visible {
+    outline: none;
+  }
+
+  a {
+    display: flex;
+    align-items: stretch;
+
+    & > * {
+      flex-grow: 1;
+    }
+  }
+
+  &:has(.text-container) .upper {
+    // Make gap clickable if exists
+    padding-bottom: $gap;
+  }
+
+  .image-video {
+    &:not(.depict-slider) {
+      display: flex;
+    }
+    .d-navbutton {
+      display: none;
+    }
+
+    .sliding {
+      &:focus-visible {
+        outline: none;
+        .s-responsive-image {
+          border: 2px solid plp-styling.get-border-color("base", "default");
+        }
+      }
+
+      gap: 5px; // Some gap between images looks good and makes chrome not glitch
+      & > * {
+        // Product images don't have a width on the test-data theme otherwise
+        flex-grow: 1;
+      }
+    }
+
+    .media-item {
+      width: 100%;
+      flex-shrink: 0;
+
+      &.image {
+        position: relative;
+        .s-image-container.hover {
+          position: absolute;
+          top: 0;
+          left: 0;
+          opacity: 0;
+          transition: ease-in-out 200ms;
+          &.visible {
+            opacity: 1;
+          }
+        }
+      }
+    }
+    video {
+      max-width: 100%;
+    }
+
+    .s-responsive-image {
+      object-fit: cover;
+      overflow: hidden;
+    }
+    &.border-radius {
+      &-none .s-responsive-image {
+        border-radius: 0;
+      }
+      &-sm .s-responsive-image {
+        border-radius: plp-styling.$border-radius;
+      }
+      &-md .s-responsive-image {
+        border-radius: calc(#{plp-styling.$border-radius} * 2);
+      }
+      &-lg .s-responsive-image {
+        border-radius: calc(#{plp-styling.$border-radius} * 4);
+      }
+    }
+  }
+
+  .animated-row-switch {
+    overflow: hidden;
+    display: flex;
+    align-items: var(--flex-alignment);
+    flex-direction: column;
+    position: relative;
+  }
+
+  .d-title,
+  .price,
+  .original-price,
+  .d-badge {
+    background: var(--background, unset);
+    font-weight: var(--font-weight, unset);
+    font-style: var(--font-style, unset);
+    color: var(--color, unset);
+  }
+
+  .d-title,
+  .price,
+  .original-price,
+  .sizes,
+  .d-badge {
+    font-size: var(--font-size-rem, unset);
+  }
+
+  .text-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+    flex-direction: column;
+    flex-grow: 1;
+    position: relative;
+    gap: $gap;
+
+    .d-title {
+      -webkit-line-clamp: 1;
+    }
+  }
+
+  .price-container {
+    display: flex;
+    gap: 5px;
+    // We must have line-height one here or the swatches will have a different size than the price container and on-hover the transition will cause the product cards to become bigger
+    justify-content: var(--flex-alignment);
+    align-items: center;
+
+    .original-price,
+    .price {
+      line-height: 1;
+      flex-grow: unset;
+    }
+
+    .original-price {
+      text-decoration: line-through;
+    }
+  }
+
+  .more {
+    white-space: nowrap;
+  }
+
+  .sizes {
+    display: flex;
+    gap: var(--sizes-gap);
+    justify-content: var(--flex-alignment);
+
+    & > * {
+      white-space: nowrap;
+    }
+
+    s,
+    .more {
+      color: plp-styling.get-text-icon-color("subtle", "default");
+    }
+  }
+
+  .d-swatches {
+    $ring-thickness: 1px;
+    $ring-distance: 1px;
+    $desired-swatch-container-height: var(--swatch-container-height, 16px);
+    $gap-between-color-bodies: 8px;
+    $swatches-padding: calc(#{$ring-thickness} + #{$ring-distance});
+
+    display: flex;
+    // ring distance is implemented as border which adds to the size of an element
+    gap: calc(#{$gap-between-color-bodies} - calc(#{$ring-distance} * 2));
+    // So that the selected circle doesn't overflow we have to add some padding
+    padding: $swatches-padding;
+    align-items: center;
+    justify-content: var(--flex-alignment);
+
+    .more {
+      margin: 2px;
+
+      path {
+        fill: plp-styling.get-text-icon-color("subtle", "default");
+      }
+    }
+
+    .d-swatch {
+      // Transparent background so the distance to the ring is the same color as the page background, automatically
+      border: #{$ring-distance} solid transparent;
+      outline-offset: 0;
+      $size: calc(
+        #{$desired-swatch-container-height} - calc(calc(#{$ring-distance} * 2) + calc(#{$swatches-padding} * 2))
+      );
+      $color-shadow: 0px 0px 0px calc(#{$size} / 2) var(--background) inset;
+      padding: calc(#{$size} / 2);
+      border-radius: calc(calc(#{$size} / 2) + #{$ring-distance});
+      box-shadow: $color-shadow;
+
+      &.light-colored {
+        box-shadow:
+          0px 0px 0px 1px plp-styling.get-border-color("neutral", "default") inset,
+          $color-shadow;
+      }
+
+      &.first {
+        order: -1;
+      }
+      &.selected {
+        outline: $ring-thickness solid plp-styling.get-text-icon-color("base", "default");
+      }
+      &:focus-visible {
+        outline: $ring-thickness solid plp-styling.get-text-icon-color("base", "hover");
+      }
+    }
+  }
+}
+
+@mixin DefaultProductCard() {
+  .depict .d-product-card {
+    @include DefaultProductCardStylingWithoutSelector();
+  }
+}

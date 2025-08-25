@@ -1,0 +1,5 @@
+#!/bin/bash
+
+. ./build_scripts/define_vars
+
+TENANT="$(basename $tenant_wd)" BUILD_TARGET="dev" dotenv $dotenv_opts -- parcel serve --port 1234 --target dev --hmr-port 2345 --host localhost --dist-dir dev_dist/$(basename $tenant_wd) $infile

@@ -1,0 +1,133 @@
+## There's two main parts to adding Depict UI Search to your site:
+
+1. Adding a search field or button to your site
+2. Adding a search results page to your site
+
+## This will result in the following flow for the user:
+
+#### <span style={{"font-size": "2em"}}>👇</span> 1. The user clicks on the search button or search field.
+
+<CardGroup cols={2}>
+    <Frame caption="SearchField">
+       <div style={{display:"flex", flexDirection: "column", gap:"16px"}}>
+           <img src="https://cdn.statically.io/gh/depict-org/documentation-images/main/new-search-field.svg" style={{aspectRatio: 1920/162.667, width: "100%"}} ref={element => {
+               // In prod, they have some zoom thing which breaks aspectRatio, work around that. Unfortunately this is not in the SSR'd output so there's still some CLS.
+               const direct_parent = element?.parentElement;
+               if(direct_parent?.matches?.("[data-rmiz-content]")) {
+                   Object.assign(direct_parent.style, {
+                       width: "100%",
+                       display: "flex",
+                       justifyContent: "center",
+                       alignItems: "center"
+                   })
+               }
+               const parents_parent = direct_parent?.parentElement;
+               if(parents_parent?.matches?.("[aria-owns^='rmiz-modal']")) {
+                   parents_parent.style.width = "100%";
+               }
+           }} />
+           or
+           <img src="/images/search_field.svg" style={{aspectRatio: 1083/81, width: "100%"}} ref={element => {
+               // In prod, they have some zoom thing which breaks aspectRatio, work around that. Unfortunately this is not in the SSR'd output so there's still some CLS.
+               const direct_parent = element?.parentElement;
+               if(direct_parent?.matches?.("[data-rmiz-content]")) {
+                   Object.assign(direct_parent.style, {
+                       width: "100%",
+                       display: "flex",
+                       justifyContent: "center",
+                       alignItems: "center"
+                   })
+               }
+               const parents_parent = direct_parent?.parentElement;
+               if(parents_parent?.matches?.("[aria-owns^='rmiz-modal']")) {
+                   parents_parent.style.width = "100%";
+               }
+           }} />
+
+       </div>
+    </Frame>
+    <Frame caption="A search button">
+    <img src="/images/search_button.svg" />
+</Frame>
+</CardGroup>
+
+#### <span style={{"font-size": "2em"}}>👇</span> 2. The search modal opens, this is what the user sees while typing a query.
+<CardGroup cols={2}>
+<Frame caption="Modal V2, Click to enlarge">
+    <img src="https://cdn.statically.io/gh/depict-org/documentation-images/main/new-search-modal2.svg" style={{aspectRatio: 4800/2793.333, width: "100%"}} ref={element => {
+        // In prod, they have some zoom thing which breaks aspectRatio, work around that. Unfortunately this is not in the SSR'd output so there's still some CLS.
+        const direct_parent = element?.parentElement;
+        if(direct_parent?.matches?.("[data-rmiz-content]")) {
+            Object.assign(direct_parent.style, {
+                width: "100%",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center"
+            })
+        }
+        const parents_parent = direct_parent?.parentElement;
+        if(parents_parent?.matches?.("[aria-owns^='rmiz-modal']")) {
+            parents_parent.style.width = "100%";
+        }
+    }} />
+</Frame>
+    <Frame caption="Classic modal, click to enlarge">
+    <img src="https://cdn.statically.io/gh/depict-org/documentation-images/main/old-search-modal2.svg" style={{aspectRatio: 2594.667/3165.333, width: "100%"}} ref={element => {
+        // In prod, they have some zoom thing which breaks aspectRatio, work around that. Unfortunately this is not in the SSR'd output so there's still some CLS.
+        const direct_parent = element?.parentElement;
+        if(direct_parent?.matches?.("[data-rmiz-content]")) {
+            Object.assign(direct_parent.style, {
+                width: "100%",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center"
+            })
+        }
+        const parents_parent = direct_parent?.parentElement;
+        if(parents_parent?.matches?.("[aria-owns^='rmiz-modal']")) {
+            parents_parent.style.width = "100%";
+        }
+    }} />
+</Frame>
+</CardGroup>
+The SearchModal can either <b>align</b> to the SearchField that was used to open it, an arbitrary element, or the center of the screen.
+
+You can choose which of the SearchModal variants you want to use. The v2 modal is the default, follow [these steps](/other-guides/introduction#switching-to-the-classic-search-modal) to use the classic one.
+
+#### <span style={{"font-size": "2em"}}>👇</span> 3. The user submits a query and goes to a new URL, like `/search`
+<Frame caption="The SearchPage which displays the results along with sorting options, filters and search recommendations">
+    <img src="/images/search_page.svg" noZoom style={{aspectRatio: 1960/5365, width: "100%"}} ref={async element => {
+        if(!element) return;
+
+        // Fix background color in dark mode while still having cool, transparent light mode background
+        if(!window.utilishared_promise) {
+            window.utilishared_promise = new Promise(resolve => {
+                window.resolve_utilishared = resolve;
+                const script = document.createElement("script");
+                script.type = "module";
+                script.append(`
+            import * as utilishared from "https://esm.run/@depict-ai/utilishared@latest/latest";
+            window?.resolve_utilishared(utilishared);
+            `)
+                document.head.append(script);
+            })
+        }
+
+        const utilishared = await utilishared_promise;
+
+        const { style } = element;
+        const update_styling = () => {
+            const dark = document.documentElement.classList.contains("dark");
+            style.background = dark ? "white" : "";
+            style.padding = dark ? "10px" : "";
+            style.borderRadius = dark ? "0.75rem" : "";
+        };
+        const m_o = new MutationObserver(utilishared.catchify(update_styling));
+        m_o.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ["class"]
+        })
+        update_styling();
+        utilishared.observer.onremoved(element, () => m_o.disconnect());
+    }} />
+</Frame>

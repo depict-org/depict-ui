@@ -1,0 +1,51 @@
+#!/bin/bash
+
+set -e
+
+handle_error() {
+  echo "error happened, printing files"
+  for f in /tmp/xfs-*/build.log
+  do
+    echo "contents of $f"
+    cat "$f"
+    echo "------\n"
+  done
+  exit 1
+}
+
+# No need for trap now since you're handling errors manually
+
+# Function to install packages for a storefront
+install_packages() {
+  local storefront=$1
+  echo "Installing packages for $storefront..."
+
+  # Updating the directory structure here
+  cd ../storefronts/$storefront || handle_error
+
+
+  if [[ $storefront == "next-commerce" ]]; then
+    pnpm run clean || handle_error
+    pnpm install || handle_error
+  elif [[ $storefront == "next-web" ]]; then
+    yarn install || handle_error
+  elif [[ $storefront == "react-web" ]]; then
+    yarn install || handle_error
+  elif [[ $storefront == "vanilla-js" ]]; then
+    yarn install || handle_error
+  fi
+
+  cd ../../browser-tags-v2 || handle_error
+}
+
+# Main script
+storefronts=("next-commerce" "next-web" "react-web" "vanilla-js")
+
+if [[ $1 == "--only-"* ]]; then
+  only_storefront="${1:7}"
+  install_packages $only_storefront
+else
+  for storefront in "${storefronts[@]}"; do
+    install_packages $storefront
+  done
+fi

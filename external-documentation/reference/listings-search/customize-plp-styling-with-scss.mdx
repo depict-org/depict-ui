@@ -1,0 +1,151 @@
+---
+title: "Customize PLP Styling with SCSS"
+---
+
+This page covers the styling options for PLP (search and product listing) pages, regardless of framework.
+
+<Warning>
+🚧 **This guide only works for SASS/SCSS**
+
+If you haven't already, you will have to configure a [SASS](https://sass-lang.com/) pre-processor in your build system.
+
+</Warning>
+
+## Getting started
+
+Depending on which bundler (Webpack/Parcel/etc) you are using, style imports might differently. Either import `@depict-ai/js-ui`/`@depict-ai/react-ui` directly, or try importing `@depict-ai/plp-styling` which will already be installed as a transient dependency if you have either ui package installed. When importing the style module with `@use`, you can configure is as below.
+
+```scss SCSS
+@use "@depict-ai/js-ui" as plp-styling with ($border-radius: 3px, // Variables here!);
+
+@include plp-styling.default-theme(
+  "all"
+); // Can be set to "search", "category", or "all"
+// comment out below line if you're not using recommendations to save some bundle size
+@include plp-styling.recommendations();
+```
+
+Adding the above code snippet to your style sheet should give you a search or product listing page with mostly default styling. Try adjusting the `$border-radius` variable and see what happens!
+
+The first three lines define your customization through variables, and the last line imports the actual styling. When you import the actual styling, it's important that you specify whether you want the styling for `"search"`, `"category"`, or both (`"all"`).
+
+## Declaring your page background color
+
+Certain elements of the PLP styling system need to know the background color of the page. If your background isn't white, you will have to declare it.
+
+```scss SCSS
+$background-color: #edf7ff;
+
+@use "@depict-ai/react-ui" as plp-styling with (
+  $border-radius: 3px,
+  $page-background-color: $background-color
+);
+
+@include plp-styling.recommendations();
+@include plp-styling.default-theme("all");
+
+body {
+  background-color: $background-color;
+}
+```
+
+## Color palettes
+
+Backgrounds, text, and borders use the same color palette system. This section documents how a palette can be configured.
+
+A palette has four different types (`"base"`, `"neutral"`, `"subtle"`, and `"inverse"`), and each type has four different states (`"default"`, `"hover"`, `"pressed"`, and `"disabled"`).
+
+Example palette configurations:
+
+```scss SCSS
+$background-color: #edf7ff;
+
+@use "@depict-ai/plp-styling" as plp-styling with (
+  $page-background-color: $background-color,
+  $background-colors: (
+    "base": (
+      "default": #effeff,
+      "hover": #bedcff,
+    ),
+    "inverse": (
+      "default": #002c50,
+    ),
+  ),
+  $text-icon-colors: (
+    "base": (
+      "default": #0e3f9b,
+    ),
+    "neutral": (
+      "default": #006272,
+    ),
+    "inverse": (
+      "default": white,
+    ),
+  ),
+  $border-colors: (
+    "base": (
+      "default": #2c2c2c,
+    ),
+    "subtle": (
+      "default": #676767,
+    ),
+  )
+);
+
+@include plp-styling.default-theme("all");
+@include plp-styling.recommendations();
+
+body {
+  background-color: $background-color;
+}
+```
+
+![3406](/images/575d93e-example_search.png "example search.png")
+
+Result of example color palette
+
+It's important to note that every state of the palette doesn't have to be configured (that would be 16 colors for every palette!). Instead, the palette system uses inference to determine the colors you don't specify based on the ones you do.
+
+The inference system works in the following way: if you don't specify a state, that state will be inferred based on the `"default"` state. If the `"default"` state isn't specified for the type, the `"default"` state of the `"base"` type will be converted to be used, if that isn't specified, a static default color will be used.
+
+<Note>
+📘 **The inference system isn't perfect**
+
+It is likely that you will have to style individual components after specifying your color palette. The inference system is designed to give you a base which you can work from, but not capture the more fine-grained styling you are likely to need when representing your brand.
+
+</Note>
+
+## Further reference
+
+The custom variable interface is more complete than what was shown on this page. <b style={{color: "red"}}>You can find documentation for the rest of the variables in [this document](https://scss-docs.depict.ai/#undefined-variable) under the "VARIABLES" section.</b>
+
+Another option for more fine-grained styling control is described below.
+
+## Modifying without custom variables
+
+Many developers might prefer using familiar CSS/SCSS for the majority of their styling, and use our custom variables interface as little as possible. This is totally valid!
+
+Every component of the PLP has class names that you can target for custom styling. We recommend starting your selector with an id to ensure your styling has higher [precedence](https://developer.mozilla.org/en-US/docs/Web/CSS/Specificity) than ours.
+
+The below example targets the input fields of the price range filter. It corrects some bad-looking colors that the inference system came up with.
+
+```scss SCSS
+/* ... */
+
+@include plp-styling.default-theme("all");
+@include plp-styling.recommendations();
+
+#depict-plp-category,
+#depict-search-page,
+#depict-search-modal {
+  // Custom styling in here
+  .filters .range input {
+    color: #5a6374;
+    background: #f0f9f2;
+  }
+}
+```
+
+<Frame caption="Before and after the custom styling from the above code example">
+  <img src="/images/dfa5702-both_filter.png" />
+</Frame>

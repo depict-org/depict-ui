@@ -1,0 +1,9 @@
+.fallback_id_selector {
+  display: flex;
+  flex-direction: column;
+
+  .selects {
+    display: flex;
+    gap: 10px;
+  }
+}

@@ -1,0 +1,57 @@
+/* button stylings */
+.depict-slider button.left,
+.depict-slider button.right {
+  color: transparent;
+  background: transparent;
+  border: medium none;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+}
+
+.depict-slider button.left:hover,
+.depict-slider button.right:hover {
+  opacity: 0.6;
+  border: none;
+  background: transparent;
+}
+
+.depict-slider button.left:active,
+.depict-slider button.right:active {
+  box-shadow: none;
+}
+
+.depict-slider button.left.hidden,
+.depict-slider button.right.hidden {
+  opacity: 0.2;
+}
+
+/* bigger button for misclicks */
+.depict-slider button.right {
+  right: 0px;
+}
+
+.depict-slider button.left {
+  left: 0px;
+}
+
+.depict-slider button.left,
+.depict-slider button.right {
+  height: 100%;
+  width: 46px;
+  /* give users some space to miss the button without getting to the wrong page */
+  padding-right: 20px;
+  padding-left: 10px;
+}
+
+.depict-slider button.left:active,
+.depict-slider button.right:active {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+@media screen and (min-width: 769px) {
+  .depict-slider button.left.hidden,
+  .depict-slider button.right.hidden {
+    opacity: 0;
+  }
+}

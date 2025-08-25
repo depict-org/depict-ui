@@ -1,0 +1,15 @@
+#!/bin/bash
+set -e
+
+parcel_extraargs=""
+. ./build_scripts/build
+tenant=$(basename $tenant_wd)
+compatfn=$tenant.compat.js
+modernfn=$tenant.modern.js
+. ./build_scripts/distributorify -m modern.js -i ie11.js -c $compatfn -d $dd
+cp distributor.js $tenant.js
+cp modern.js $modernfn
+cp ie11.js $compatfn
+# first set up ssh with gcloud, then this will work
+scp -vo IdentityFile=~/.ssh/google_compute_engine $compatfn $modernfn $tenant.js root@demo-machine.europe-west1-b.depict-v2:/var/www/proxy/
+rm $tenant.js $compatfn $modernfn

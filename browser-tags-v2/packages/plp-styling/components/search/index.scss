@@ -1,0 +1,15 @@
+/// Component style mixins for Search styling
+/// Don't forget to also include PLP styling
+
+@forward "Autocomplete";
+@forward "TextSuggestions";
+@forward "CategorySuggestions";
+@forward "InstantResults";
+@forward "InstantCard";
+@forward "SearchField";
+@forward "SearchRecommendations";
+@forward "ShowingResultsFor";
+@forward "SearchModal";
+@forward "../PLP/ProductListingPage";
+@forward "ContentResults";
+@forward "./VisualListingSuggestions";

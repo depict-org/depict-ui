@@ -1,0 +1,76 @@
+@use "../../../variables";
+@use "../../../helpers/supports-hover";
+
+/// Styles the FloatingButtons. FloatingButtons are three buttons, one button to open sorting, one button to open filters and one button to scroll to the top that show up when scrolling upwards for a while on a mobile device not really close to the top of the page.
+
+@mixin FloatingButtons() {
+  .floating-buttons {
+    position: sticky;
+    bottom: variables.get-merged(variables.$floating-buttons-defaults, variables.$floating-buttons, "bottom-distance");
+    display: flex;
+    z-index: calc(#{variables.$base-z-index} + 4);
+    align-items: center;
+    opacity: 0;
+    transition-timing-function: ease-in-out;
+    transition-duration: 300ms;
+    $position: variables.get-merged(variables.$floating-buttons-defaults, variables.$floating-buttons, "position");
+    $side-distance: variables.get-merged(
+      variables.$floating-buttons-defaults,
+      variables.$floating-buttons,
+      "side-distance"
+    );
+
+    @if $position == "left" {
+      padding-left: $side-distance;
+      justify-content: flex-start;
+    } @else if $position == "right" {
+      padding-right: $side-distance;
+      justify-content: flex-end;
+    }
+    &:not(.show-them) {
+      pointer-events: none;
+    }
+    &.show-them {
+      opacity: 1;
+    }
+    .filter {
+      margin-right: 5px;
+    }
+
+    .sort {
+      margin-left: 5px;
+      margin-right: 5px;
+    }
+
+    .up {
+      margin-left: 5px;
+    }
+
+    .sort,
+    .filter,
+    .up {
+      background: variables.get-background-color("subtle", "default");
+      filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.1)) drop-shadow(-2px -2px 4px rgba(255, 255, 255, 0.3));
+      border: 1px solid variables.get-border-color("base", "default");
+      border-radius: calc(#{variables.$border-radius} * 5);
+      padding: 10px;
+      @include supports-hover.supports-hover() {
+        &:hover {
+          background: variables.get-background-color("subtle", "hover");
+        }
+      }
+      &:focus {
+        outline: none;
+      }
+      &:focus-visible {
+        background: variables.get-background-color("subtle", "hover");
+      }
+      div {
+        display: flex;
+      }
+      svg path {
+        fill: variables.get-text-icon-color("neutral", "default");
+      }
+    }
+  }
+}

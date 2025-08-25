@@ -1,0 +1,42 @@
+#!/bin/bash
+set -e
+
+echo "Uploading distributor and compatiblity to aws for $tenant to $url_path"
+
+function upload {
+  aws s3 cp $1 s3://static-scripts-deploy/$url_path/$2 --cache-control max-age=$3 --acl public-read --content-encoding gzip --content-type "text/javascript; charset=utf-8"
+}
+
+upload dist/$tenant/modern.js.gzip modern.js $cache_max_age
+upload dist/$tenant/distributor.min.js.gzip depict-ai.js $cache_max_age
+upload dist/$tenant/ie11.js.gzip compatibility.js $cache_max_age
+
+echo "Invalidating cloudfront cache"
+aws cloudfront create-invalidation --distribution-id REDACTED --paths /$url_path/depict-ai.js /$url_path/compatibility.js /$url_path/modern.js | tee
+
+echo ""
+echo "Letting sentry know what commit was deployed"
+
+export SENTRY_AUTH_TOKEN=REDACTED;
+export SENTRY_ORG=depictai-0o;
+VERSION=$(sentry-cli --log-level=info releases propose-version)
+sentry-cli --log-level=info releases new -p depictai-0o $VERSION;
+sentry-cli --log-level=info releases set-commits --auto $VERSION
+
+export SENTRY_PROJECT=depictai-0o
+
+# this hopefully makes sourcemaps work for the compatibility version
+newcompatfn="dist/$tenant/compatibility.js"
+newcompatsrcmap="dist/$tenant/compatibility.js.map"
+cp dist/$tenant/ie11.js "$newcompatfn"
+cp dist/$tenant/ie11.js.map "$newcompatsrcmap"
+
+DEPLOY_FOLDER="deploys"
+mkdir -p "$DEPLOY_FOLDER"
+# print full ISO date with timezone and force timezone to follow stockholm
+echo "$(TZ=Europe/Stockholm date +%Y-%m-%dT%H:%M:%S%z) ${VERSION}" >> "${DEPLOY_FOLDER}/${url_path}.txt"
+
+sentry-cli --log-level=info releases files "$VERSION" upload "$newcompatfn" "https://cdn.depict.ai/$url_path/compatibility.js"
+sentry-cli --log-level=info releases files "$VERSION" upload-sourcemaps "$newcompatsrcmap" --url-prefix "https://cdn.depict.ai/$url_path/"
+
+rm "$newcompatfn" "$newcompatsrcmap"

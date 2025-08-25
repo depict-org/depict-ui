@@ -1,0 +1,15 @@
+@use "sass:color";
+@use "@depict-ai/react-ui" as plp-styling with (
+  $instant-card: (
+    "sales-price-color": #4caf50,
+  ),
+  $primary-button: (
+    "background": #2e4057,
+    "hover-background": color.adjust(#2e4057, $lightness: +10%),
+    "active-background": color.adjust(#2e4057, $lightness: -10%),
+  ),
+  $search-modal-layout: "classic"
+);
+
+@include plp-styling.default-theme("both");
+@include plp-styling.recommendations();

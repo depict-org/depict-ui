@@ -1,0 +1,92 @@
+---
+title: "Preparing your theme - <head>"
+---
+
+<Warning>If you update your theme to a never version, you might need to repeat this step</Warning>
+
+We need to make sure the Depict frontend script is loaded on all pages and has all the information it needs to work. This is done by adding a snippet of code to your theme.
+
+
+<Steps>
+    <Step title="First Step">
+        Open the code editor
+        <Frame caption="Guide to opening the code editor">
+            <img src="https://cdn.statically.io/gh/depict-org/documentation-images/main/shopify/open-code-editor2.svg" alt="" style={{aspectRatio: 1.1777777778, width: "100%", padding: "10px", background: "#F1F1F1"}} ref={element => {
+                // In prod, they have some zoom thing which breaks aspectRatio, work around that. Unfortunately this is not in the SSR'd output so there's still some CLS.
+                const direct_parent = element?.parentElement;
+                if(direct_parent?.matches?.("[data-rmiz-content]")) {
+                    Object.assign(direct_parent.style, {
+                        width: "100%",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center"
+                    })
+                }
+                const parents_parent = direct_parent?.parentElement;
+                if(parents_parent?.matches?.("[aria-owns^='rmiz-modal']")) {
+                    parents_parent.style.width = "100%";
+                }
+            }} />
+        </Frame>
+    </Step>
+    <Step title="Second Step">
+        Locate your theme.liquid file
+    <Frame caption="`theme.liquid` in the code editor">
+        <img src="https://cdn.statically.io/gh/depict-org/documentation-images/main/shopify/code-editor-file2.svg" alt="" style={{aspectRatio: 1.6092592593, width: "100%", padding: "10px", background: "#F1F1F1"}} ref={element => {
+            // In prod, they have some zoom thing which breaks aspectRatio, work around that. Unfortunately this is not in the SSR'd output so there's still some CLS.
+            const direct_parent = element?.parentElement;
+            if(direct_parent?.matches?.("[data-rmiz-content]")) {
+                Object.assign(direct_parent.style, {
+                    width: "100%",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center"
+                })
+            }
+            const parents_parent = direct_parent?.parentElement;
+            if(parents_parent?.matches?.("[aria-owns^='rmiz-modal']")) {
+                parents_parent.style.width = "100%";
+            }
+        }} />
+    </Frame>
+    </Step>
+    <Step title="Third Step">
+    Copy-paste the Depict head section after `<head>` (but before `</head>`).
+
+    <Accordion title="Expand for script loader code">
+        ```liquid
+        {% comment %}
+        Begin Depict <head> section
+        {% endcomment %}
+        {% assign encoded_domain = shop.permanent_domain | url_encode %}
+        {% assign cache_id = shop.metafields.depict.script_and_style_cache_id %}
+        {% assign encoded_cache_id = cache_id | url_encode %}
+        {% assign depict_script_url = shop.metafields.depict.backend_url.value | append: "/api/script-and-style.json?shop=" | append: encoded_domain | append: "&cache_id=" | append: encoded_cache_id %}
+        <link rel="preload" href="{{ depict_script_url }}&modern=true" as="fetch" crossorigin="anonymous" />
+        <script type="text/javascript">!function(){var e,t,n,o,a,r=!1,p="DEPICT",i="setItem",c="{{ cache_id }}",d=p+"J_"+c,s=p+"S_"+c,u=sessionStorage,l=localStorage,v=new XMLHttpRequest,y=function(){new Function("cache_key","style",t)(c,n)};try{var E;r=!(null===(E=String.prototype.at)||void 0===E||!E.toString().includes("[native code]")),t=l[d],n=l[s]}catch(e){}v.addEventListener("load",(function(){var e=JSON.parse(v.responseText),o=e[0],a=e[1];t&&n||(t=o,n=a,y());try{l[d]=o,l[s]=a}catch(e){}})),v.open("GET","{{ depict_script_url }}&modern="+r),v.send(),t&&n&&y(),(e=window).dpq||(e.dpq=(a=function e(){var t=arguments;e.send_event?e.send_event.apply(this,t):e.queue.push(t)},a.queue=[],a)),(o=u.hasOwnProperty(i)?u:Storage.prototype)[i]=new Proxy(o[i],{apply:function(e,t,n){if("depict"!=(null==n?void 0:n[0]))return Reflect.apply(e,t,n);var o=n[1];dpq(o.name,o.data)}})}();</script>
+        {% comment %}
+        End Depict <head> section
+        {% endcomment %}
+        ```
+    </Accordion>
+
+    <Frame caption={<><code>theme.liquid</code> with the Depict script loader inside the <code>{"<head>"}</code> section</>}>
+        <img src="https://cdn.statically.io/gh/depict-org/documentation-images/main/shopify/code-editor-head.svg" alt="" style={{aspectRatio: 1.7784986098, width: "100%", padding: "10px", background: "#F1F1F1"}} ref={element => {
+            // In prod, they have some zoom thing which breaks aspectRatio, work around that. Unfortunately this is not in the SSR'd output so there's still some CLS.
+            const direct_parent = element?.parentElement;
+            if(direct_parent?.matches?.("[data-rmiz-content]")) {
+                Object.assign(direct_parent.style, {
+                    width: "100%",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center"
+                })
+            }
+            const parents_parent = direct_parent?.parentElement;
+            if(parents_parent?.matches?.("[aria-owns^='rmiz-modal']")) {
+                parents_parent.style.width = "100%";
+            }
+        }} />
+    </Frame>
+    </Step>
+</Steps>

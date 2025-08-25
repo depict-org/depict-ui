@@ -1,0 +1,30 @@
+{
+  "extends": "./tsconfig_base.json",
+  "compilerOptions": {
+    "composite": true,
+    "rootDir": ".",
+    // Skips all .d.ts files.
+    // This fixes duplicate declarations when we depend on an explicit version of a package and have it in packages/
+    "skipLibCheck": true
+  },
+  "references": [
+    {
+      "path": "./packages/utilishared"
+    },
+    {
+      "path": "./packages/ui"
+    }
+  ],
+  "include": [
+    "**/src/**/*.ts",
+    "**/src-server/**/*.ts",
+    "lib/**/*.ts",
+    "**/*.tsx",
+    "lighthouse/tenants.json",
+    // Explicitly include wanted .d.ts files
+    "packages/utilishared/types.d.ts",
+    "packages/utilishared/jsx.d.ts",
+    // Below doesn't work idk why
+    "@types/jquery/index.d.ts"
+  ]
+}

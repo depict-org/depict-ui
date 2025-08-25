@@ -1,0 +1,47 @@
+---
+title: "Rendering recommendations in a grid"
+---
+
+To render recommendations in a grid, do the following:
+
+1. Fetch recommendations, see: [this excerpt of the API integration guide](/api-guide/recommendations/api-client/fetching).
+2. Render the recommendations using the `RecommendationGrid` function.
+
+You will need to add the product card you created in [a previous step](/react-ui-guide/setup/product-card) here.
+
+```ts
+import { RecommendationGrid } from "@depict-ai/react-ui";
+import { useEffect, useState } from "react";
+
+export default function Recommendations() {
+  const { fetchRecommendations } = useFetchRecommendations<YourDisplay>();
+
+  const [recs, setRecs] = useState(new Promise<YourDisplay[]>(() => {})); // So placeholders are shown while loading
+
+  useEffect(
+    () =>
+      setRecs(
+        fetchRecommendations({
+          type: "trending",
+          // click the link above for more information on the options here
+        })
+      ),
+    []
+  );
+
+  return (
+    <>
+      <h2>You might also like</h2>
+      <RecommendationGrid
+        recommendations={recs}
+        productCard={ProductCard}
+      />
+    </>
+  );
+}
+```
+
+<Info>
+  Looking for the
+  [reference](/reference/recommendations-sdk/recommendations-sdk-react#recommendationgrid-component)?
+</Info>

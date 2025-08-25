@@ -1,0 +1,248 @@
+{
+  "name": "@depict-ai/ui",
+  "version": "4.10.7",
+  "description": "Base package containing the actual UI of Depict UI along with translations, with a not-simplified API. We recommend using @depict-ai/js-ui or @depict-ai/react-ui instead.",
+  "packageManager": "yarn@3.2.2",
+  "sass": "styles.scss",
+  "context": "node",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "./scripts/build",
+    "publish": "yarn build && yarn npm publish",
+    "print-included-package-files": "yarn pack --dry-run",
+    "typecheck": "yarn g:tsc --build tsconfig.json",
+    "test": "jest"
+  },
+  "contributors": [
+    "Daniel Troger <daniel@depict.ai>",
+    "Fabian Hedin <fabian@depict.ai>",
+    "Sverre Westerlund <sverre@depict.ai>",
+    "Arnaud Cortisse <arnaud@depict.ai>",
+    "Carl Riis <carl@depict.ai>"
+  ],
+  "targets": {
+    "localesModule_latest": {
+      "isLibrary": true,
+      "optimize": false,
+      "source": "src/locales/index.ts",
+      "distDir": "locales/module_latest",
+      "outputFormat": "esmodule",
+      "context": "node",
+      "engines": {
+        "browsers": "last 1 chrome version"
+      }
+    },
+    "localesCommonJS_latest": {
+      "isLibrary": true,
+      "optimize": false,
+      "source": "src/locales/index.ts",
+      "distDir": "locales/main_latest",
+      "outputFormat": "commonjs",
+      "context": "node",
+      "engines": {
+        "browsers": "last 1 chrome version"
+      }
+    },
+    "client_esmodule_latest": {
+      "isLibrary": true,
+      "source": "src/index.ts",
+      "optimize": false,
+      "outputFormat": "esmodule",
+      "context": "node",
+      "distDir": "dist/client/esmodule_latest",
+      "engines": {
+        "browsers": "last 1 chrome version"
+      }
+    },
+    "client_commonjs_latest": {
+      "isLibrary": true,
+      "source": "src/index.ts",
+      "optimize": false,
+      "context": "node",
+      "outputFormat": "commonjs",
+      "distDir": "dist/client/commonjs_latest",
+      "engines": {
+        "browsers": "last 1 chrome version"
+      }
+    },
+    "server_esmodule_latest": {
+      "isLibrary": true,
+      "source": "src/index.ts",
+      "optimize": false,
+      "outputFormat": "esmodule",
+      "context": "node",
+      "distDir": "dist/server/esmodule_latest",
+      "engines": {
+        "browsers": "last 1 chrome version"
+      }
+    },
+    "server_commonjs_latest": {
+      "isLibrary": true,
+      "source": "src/index.ts",
+      "optimize": false,
+      "context": "node",
+      "outputFormat": "commonjs",
+      "distDir": "dist/server/commonjs_latest",
+      "engines": {
+        "browsers": "last 1 chrome version"
+      }
+    },
+    "localesModule_ES10": {
+      "isLibrary": true,
+      "optimize": false,
+      "source": "src/locales/index.ts",
+      "distDir": "locales/module_ES10",
+      "outputFormat": "esmodule",
+      "context": "node",
+      "engines": {
+        "browsers": "supports array-flat"
+      }
+    },
+    "localesCommonJS_ES10": {
+      "isLibrary": true,
+      "optimize": false,
+      "source": "src/locales/index.ts",
+      "distDir": "locales/main_ES10",
+      "outputFormat": "commonjs",
+      "context": "node",
+      "engines": {
+        "browsers": "supports array-flat"
+      }
+    },
+    "client_esmodule_ES10": {
+      "isLibrary": true,
+      "source": "src/index.ts",
+      "optimize": false,
+      "outputFormat": "esmodule",
+      "context": "node",
+      "distDir": "dist/client/esmodule_ES10",
+      "engines": {
+        "browsers": "supports array-flat"
+      }
+    },
+    "client_commonjs_ES10": {
+      "isLibrary": true,
+      "source": "src/index.ts",
+      "optimize": false,
+      "context": "node",
+      "outputFormat": "commonjs",
+      "distDir": "dist/client/commonjs_ES10",
+      "engines": {
+        "browsers": "supports array-flat"
+      }
+    },
+    "server_esmodule_ES10": {
+      "isLibrary": true,
+      "source": "src/index.ts",
+      "optimize": false,
+      "outputFormat": "esmodule",
+      "context": "node",
+      "distDir": "dist/server/esmodule_ES10",
+      "engines": {
+        "browsers": "supports array-flat"
+      }
+    },
+    "server_commonjs_ES10": {
+      "isLibrary": true,
+      "source": "src/index.ts",
+      "optimize": false,
+      "context": "node",
+      "outputFormat": "commonjs",
+      "distDir": "dist/server/commonjs_ES10",
+      "engines": {
+        "browsers": "supports array-flat"
+      }
+    }
+  },
+  "files": [
+    "/locales",
+    "/server",
+    "/latest",
+    "/ES10",
+    "README.md",
+    "styles.scss",
+    "./multi_import_deduplicator.mjs",
+    "./multi_import_deduplicator.cjs"
+  ],
+  "exports": {
+    ".": {
+      "types": "./ES10/index.d.ts",
+      "browser": {
+        "import": "./ES10/index.js",
+        "require": "./ES10/index.cjs"
+      },
+      "node": {
+        "import": "./server/ES10/index.js",
+        "require": "./server/ES10/index.cjs"
+      }
+    },
+    "./latest": {
+      "types": "./latest/index.d.ts",
+      "browser": {
+        "import": "./latest/index.js",
+        "require": "./latest/index.cjs"
+      },
+      "node": {
+        "import": "./server/latest/index.js",
+        "require": "./server/latest/index.cjs"
+      }
+    },
+    "./locales": {
+      "types": "./locales/ES10/index.d.ts",
+      "import": "./locales/ES10/index.js",
+      "require": "./locales/ES10/index.cjs"
+    },
+    "./locales/latest": {
+      "types": "./locales/latest/index.d.ts",
+      "import": "./locales/latest/index.js",
+      "require": "./locales/latest/index.cjs"
+    },
+    "./ES10": {
+      "types": "./ES10/index.d.ts",
+      "browser": {
+        "import": "./ES10/index.js",
+        "require": "./ES10/index.cjs"
+      },
+      "node": {
+        "import": "./server/ES10/index.js",
+        "require": "./server/ES10/index.cjs"
+      }
+    },
+    "./locales/ES10": {
+      "types": "./locales/ES10/index.d.ts",
+      "import": "./locales/ES10/index.js",
+      "require": "./locales/ES10/index.cjs"
+    }
+  },
+  "devDependencies": {
+    "@babel/core": "latest",
+    "@babel/preset-env": "latest",
+    "@babel/preset-typescript": "latest",
+    "@jest/globals": "^29.3.1",
+    "@parcel/babel-preset-env": "^2.10.3",
+    "@parcel/resolver-default": "^2.10.3",
+    "@types/jest": "^29.2.4",
+    "@types/node": "^18.11.11",
+    "babel-preset-solid": "^1.9.3",
+    "jest": "^29.3.1",
+    "lodash": "^4.17.21",
+    "parcel": "^2.10.3",
+    "ts-jest": "^29.0.3"
+  },
+  "dependencies": {
+    "@babel/plugin-transform-typescript": "^7.22.9",
+    "@babel/runtime": "latest",
+    "@babel/runtime-corejs3": "^7.22.6",
+    "@depict-ai/plp-styling": "workspace:^",
+    "@depict-ai/types": "workspace:^",
+    "@depict-ai/utilishared": "workspace:^",
+    "solid-js": "^1.9.3"
+  },
+  "type": "module",
+  "types": "ES10/index.d.ts",
+  "main": "ES10/index.cjs",
+  "module": "ES10/index.js"
+}

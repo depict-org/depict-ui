@@ -1,0 +1,23 @@
+#!/bin/bash
+
+set -e
+
+# https://stackoverflow.com/a/246128
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+node $SCRIPT_DIR/pre_build.cjs
+
+
+## Build server and client bundles in parallel
+NO_PRIVATE_TRANSPILATION=true HYDRATABLE=true SERVER=false parcel build --no-source-maps --target module_latest --target main_latest --target module_es10 --target main_es10 &
+
+NO_PRIVATE_TRANSPILATION=true HYDRATABLE=true SERVER=true parcel build --no-source-maps --target module_latest_server --target main_latest_server --target module_es10_server --target main_es10_server --target types &
+
+# Wait for both jobs to complete
+wait
+
+node $SCRIPT_DIR/post_build.cjs
+
+node $SCRIPT_DIR/../../../build_scripts/organise_transpiled_package_exports.cjs utilishared
+
+rm -rf dist

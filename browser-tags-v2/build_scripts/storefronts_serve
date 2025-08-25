@@ -1,0 +1,34 @@
+#!/bin/bash
+
+set -e
+
+serve_storefront() {
+  local storefront=$1
+  echo "Serving $storefront..."
+
+  cd ../storefronts/$storefront
+
+  if [[ $storefront == "next-commerce" ]]; then
+    echo "running pnpm run start at" $PWD
+    find .
+    pnpm run start
+  elif [[ $storefront == "next-web" ]]; then
+    yarn start
+  elif [[ $storefront == "react-web" ]]; then
+    yarn start
+  elif [[ $storefront == "vanilla-js" ]]; then
+    yarn start
+  fi
+
+  cd ../../browser-tags-v2
+}
+
+# Main script
+storefronts=("next-commerce" "next-web" "react-web" "vanilla-js")
+
+if [[ $1 == "--only-"* ]]; then
+  only_storefront="${1:7}"
+  serve_storefront $only_storefront
+else
+  echo "You have to pick a specific storefront to serve"
+fi

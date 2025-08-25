@@ -1,0 +1,19 @@
+---
+title: "Configuring the DepictProvider for your search page"
+---
+
+Go back to where you implemented the DepictProvider and add the following configuration option:
+
+```tsx
+ search={{
+   searchPagePath: "SEARCH_RESULTS_PAGE_PATH",
+}}
+```
+
+Where `SEARCH_RESULTS_PAGE_PATH` is the path to the page where you want to display the search results, for example `/sv/search`.
+
+<Warning>
+    📘 The `searchPagePath` value must match the route path for your application's search page component - after any redirects. Meaning it has to include the "market" if the URL will include that.
+</Warning>
+
+See the `DepictProvider` [reference](/reference/search-sdk/search-react-sdk#the-depictprovider-component) for more information.

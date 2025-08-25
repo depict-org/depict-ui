@@ -1,0 +1,7 @@
+# Ignore everything but the distribution entry points & ts types.
+# Note: NPM will still include package.json and README.md
+
+src
+jest.config.json
+scripts
+tsconfig.tsbuildinfo

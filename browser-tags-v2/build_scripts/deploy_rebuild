@@ -1,0 +1,34 @@
+#!/bin/bash
+set -e
+
+. ./build_scripts/define_vars
+
+
+RED='\033[1;31m'
+NC='\033[0m' # No Color
+echo "–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––"
+echo ""
+printf "!!!!!!!!! ${RED}PLEASE MAKE SURE THERE ARE NO ACTIVE MERGE REQUESTS FOR THIS CUSTOMER THAT HAVE BEEN DEPLOYED, BEFORE DEPLOYING${NC} !!!!!!!!! "
+echo ""
+echo "https://gitlab.com/depict-ai/depict.ai/-/merge_requests?scope=all&state=opened&label_name%5B%5D=Frontend&search=$tenant"
+echo ""
+
+
+read -p "I confirm that I have checked for open MRs for $tenant? (yes/no) " yn
+if [ "$yn" != "yes" ]; then
+  echo "Please check for open MRs"
+  exit
+fi
+
+
+read -p "Are you sure you want to deploy $url_path? Write '$url_path' to confirm: " CONT
+if [ "$CONT" != "$url_path" ]; then
+  echo "Happy for this prompt, aren't you?"
+ exit
+fi
+
+# build_prod runs in it's own context, will invoke define_vars again, and won't have the cache argument.
+# Not a huge deal since build_prod doesn't set any caches, but keep in mind for any future arguments.
+./build_scripts/build_prod $tenant $environment
+
+. ./build_scripts/deploy

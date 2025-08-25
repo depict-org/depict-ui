@@ -1,0 +1,12 @@
+{
+  "skipJsErrors": true,
+  "pageRequestTimeout": 60000,
+  "pageLoadTimeout": 10000,
+  "browserInitTimeout": 30000,
+  "hostname": "localhost",
+  "screenshots": {
+    "takeOnFails": true,
+    "pathPattern": "errors/${DATE}/${FIXTURE}_${TEST}_${BROWSER}_${TIME}.png",
+    "fullPage": true
+  }
+}

@@ -1,0 +1,299 @@
+@use "../../variables";
+@use "../../helpers/supports-hover";
+@use "../base/Buttons";
+@use "sass:map";
+
+/// SearchField is the component that shows the search input, sometimes back button, clear button and the search button.
+
+@mixin SearchField() {
+  $search-field-background: variables.get-merged(
+    variables.$search-field-defaults,
+    variables.$search-field,
+    "background"
+  );
+  $border-radius: variables.get-merged(variables.$search-field-defaults, variables.$search-field, "border-radius");
+  $field-max-width: variables.get-merged(variables.$search-field-defaults, variables.$search-field, "max-width");
+  $back-button-width: 20px;
+
+  .search-field {
+    input,
+    button {
+      margin: 0; // safari has some default margin
+    }
+    position: relative;
+    display: flex;
+    justify-content: center;
+    min-width: 100px; // Unusable without at least this width
+    --field-max-width: #{$field-max-width};
+    z-index: calc(#{variables.$search-page-base-z-index} + 5); // make shadow go above contents
+    // Border radius is declared here for the potential shadow (I think)
+    border-radius: $border-radius;
+    @if variables.$search-modal-layout == "v2" {
+    } @else if variables.$search-modal-layout == "classic" {
+      box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .query {
+      font-size: initial;
+      flex-grow: 1;
+      color: variables.get-text-icon-color("neutral", "default");
+      background-color: $search-field-background;
+      border: none;
+
+      @if variables.$search-modal-layout == "classic" {
+        width: 100%;
+        padding-left: 20px;
+        padding-top: 14px;
+        padding-bottom: 14px;
+        padding-right: 55px;
+        border-radius: $border-radius 0 0 $border-radius;
+        &.has-adjacent-back-button {
+          border-bottom-left-radius: 0;
+          border-top-left-radius: 0;
+          padding-left: 0;
+        }
+      } @else if variables.$search-modal-layout == "v2" {
+        overflow: hidden; // Input field doesn't always confirm to its given space without this
+        padding: 0;
+        &::placeholder {
+          color: variables.get-text-icon-color("neutral", "default");
+          opacity: 0.8;
+        }
+      }
+
+      &:focus {
+        outline: none;
+        color: variables.get-text-icon-color("neutral", "pressed");
+        @if variables.$search-modal-layout == "v2" {
+          &::placeholder {
+            color: variables.get-text-icon-color("neutral", "hover");
+          }
+        }
+      }
+      @if variables.$search-modal-layout == "classic" {
+        @include supports-hover.supports-hover() {
+          &:hover {
+            outline: none;
+            color: variables.get-text-icon-color("neutral", "pressed");
+            @if variables.$search-modal-layout == "v2" {
+              &::placeholder {
+                color: variables.get-text-icon-color("neutral", "hover");
+              }
+            }
+          }
+        }
+      }
+    }
+
+    .field {
+      position: relative;
+      flex-grow: 1;
+      display: flex;
+      @if variables.$search-modal-layout == "v2" {
+        background-color: $search-field-background;
+        width: 100%;
+        max-width: $field-max-width;
+        border-radius: $border-radius;
+        padding-left: calc(16px + 20px + 16px); // For the button on the left
+        // 16px padding right of icon + 20px imaginary width of the cross icon + 16px padding left of icon
+        padding-top: 16px;
+        padding-bottom: 16px;
+        padding-right: 16px; // Just so the t
+      }
+
+      @include supports-hover.supports-hover() {
+        &:hover {
+          .query {
+            outline: none;
+            color: variables.get-text-icon-color("neutral", "pressed");
+            @if variables.$search-modal-layout == "v2" {
+              &::placeholder {
+                color: variables.get-text-icon-color("neutral", "hover");
+              }
+            }
+          }
+        }
+      }
+    }
+
+    @if variables.$search-modal-layout == "v2" {
+      &.in-modal {
+        $gap: 16px;
+        justify-content: space-between;
+        gap: $gap;
+        container-type: inline-size;
+
+        .spacer {
+          // Hide our spacer div used to center the search field as soon as it starts to encroach on field width
+          @container (max-width: calc(#{$field-max-width} + #{$gap} + #{$back-button-width})) {
+            display: none;
+          }
+        }
+      }
+    }
+
+    .back {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+
+      @if variables.$search-modal-layout == "classic" {
+        border-bottom-left-radius: $border-radius;
+        border-top-left-radius: $border-radius;
+        background-color: $search-field-background;
+        padding-left: 10px;
+        padding-top: 14px;
+        padding-bottom: 14px;
+        padding-right: 15px;
+      } @else if variables.$search-modal-layout == "v2" {
+        background-color: transparent;
+        z-index: calc(#{variables.$search-page-base-z-index} + 6);
+        padding: calc($back-button-width - 12.5px);
+
+        svg {
+          // The actual vector in figma is 12.5x12.5px and our svg doesn't have any padding
+          width: 12.5px;
+          height: 12.5px;
+          path {
+            // Make cross a bit thicker, this is a hack and fucks up the rounding a bit, but I think it's barely noticeable
+            stroke: variables.get-text-icon-color("neutral", "default");
+            stroke-width: 1.5px;
+          }
+        }
+      }
+
+      svg path {
+        fill: variables.get-text-icon-color("neutral", "default");
+      }
+      &:focus {
+        outline: none;
+      }
+      &:focus-visible {
+        @if variables.$search-modal-layout == "classic" {
+          filter: map.get(Buttons.get-secondary-button-properties(), "focus-visible-filter");
+        } @else if variables.$search-modal-layout == "v2" {
+          box-shadow: 0 0 0 2px variables.get-border-color("base", "default");
+        }
+        svg path {
+          fill: variables.get-text-icon-color("neutral", "hover");
+        }
+      }
+      @include supports-hover.supports-hover() {
+        &:hover {
+          svg path {
+            fill: variables.get-text-icon-color("neutral", "hover");
+          }
+        }
+      }
+    }
+
+    .clear,
+    .back {
+      cursor: pointer;
+    }
+
+    .clear {
+      position: absolute;
+      top: 50%;
+      background-color: $search-field-background;
+      border: none;
+      padding: 0;
+
+      @if variables.$search-modal-layout == "v2" {
+        transform: translateY(-50%);
+        display: flex;
+        left: calc(
+          16px + 7.5px
+        ); // 16px padding + 7.5px white space that is inside the cross icon on figma, but we don't want to change our cross icon
+
+        &.empty {
+          cursor: default;
+        }
+
+        &.empty {
+          svg {
+            // Re-use submit icon and adapt it to v2 so we don't have to change the markup
+            path {
+              fill: variables.get-text-icon-color("neutral", "default");
+            }
+          }
+        }
+      } @else if variables.$search-modal-layout == "classic" {
+        transform: translateY(-50%) scale(0.8);
+        right: 30px;
+      }
+
+      svg path {
+        fill: variables.get-text-icon-color("neutral", "default");
+      }
+
+      &:focus {
+        outline: none;
+      }
+      &:focus-visible {
+        @if variables.$search-modal-layout == "classic" {
+          filter: map.get(Buttons.get-secondary-button-properties(), "focus-visible-filter");
+        } @else if variables.$search-modal-layout == "v2" {
+          box-shadow:
+            0 0 0 3.75px $search-field-background,
+            0 0 0 5.75px variables.get-border-color("base", "default");
+        }
+
+        svg path {
+          fill: variables.get-text-icon-color("neutral", "pressed");
+        }
+      }
+      @include supports-hover.supports-hover() {
+        &:hover {
+          svg path {
+            fill: variables.get-text-icon-color("neutral", "pressed");
+          }
+        }
+      }
+    }
+
+    .submit {
+      @if variables.$search-modal-layout == "classic" {
+        border: none;
+        padding: 0;
+        min-width: 50px;
+        border-radius: 0 $border-radius $border-radius 0;
+        cursor: pointer;
+      }
+    }
+    @content;
+  }
+
+  .search-field:not(.in-modal) {
+    $border: 1px solid variables.get-border-color("neutral", "default");
+
+    &.align-left {
+      margin-right: auto;
+    }
+
+    &.align-center {
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    &.align-right {
+      margin-left: auto;
+    }
+
+    @if variables.$search-modal-layout == "classic" {
+      .submit {
+        border-top: $border;
+        border-bottom: $border;
+        border-right: $border;
+      }
+      .query {
+        border-top: $border;
+        border-bottom: $border;
+        border-left: $border;
+      }
+    } @else if variables.$search-modal-layout == "v2" {
+      width: min(100%, $field-max-width);
+    }
+  }
+}

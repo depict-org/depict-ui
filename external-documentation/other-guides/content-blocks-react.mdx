@@ -1,0 +1,139 @@
+---
+title: "A guide to setting up content blocks (React UI)"
+---
+
+Want content blocks on your product listing/search pages? This guide is for you, who have already integrated with `@depict-ai/react-ui`.
+
+1. Make sure you're at least on version `2.1.5` of `@depict-ai/react-ui`.
+2. Provide an array of content blocks to the `CategoryPage`/`SearchPage` component, like in the example below
+
+<AccordionGroup>
+  <Accordion title="Minimum viable example">
+  
+```tsx
+import { ReactContentBlocksByRow } from "@depict-ai/react-ui";
+import { useEffect } from "react";
+
+export default function () {
+  // You can set up content blocks like this and skip a row by adding an empty slot to the array
+  const contentBlocks: ReactContentBlocksByRow = [
+    ,
+    ,
+    {
+      // Show a content block on third row
+      content: InspiringImageBlock,
+      spanColumns: 2,
+      spanRows: 2,
+      position: "left" as const,
+    },
+  ];
+
+
+  return (
+    <CategoryPage
+      // …other properties
+      // Pass content blocks to the CategoryPage or SearchPage
+      contentBlocksByRow={contentBlocks}
+    />
+  );
+}
+
+function InspiringImageBlock() {
+  // Example content block
+  return (
+    <div>
+      <h2>Get inspired right now</h2>
+      <p>This could be an inspirational image</p>
+    </div>
+  );
+}
+```
+  </Accordion>
+  <Accordion title="Extensive example">
+```tsx
+import { ReactContentBlocksByRow } from "@depict-ai/react-ui";
+import { useEffect } from "react";
+
+export default function () {
+  // You can make content blocks conditional
+  const shouldShowBlocks = useShouldShowBlocks();
+  // You can set up content blocks like this and skip a row by adding an empty slot to the array
+  const contentBlocks: ReactContentBlocksByRow = [
+    ,
+    ,
+    {
+      // Show first content block on third row
+      content: SizeGuideContentBlock,
+      spanColumns: 1,
+      spanRows: 2,
+      position: "center" as const,
+    },
+  ];
+
+  // Or you can set them up by adding something to the array by index
+  for (let i = 5; i < 30; i += 3) {
+    // From the sixth row (row index starts at 0) to the thirtieth show a 2x2 image block on every third row
+    contentBlocks[i] = {
+      content: ImageBlock,
+      spanColumns: 2,
+      spanRows: 2,
+      position: "left" as const,
+    };
+  }
+
+  return (
+    <CategoryPage
+      // …other properties
+      // Pass content blocks to the CategoryPage or SearchPage
+      contentBlocksByRow={shouldShowBlocks ? contentBlocks : []}
+    />
+  );
+}
+
+const useShouldShowBlocks = () => {
+  // Hook to hide blocks on small screens
+  if (typeof window === "undefined") return false;
+  const mediaQuery = "(max-width:901px)";
+  const [isSmallScreen, setIsSmallScreen] = useState(
+    window.matchMedia(mediaQuery).matches
+  );
+
+  useEffect(() => {
+    const mediaQueryList = window.matchMedia(mediaQuery);
+    const handleChange = () => setIsSmallScreen(mediaQueryList.matches);
+
+    mediaQueryList.addEventListener("change", handleChange);
+    return () => mediaQueryList.removeEventListener("change", handleChange);
+  }, []);
+
+  return !isSmallScreen;
+};
+
+function ImageBlock() {
+  // Example image content block
+  return (
+    <div>
+      <RandomInspirationalImage />
+      <button>Get inspired</button>
+    </div>
+  );
+}
+
+function SizeGuideContentBlock() {
+  // Example size guide content block
+  return (
+    <div>
+      <SizeGuide />
+      <h2>Wondering what fits?</h2>
+    </div>
+  );
+}
+```
+  </Accordion>
+</AccordionGroup>
+
+<Info>
+  Looking for the
+  [reference](/reference/listing-sdk/listing-page-react-sdk#the-categorypage-component)?
+  (⌘+f for `contentBlocksByRow`)
+</Info>

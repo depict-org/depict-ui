@@ -1,0 +1,17 @@
+@use "../variables";
+
+/// This mixin is used for the SortAndFilterModal and the SearchModal to color the backdrop behind the modal
+/// @param {Color} $background [rgba(0, 0, 0, 0.4)] - The background color of the backdrop, keep in mind it should be a transparent color
+/// @param {Number} $z-index - The z-index of the backdrop
+@mixin modal-backdrop($background: rgba(variables.get-background-color("inverse", "pressed"), 0.4), $z-index) {
+  position: fixed;
+  background: $background;
+  @if $z-index {
+    z-index: $z-index;
+  }
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  touch-action: none;
+}

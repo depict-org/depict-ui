@@ -1,0 +1,46 @@
+@use '@depict-ai/react-ui' as depict with (
+  $page-background-color: black,
+  $background-colors: (
+    'base': (
+      'default': #2c2c2c,
+    ),
+  ),
+  $text-icon-colors: (
+    'base': (
+      'default': #e5e5e5,
+    ),
+  ),
+  $border-colors: (
+    'base': (
+      'default': #a6a6a6,
+    ),
+  ),
+  $search-modal-layout: "classic"
+);
+
+@include depict.default-theme('both');
+
+@tailwind base;
+@import './base.css';
+
+@tailwind components;
+@import './components.css';
+
+@tailwind utilities;
+//
+//#depict-search-page .sorting .sorting-attributes,
+//#depict-search-page .filters {
+//  color: #000;
+//}
+//
+//#depict-search-page .filters .ungrouped span {
+//  color: #fff;
+//}
+//
+//#depict-search-modal .title-brand-tagline {
+//  color: #000;
+//}
+
+.depict.aligner {
+  position: absolute;
+}

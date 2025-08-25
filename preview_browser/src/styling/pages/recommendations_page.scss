@@ -1,0 +1,68 @@
+@use "../customised-plp-styling";
+
+.recommendations_page {
+  & > *:not(.upper_section) {
+    margin-left: 10px;
+    margin-right: 10px;
+  }
+
+  .depict.recommendations {
+    .grid {
+      display: flex;
+      flex-wrap: wrap;
+    }
+  }
+
+  .recs_browser {
+    display: flex;
+    min-height: 20px;
+    flex-direction: column;
+    background: customised-plp-styling.contrasty-alpha(0.05);
+    gap: 20px;
+    padding-top: 20px;
+    border-radius: customised-plp-styling.$border-radius;
+
+    .current_product {
+      display: flex;
+      width: min(300px, 40vw);
+
+      & > * {
+        flex-grow: 1;
+      }
+    }
+
+    .main_buttons {
+      margin-right: 10px;
+      display: flex;
+      gap: 10px;
+      flex-direction: row;
+      justify-content: flex-end;
+    }
+
+    .row {
+      display: flex;
+      flex-direction: column;
+      background: customised-plp-styling.contrasty-alpha(0.1);
+      padding: 10px;
+      border-radius: customised-plp-styling.$border-radius;
+      gap: 10px;
+
+      .header {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+
+        .option {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+
+          label {
+            white-space: nowrap;
+          }
+        }
+      }
+    }
+  }
+}

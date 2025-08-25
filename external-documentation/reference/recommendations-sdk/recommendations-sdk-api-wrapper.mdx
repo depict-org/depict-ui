@@ -1,0 +1,112 @@
+---
+title: "API client"
+description: "Fetching recommendations with our API wrapper"
+---
+
+## How getting recommendations from Depict works
+
+You ask Depict for recommendations for a specific page or "surface" on that page, and, <i>if applicable for that page</i>, provide an id of the product or products that should be taken into account when generating the recommendations.
+
+For example, if you are on a product detail page, you would ask Depict for recommendations for that product page, and provide the id of the product that is currently being viewed. Then Depict can provide recommendations relevant to that product.
+
+## Getting started
+
+Start by installing a Depict UI package:
+
+<CodeGroup>
+```shell NPM (React)
+npm i @depict-ai/react-ui
+```
+
+```shell Yarn (React)
+ yarn add @depict-ai/react-ui
+```
+
+```shell NPM (JS) 
+npm i @depict-ai/js-ui
+```
+
+```shell Yarn (JS)
+yarn add @depict-ai/js-ui
+```
+</CodeGroup>
+
+You can then import the `fetchDepictRecommendations` function:
+<CodeGroup>
+```typescript (js-ui)
+import { fetchDepictRecommendations } from "@depict-ai/js-ui";
+```
+
+```typescript (react-ui)
+import { useFetchRecommendations } from "@depict-ai/react-ui";
+
+const { fetchRecommendations } = useFetchRecommendations();
+```
+</CodeGroup>
+
+The `fetchDepictRecommendations` function takes an object of options as its argument, and returns a promise of an array. Below, you can see the different possible parameters of the options argument.
+
+<ResponseField name="merchant">
+The name of the merchant (e.g. "acme")
+</ResponseField>
+
+<ResponseField name="market">
+The market to fetch recs for. Depict will provide this to you. (Example: "sv" or "sv-se".)
+</ResponseField>
+
+<ResponseField name="type">
+The type of the recommendations, e.g. `front_page`, `after_basket`, `related`, etc. Ask Depict for this.
+</ResponseField>
+
+<ResponseField name="productId">
+When requesting recommendations for a single product, e.g. on a product detail page, pass the id of the product as productId
+</ResponseField>
+
+<ResponseField name="productIds">
+When requesting recommendations that should take multiple products into account, i.e. the contents of the basket/cart, pass an array of product ids as productIds
+</ResponseField>
+
+<ResponseField name="sessionId" type="string?">
+Optionally you can override the default session id used for personalization here. This is the ID that will be used to tie together the different tracking events for a user.
+</ResponseField>
+
+<ResponseField name="headers">
+Optional headers to send to the Depict API. This could be authentication for example. 99% of integrations can leave this unset.
+</ResponseField>
+
+<ResponseField name="metadata">
+Custom metadata to be sent with each request to the Depict API. Only necessary if specifically instructed by Depict.
+</ResponseField>
+
+<Warning>
+🚧 It is important that you make the correct choice out of: no id, `productId` and `productIds` (choose ONE) so read the documentation carefully.
+</Warning>
+
+<Note>
+📘 This function is guaranteed to return an array of Displays. If anything fails, you will get an empty array.
+</Note>
+
+When no id is provided (none out of `productId` and `productIds`) general recommendations will be fetched. This is for, for example, the frontpage where generally popular products get returned.
+
+If you only get recommendations when specifying the wrong id type (i.e. you only get basket recommendations if you provide a single product id while the recommendations should be based on everything in the basket) please ask Depict to re-configure the endpoint for you.
+
+## Example: Fetching frontpage recommendations
+
+```typescript TypeScript
+const frontPageRecs = await fetchDepictRecommendations({
+    merchant: "oscarjacobson",
+    market: "sv-se",
+    type: "front_page",
+});
+```
+
+## Example: Fetching recommendations for a product page
+
+```typescript TypeScript
+const productPageRecs = await fetchDepictRecommendations({
+    merchant: "stronger",
+    market: "se",
+    type: "product_normal",
+    productId: "hero-sports-bra-luna",
+});
+```

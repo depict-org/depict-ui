@@ -1,0 +1,13 @@
+#!/bin/bash
+# https://stackoverflow.com/a/246128
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+node "$SCRIPT_DIR"/pre_build.cjs
+SOLID_JSX_RUNTIME=true NO_PRIVATE_TRANSPILATION=true parcel build --no-source-maps
+node "$SCRIPT_DIR"/post_build.cjs
+
+# Parcel types workaround after adding targets: {types: {}} in package.json
+mv "$SCRIPT_DIR"/../dist/types/index.ts "$SCRIPT_DIR"/../dist/index.d.ts
+rm -rf "$SCRIPT_DIR"/../dist/types
+
+node $SCRIPT_DIR/../../../build_scripts/organise_transpiled_package_exports.cjs js-ui

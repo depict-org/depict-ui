@@ -1,0 +1,29 @@
+@use "../variables";
+
+/// Styling for recommendations UI components
+@mixin Recommendations() {
+  .load-more-container,
+  .load-less.container {
+    margin-top: 16px;
+  }
+
+  .recs-title {
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 4%;
+    font-size: 1.5em;
+    color: variables.get-text-icon-color("base", "default");
+  }
+
+  &.align-left {
+    .recs-title {
+      text-align: left;
+    }
+  }
+
+  &.align-right {
+    .recs-title {
+      text-align: right;
+    }
+  }
+}

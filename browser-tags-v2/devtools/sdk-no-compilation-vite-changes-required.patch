@@ -1,0 +1,42 @@
+diff --git a/browser-tags-v2/packages/utilishared/src/components/Placeholder.tsx b/browser-tags-v2/packages/utilishared/src/components/Placeholder.tsx
+index a21e096baa..4b148363e9 100644
+--- a/browser-tags-v2/packages/utilishared/src/components/Placeholder.tsx
++++ b/browser-tags-v2/packages/utilishared/src/components/Placeholder.tsx
+@@ -1,4 +1,4 @@
+-import css from "bundle-text:./Placeholder.scss";
++import css from "./Placeholder.scss?inline";
+ import { insert_styling } from "../utilities/integration";
+ import { JSX } from "solid-js";
+
+diff --git a/browser-tags-v2/packages/utilishared/src/components/hover_image.tsx b/browser-tags-v2/packages/utilishared/src/components/hover_image.tsx
+index 7bbc747725..ccb294bb98 100644
+--- a/browser-tags-v2/packages/utilishared/src/components/hover_image.tsx
++++ b/browser-tags-v2/packages/utilishared/src/components/hover_image.tsx
+@@ -1,5 +1,5 @@
+ import { ContainedImage, ImageOptions } from "./image";
+-import css from "bundle-text:./hover_image.scss";
++import css from "./hover_image.scss?inline";
+ import { make_sourceset_component } from "./srcset";
+ import { insert_styling } from "../utilities/integration";
+ import { catchify } from "../logging/error";
+diff --git a/browser-tags-v2/packages/utilishared/src/components/image.tsx b/browser-tags-v2/packages/utilishared/src/components/image.tsx
+index 9f14731d7e..b792674f0d 100644
+--- a/browser-tags-v2/packages/utilishared/src/components/image.tsx
++++ b/browser-tags-v2/packages/utilishared/src/components/image.tsx
+@@ -1,4 +1,4 @@
+-import css from "bundle-text:./image.scss";
++import css from "./image.scss?inline";
+ import { make_sourceset_component } from "./srcset";
+ import { classlist } from "../jsx-runtime";
+ import { insert_styling } from "../utilities/integration";
+diff --git a/browser-tags-v2/packages/utilishared/src/deprecated/slider.ts b/browser-tags-v2/packages/utilishared/src/deprecated/slider.ts
+index 0805f998ed..2bee19beab 100644
+--- a/browser-tags-v2/packages/utilishared/src/deprecated/slider.ts
++++ b/browser-tags-v2/packages/utilishared/src/deprecated/slider.ts
+@@ -1,5 +1,5 @@
+ // @ts-ignore
+-import slider_styling from "bundle-text:./slider_styling.css";
++import slider_styling from "./slider_styling.css?inline";
+ import { Amazing_Lazy_Slider } from "../rendering/slider_with_lazy";
+ import { Slider_Options as Pure_Slider_Options } from "../rendering/pure_slider";
+ import { catchify } from "../logging/error";

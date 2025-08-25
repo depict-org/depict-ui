@@ -1,0 +1,108 @@
+@use "sass:map";
+@use "sass:color";
+@use "./utils";
+
+@function get-possible-inferred-or-merged-something($default-values-map, $user-overrides-map, $type, $state) {
+  $value-from-merged-map: map.get(map.get(map.deep-merge($default-values-map, $user-overrides-map), $type), $state);
+  // If the color is specified as override, just return it.
+  @if map.has-key($user-overrides-map, $type) and map.has-key(map.get($user-overrides-map, $type), $state) {
+    @return $value-from-merged-map;
+  }
+  $infer-defaults-return-value: infer-defaults($user-overrides-map, $type);
+  $safe-overrides-map: map.get($infer-defaults-return-value, "map");
+  $changed-direction: map.get($infer-defaults-return-value, "changed-direction");
+  // If we don't have overrides or don't have a "default" override, don't infer and return from the merged map.
+  @if (not map.has-key($safe-overrides-map, $type)) or (not map.has-key(map.get($safe-overrides-map, $type), "default"))
+  {
+    @return $value-from-merged-map;
+  }
+
+  // If the color is specified as override NOW, just return it.
+  @if map.has-key($safe-overrides-map, $type) and map.has-key(map.get($safe-overrides-map, $type), $state) {
+    @return map.get(map.get($safe-overrides-map, $type), $state);
+  }
+
+  // We're good to infer
+  $our-color: map.get(map.get($safe-overrides-map, $type), "default");
+  $direction-to-go: if(
+    not $changed-direction,
+    if(color.lightness($our-color) >= 50%, "darken", "lighten"),
+    $changed-direction
+  );
+
+  //"hover": get-merged($base-colors-defaults, $base-colors, 600),
+  //"pressed": get-merged($base-colors-defaults, $base-colors, 1000),
+  //"disabled": get-merged($base-colors-defaults, $base-colors, 400),
+  @if $direction-to-go == "darken" {
+    @if $state == "hover" {
+      @return color.mix($our-color, black, 88%);
+    } @else if $state == "pressed" {
+      @return color.mix($our-color, black, 78%);
+    } @else if $state == "disabled" {
+      @return color.mix($our-color, black, 68%);
+    }
+  } @else {
+    @if $state == "hover" {
+      @return color.mix($our-color, white, 88%);
+    } @else if $state == "pressed" {
+      @return color.mix($our-color, white, 78%);
+    } @else if $state == "disabled" {
+      @return color.mix($our-color, white, 68%);
+    }
+  }
+}
+
+// Given a ("base", "default") color, this infers ("neutral", "default), ("subtle", "default") and ("inverse", "default") colors
+@function infer-defaults($user-overrides-map, $type) {
+  @if (not map.has-key($user-overrides-map, "base")) or
+    (not map.has-key(map.get($user-overrides-map, "base"), "default"))
+  {
+    // If no base to fallback this function is useless
+    @return ("map": $user-overrides-map, "changed-direction": false);
+  }
+  // Check if have default
+  @if (not map.has-key($user-overrides-map, $type)) or (not map.has-key(map.get($user-overrides-map, $type), "default"))
+  {
+    $default-color: map.get(map.get($user-overrides-map, "base"), "default");
+    // It's important to always go in the same direction with our inference but since
+    // default color is the same for base, neutral and subtle we don't need to preserve the direction somewhere else, it will automatically be consistent
+    $changed-color: black;
+    $changed-direction: false;
+    @if $type == "neutral" {
+      @if color.lightness($default-color) >= 50% {
+        $changed-color: color.mix($default-color, black, 80%);
+        $changed-direction: "darken";
+      } @else {
+        $changed-color: color.mix($default-color, white, 80%);
+        $changed-direction: "lighten";
+      }
+    } @else if $type == "subtle" {
+      @if color.lightness($default-color) >= 50% {
+        // Please never change lightness by more than 50% as the distance won't be the same between neutral and subtle anymore
+        // If you do, find out the max change possible for a certain color and only change neutral half of that (I think that's like using color.scale but that function doesn't work in the black-direction IIRC?)
+        $changed-color: color.mix($default-color, black, 90%);
+        $changed-direction: "darken";
+      } @else {
+        $changed-color: color.mix($default-color, white, 90%);
+        $changed-direction: "lighten";
+      }
+    } @else if $type == "inverse" {
+      // Invert color and ensure saturation is same as input color
+      $changed-color: color.change(color.invert($default-color), $saturation: color.saturation($default-color));
+    } @else {
+      @debug "Unknown type: #{$type}";
+    }
+    // Merge in default
+    $modified-map: map.deep-merge(
+      $user-overrides-map,
+      (
+        $type: (
+          "default": $changed-color,
+        ),
+      )
+    );
+    @return ("map": $modified-map, "changed-direction": $changed-direction);
+  }
+
+  @return ("map": $user-overrides-map, "changed-direction": false);
+}

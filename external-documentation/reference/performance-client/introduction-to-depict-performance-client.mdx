@@ -1,0 +1,21 @@
+---
+title: "Introduction to Depict Performance Client"
+description: "Use our Depict Performance Client SDKs to track and monitor user behavior on your store."
+---
+
+**Depict Performance Client** (**DPC**) is a tool used to track and measure the effectiveness of product discovery in your store. The DPC SDK handles performance tracking to enable Depict to gain insights into the performance of product recommendations and search results.
+
+By providing real-time data on product impressions, clicks, and purchases, DPC empowers merchants to make data-driven decisions that optimize their product recommendations and drive better results. 
+
+## How it works
+
+_DPC_ is a performance-tracking software that provides Depict with real-time data on product impressions, clicks, and purchases. It uses Web observer APIs to search the DOM for specific elements and watches for changes made to these elements on the DOM tree. Depict associates user events with product recommendations by using the unique `recommendation_id` included in all recommendations in the DOM. They are returned in real-time with each Depict Recommendations request, enabling Depict to track impressions and clicks on producs to create real-time personalised results for each customer. 
+
+DPC continuously watches the DOM for elements with a `data-recommendation-id` attribute and registers each element found. DPC then monitors changes to the position of elements with this custom attribute and sends an event to Depict when they become visible on the viewport. In addition, DPC also tracks click interactions on these elements and sends this information to Depict. This information allows Depict to monitor the performance of products on each page and to improve the product's performance.
+
+Similarly, DPC searches for elements with the `depict-add-to-cart` class and tracks click interactions on these elements. This let Depict track whenever a product is added to the cart. 
+
+## Implementation path
+
+1. Follow the "tracking" part of [your respective guide](/home/homepage#quick-start) to install the DPC SDK on your store.
+3. View recommendations performance on the [Depict Portal](https://app.depict.ai/).

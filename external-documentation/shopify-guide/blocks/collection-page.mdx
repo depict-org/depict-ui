@@ -1,0 +1,78 @@
+---
+title: "Adding a Collection Page block"
+---
+
+The Depict Collection Page block is the block that renders the collection page. Below we'll show you how to add the block to your default collection template.
+
+You can also add it to any other collection template you have as well as to any other pages where you'd like to display a collection - just make sure to configure a collection handle in the block settings if the block is used on a page that is not a collection page.
+
+
+<Steps>
+    <Step title="First Step">
+        Select the collection template in the theme editor.
+        <Frame caption="Click to enlarge">
+            <img src="https://cdn.statically.io/gh/depict-org/documentation-images/main/shopify/selecting-collection-template2.svg" alt="Opening search page template editor" style={{aspectRatio: 3866/2075, width: "100%"}} ref={element => {
+                // In prod, they have some zoom thing which breaks aspectRatio, work around that. Unfortunately this is not in the SSR'd output so there's still some CLS.
+                const direct_parent = element?.parentElement;
+                if(direct_parent?.matches?.("[data-rmiz-content]")) {
+                    Object.assign(direct_parent.style, {
+                        width: "100%",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center"
+                    })
+                }
+                const parents_parent = direct_parent?.parentElement;
+                if(parents_parent?.matches?.("[aria-owns^='rmiz-modal']")) {
+                    parents_parent.style.width = "100%";
+                }
+            }} />
+        </Frame>
+    </Step>
+    <Step title="Second Step">
+    Add the Depict Collection Page block.
+    You might also want to hide your old collection block in this step.
+    <Frame caption="Adding a search page block to the search template" style={{maxWidth: "500px"}}>
+        <img src="https://cdn.statically.io/gh/depict-org/documentation-images/main/shopify/adding-collection-block2.svg" style={{aspectRatio: 1280/2104, width: "100%",}} ref={element => {
+            // In prod, they have some zoom thing which breaks aspectRatio, work around that. Unfortunately this is not in the SSR'd output so there's still some CLS.
+            const direct_parent = element?.parentElement;
+            if(direct_parent?.matches?.("[data-rmiz-content]")) {
+                Object.assign(direct_parent.style, {
+                    width: "100%",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center"
+                })
+            }
+            const parents_parent = direct_parent?.parentElement;
+            if(parents_parent?.matches?.("[aria-owns^='rmiz-modal']")) {
+                parents_parent.style.width = "100%";
+            }
+        }} />
+    </Frame>
+    </Step>
+    <Step title="Done">
+    Change the configurable options as you like and hit save
+
+    <Frame caption="The collection page block has been added">
+        <img src="https://cdn.statically.io/gh/depict-org/documentation-images/main/shopify/collection-page-added2.svg" style={{aspectRatio: 3866/2702, width: "100%"}} ref={element => {
+            // In prod, they have some zoom thing which breaks aspectRatio, work around that. Unfortunately this is not in the SSR'd output so there's still some CLS.
+            const direct_parent = element?.parentElement;
+            if(direct_parent?.matches?.("[data-rmiz-content]")) {
+                Object.assign(direct_parent.style, {
+                    width: "100%",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center"
+                })
+            }
+            const parents_parent = direct_parent?.parentElement;
+            if(parents_parent?.matches?.("[aria-owns^='rmiz-modal']")) {
+                parents_parent.style.width = "100%";
+            }
+        }} />
+    </Frame>
+    </Step>
+</Steps>
+
+<Tip>Now that you have added the Depict product listing pages to your site, we recommend removing all traces (including JavaScript for sorting and filtering) of your old collection blocks, to improve pagespeed.</Tip>

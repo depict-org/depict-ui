@@ -1,0 +1,8 @@
+{
+  "extends": "../../tsconfig_base.json",
+  "compilerOptions": {
+    "composite": true,
+    "types": ["node", "jest", "solid-js", "solid-js/web"]
+  },
+  "exclude": ["./dist/*", "./locales/*", "./server/*", "./ES*/*", "./latest/*", "./locales"]
+}

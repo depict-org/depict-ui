@@ -1,0 +1,56 @@
+---
+title: "Installing the app"
+---
+
+<Info>For this, you will need to have quite high privileges in your Shopify shop. It might make sense to ask your store owner to do this for you.</Info>
+
+
+<Steps>
+    <Step title="First Step">
+        You will receive an installation link from us, either per Email or Slack. Click on it.
+    </Step>
+    <Step title="Second Step">
+        Click "Install App"
+        <Frame caption="Screenshot of the app installation process">
+            <img src="https://cdn.statically.io/gh/depict-org/documentation-images/main/shopify/app-install.svg" style={{aspectRatio: 0.3487847657, width: "100%", padding: "10px", background: "white"}} ref={element => {
+                // In prod, they have some zoom thing which breaks aspectRatio, work around that. Unfortunately this is not in the SSR'd output so there's still some CLS.
+                const direct_parent = element?.parentElement;
+                if(direct_parent?.matches?.("[data-rmiz-content]")) {
+                    Object.assign(direct_parent.style, {
+                        width: "100%",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center"
+                    })
+                }
+                const parents_parent = direct_parent?.parentElement;
+                if(parents_parent?.matches?.("[aria-owns^='rmiz-modal']")) {
+                    parents_parent.style.width = "100%";
+                }
+            }} />
+        </Frame>
+    </Step>
+    <Step title="Third Step">
+    You should get to the Depict App configuration, which indicates a successful app installation.
+
+    Here, please fill in "Your Depict merchant name" and click "Save".
+    <Frame caption="The Depict Shopify App's configuration interface">
+        <img src="https://cdn.statically.io/gh/depict-org/documentation-images/main/shopify/app-overview.svg" style={{aspectRatio: 0.680165852749052, width: "100%"}} ref={element => {
+            // In prod, they have some zoom thing which breaks aspectRatio, work around that. Unfortunately this is not in the SSR'd output so there's still some CLS.
+            const direct_parent = element?.parentElement;
+            if(direct_parent?.matches?.("[data-rmiz-content]")) {
+                Object.assign(direct_parent.style, {
+                    width: "100%",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center"
+                })
+            }
+            const parents_parent = direct_parent?.parentElement;
+            if(parents_parent?.matches?.("[aria-owns^='rmiz-modal']")) {
+                parents_parent.style.width = "100%";
+            }
+        }} />
+    </Frame>
+    </Step>
+</Steps>

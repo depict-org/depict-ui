@@ -1,0 +1,21 @@
+.depict {
+  .images-container {
+    position: relative;
+  }
+
+  .second-image-container {
+    top: 0;
+    width: 100%;
+    position: absolute;
+    opacity: 0;
+  }
+
+  .hovering {
+    .main-image-container {
+      opacity: 0;
+    }
+    .second-image-container {
+      opacity: 1;
+    }
+  }
+}

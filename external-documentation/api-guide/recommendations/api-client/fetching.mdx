@@ -1,0 +1,52 @@
+---
+title: "Fetching recommendations"
+---
+
+The `fetchDepictRecommendations` function takes an object of options as its argument, and returns a promise of an array of so-called displays (product data). [Reference](/reference/recommendations-sdk/recommendations-sdk-api-wrapper).
+
+<Info>Regarding MERCHANT_ID and MARKET, see [the comments here](/api-guide/tracking/initialising)</Info>
+<Tip>For a list of possible types, try checking the [preview browser](https://demo.depict.ai/null/null/recommendations?headers=%7B%22force-new-displays%22%3A%221%22%7D) or ask your Depict contact. Usually the available types are also detailed in the kickoff slides. If you get `{"error":"(tenant, market, type) not yet configured. Please contact Depict."}` that probably means a type isn't available for you - let us know if you want it.</Tip>
+
+### Fetching general recommendations:
+
+General recommendations are recommendations that aren't related to any particular content but specific to the type of page.
+Most often, these are recommendations for the front page.
+
+```typescript TypeScript
+const frontPageRecs = await fetchDepictRecommendations({
+    merchant: "MERCHANT_ID",
+    market: "MARKET",
+    type: "TYPE",
+});
+```
+
+### Fetching recommendations for one specific product
+
+Use this if you want to fetch recommendations for a specific product. For example, if you want to show recommendations below the description on a product page.
+
+```typescript TypeScript
+const productPageRecs = await fetchDepictRecommendations({
+    merchant: "MERCHANT_ID",
+    market: "MARKET",
+    type: "TYPE",
+    productId: "this-is-an-amazing-product",
+});
+```
+
+### Fetching recommendations for multiple products
+
+Use this if you want to fetch recommendations for multiple products, e.g., for everything a user has in their cart.
+
+```typescript TypeScript
+const cartRecs = await fetchDepictRecommendations({
+    merchant: "MERCHANT_ID",
+    market: "MARKET",
+    type: "TYPE",
+    productIds: ["product-1", "product-2", "product-3"],
+});
+```
+
+
+<Info>
+    Got more questions? See the [reference](/reference/recommendations-sdk/recommendations-sdk-api-wrapper)
+</Info>

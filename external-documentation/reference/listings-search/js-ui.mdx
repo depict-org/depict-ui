@@ -1,0 +1,114 @@
+---
+title: "JavaScript UI Reference"
+---
+
+## SetupPageReplacer function
+
+SetupPageReplacer is a function that can be used to layer SPA (single page application) functionality on top of a standard server side rendered webpage, for certain pages.
+An example use case is to instantly (without a server page request) navigate to the Depict search result page, or between one query to the next.
+PageReplacer works by listening to URL changes (performed via `history.pushState`), testing if they match the `isPageToReplace` criteria, then replacing a specified element with another element.
+The element that is replaced is specified by a CSS selector and usually represents the "main content" container of the page. The "replacement" works by setting `display: none` on the original content and adding the new content immediately after it in the DOM.
+
+The following table shows the `SetupPageReplacer`'s configuration properties, their types, and descriptions:
+
+<ResponseField name="isPageToReplace" type="(url: URL) => boolean">
+  A function that returns `true` if the provided URL is a page where the
+  replacement should be active.
+</ResponseField>
+
+<ResponseField name="selectorToReplace" type="string">
+  A CSS selector that selects the element to replace.
+</ResponseField>
+
+<ResponseField name="renderContent" type="() => HTMLElement | HTMLElement[]">
+  A function that returns the element(s) which replace the "page" when
+  `isPageToReplace` returns `true`.
+</ResponseField>
+
+<ResponseField name="renderMode" type='("append" | "replace")?'>
+  If set to `"append"`, the new element will be appended to the element that is
+  found by `selectorToReplace` instead of replacing it.
+</ResponseField>
+
+<ResponseField name="documentTitle" type="string?">
+  The title that `document.title` should be changed to when page replacement is
+  active.
+</ResponseField>
+
+Returns: A function that can be called to destroy the page replacer. This will reset the content to the original content if the replacer is currently open.
+
+## TextPlaceholder function
+
+See [placeholder components](/reference/listings-search/placeholder-components).
+
+## ImagePlaceholder function
+
+See [placeholder components](/reference/listings-search/placeholder-components).
+
+## onExistsObserver function
+
+Checks and then observes the DOM for an element matching a selector and calls a callback when one is found.
+
+The following table shows the `onExistsObserver`'s configuration properties, their types, and descriptions:
+
+<ResponseField name="selector" type="string">
+  The selector to observe.
+</ResponseField>
+
+<ResponseField
+  name="callback"
+  type="(element: T, disconnect: DisconnectFunction) => void"
+>
+  The callback to call when the element exists.
+</ResponseField>
+
+The `onExistsObserver` function returns an object with a `disconnect` function that can be called to disconnect the observer.
+
+## contentBlockStore function
+
+A function that enables updating of content blocks dynamically. It returns two functions:
+`getContentBlocksByRow`, which returns the current blocks, and
+`setContentBlocksByRow`, which takes a new [JSUIContentBlocksByRow](#jsuicontentblocksbyrow)-array and updates
+the blocks. <b>The returned `getContentBlocksByRow` function has to be passed to `CategoryPage`/`SearchPage`.</b>
+
+The function signature looks as follows:
+
+```ts
+function contentBlockStore(initialValue?: JSUIContentBlocksByRow): {
+  getContentBlocksByRow: () => JSUIContentBlocksByRow>;
+  setContentBlocksByRow: (newBlocks: JSUIContentBlocksByRow | ((previousBlocks: JSUIContentBlocksByRow) => JSUIContentBlocksByRow)) => void;
+}
+```
+
+### JSUIContentBlocksByRow
+
+A sparse array containing content blocks to show (or an empty slot or undefined if there's no block at that index). The index is the row where the content block should be shown.
+
+```ts
+type JSUIContentBlocksByRow = (undefined | JSUIContentBlock)[];
+```
+
+### JSUIContentBlock
+
+The interface for a content block.
+Please make sure that you don't have content blocks overlap as that will cause undefined behavior.
+The height of the content block will be the height of the tallest item in a row, so if there are no products in a row the content block needs to "bring its own height".
+If you need to load any data in the content block, please make sure to return a placeholder while you're doing so (see `ImagePlaceholder`), to avoid layout shifts and ensure scroll restoration works correctly.
+
+<ResponseField name="spanColumns" type="number">
+  Specifies how many columns the block should span. This value will be capped to
+  the number of columns available.
+</ResponseField>
+
+<ResponseField name="spanRows" type="number">
+  Specifies how many rows the block should span.
+</ResponseField>
+
+<ResponseField name="position" type='"left" | "center" | "right"'>
+  Determines where the block should be positioned. Acceptable values are 'left',
+  'center', or 'right'.
+</ResponseField>
+
+<ResponseField name="content" type="() => HTMLElement">
+  A function returning one or multiple HTML elements to render in the block.
+</ResponseField>

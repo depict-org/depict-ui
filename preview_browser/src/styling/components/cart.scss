@@ -1,0 +1,80 @@
+@use "../customised-plp-styling";
+@use "@depict-ai/plp-styling/components/base/Buttons";
+@use "sass:map";
+
+@mixin GeneralSlidein() {
+  .slidein-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: rgba(0, 0, 0, 0.5);
+    right: 0;
+    bottom: 0;
+    z-index: calc(#{customised-plp-styling.$base-z-index} + 6);
+  }
+  .slidein {
+    position: fixed;
+    right: 0;
+    background: customised-plp-styling.contrasty-alpha(0.5, true);
+    top: 0;
+    z-index: calc(#{customised-plp-styling.$base-z-index} + 7);
+    min-width: 320px;
+    height: 100%;
+    transform-origin: right;
+    color: customised-plp-styling.get-text-icon-color("base", "default");
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      .close {
+        cursor: pointer;
+        svg {
+          width: 20px;
+          height: 20px;
+        }
+      }
+    }
+
+    .body {
+      overflow: auto;
+    }
+
+    &,
+    .body {
+      display: flex;
+      flex-direction: column;
+    }
+  }
+}
+
+.depict {
+  @include GeneralSlidein();
+  .slidein {
+    box-shadow: -2px 1px 14px 8px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    .header {
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding: 20px;
+
+      .title a {
+        margin-left: 10px;
+        text-decoration: underline;
+      }
+    }
+
+    .body {
+      padding: 20px;
+
+      .products {
+        display: flex;
+        flex-wrap: wrap;
+        max-width: 1000px;
+      }
+    }
+  }
+}

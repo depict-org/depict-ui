@@ -1,0 +1,90 @@
+---
+title: "Native"
+description: "This page details how to get started with Depict recommendations using our API"
+---
+
+Once Depict has configured the recommendations and they are ready to be delivered, there are two things that needs to be done to actually provide the recommendations on your website:
+
+- Request recommendations to display on your website, most commonly as Product Cards
+- Send events for tracking user interaction with the recommendations.
+
+For the complete API specification, see [API Reference](/reference/openapi-reference/recommendations-v3/recommendations).
+
+## Requesting recommendations
+
+There are multiple endpoints available for different kinds of recommendations. We begin by showing how you get recommendations for a given Product ID, which is what you do when, for example, displaying recommendations on a product’s product page.
+
+### Get recommendations for a single product
+
+For displaying recommendations on a product’s product page use following endpoint:
+
+> POST [https://api.depict.ai/v2/recommend/products/product](https://api.depict.ai/v2/recommend/products/product)
+
+#### Example request
+
+```typescript TypeScript
+async function getRecommendationsForProduct(productId) {
+  const response = await fetch(
+    "https://api.depict.ai/v2/recommend/products/product",
+    {
+      method: "POST",
+      data: JSON.stringify({
+        tenant: "myexamplestore",
+        market: "se",
+        type: "similar",
+        product_id: productId,
+        session_id: getSessionId(), // See the "Session ID and User ID" section below
+      }),
+    }
+  );
+  // handle the response
+}
+```
+
+In the request, specify the `product_id` for the product you want the recommendations to be based on, as well as the `type` of recommendations to generate.
+The available types depend on what Depict has configured for you. Common examples include “similar”, “cross_sell”, and “checkout”.
+
+You must also include your store’s unique identifier in the `tenant` field and the market name as `market`.
+
+In order to identify the user interacting with the recommendations you must send the `session_id` parameter.
+
+#### Response
+
+The response contains a list of recommended products with everything you need to display the product cards.
+
+💡 We can help you extend the fields that are returned if there is anything specific you need. For example, you may want the sustainability value as a field to show each recommended product’s sustainability score. Just make sure this field is available or can be computed from the data you have provided us.
+
+#### Example response
+
+```json JSON
+{
+    "displays": [
+        {
+            "main_product_id": "234234",
+            "product_id": "45234234",
+            "title": "A very nice product",
+            "original_price": 999,
+            "sale_price": 899,
+            "page_url": "https://www.myexamplestore.com/45234234",
+            "image_url": "https://www.myexamplestore.com/45234234/image.jpg",
+            "sustainability_value": 5,
+            "recommendation_id": "ee3652eb-a459-459c-aaa6-52e2c0e5695a"
+        },
+        ...
+    ]
+}
+```
+
+#### Session ID
+
+We require you to send a session ID in the request. The id is used to track customer interactions with the recommendations as well as improving the recommendations.
+
+You can also use anything that identifies a logged-in user here. Common examples include using the username and user ID.
+
+The session ID is used to identify any user, regardless of whether the user is logged in or not. The session ID should always be present in requests. You can use anything that identifies a user and is persistent when the user navigates around the page, including the checkout and order confirmation pages. Ideally the session should also persist after a browser restart.
+
+#### Other recommendation endpoints
+
+[Getting recommendations for multiple products (e.g. checkout recommendations)](https://www.notion.so/Getting-recommendations-for-multiple-products-e-g-checkout-recommendations-7ea90798d3274f2d878e72c7ea5978e7)
+
+[Front page/user recommendations](https://www.notion.so/Front-page-user-recommendations-2957dccd2e0d43b78fedd7d6c1439431)

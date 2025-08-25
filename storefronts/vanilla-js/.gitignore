@@ -1,0 +1,12 @@
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+dist
+.parcel-cache
+.idea
+.DS_Store

@@ -1,0 +1,157 @@
+---
+title: Transforming and enriching display data
+description: 'How to use DisplayTransformers'
+---
+
+## **Introduction**
+
+DisplayTransformers is a feature that allows you to transform or enrich the data for product displays (display = data used to display something), product listing displays and content search results. If your displays don't contain a `page_url` (presumably the case for most new customers), adding a DisplayTransformer is obligatory.
+
+## **Adding Extra Data to Displays**
+
+The `DisplayTransformers` can be leveraged to add extra data to your product, listings and content search results data before displaying it, in a batched way. This functionality is particularly useful when you have additional information stored in a different data source that you want to include in the display. Here's how to do it:
+
+1. **Define the additional data**: Identify the extra data you want to include in the display. This could be additional product details, metadata, or any other relevant information.
+2. **Fetch the additional data**: Fetch the additional data in an asynchronous operation within the `DisplayTransformers` function. You'll use the display's product or listing IDs to fetch the corresponding data.
+3. **Add the additional data to the display**: Once you have fetched the extra data, you can add it to the displays.
+
+See an example [further down](#example-3-you-want-to-enrich-the-display-with-data-from-somewhere-else)
+
+## **Why DisplayTransformers?**
+
+- Some customers have lots of products and lots of markets.
+- Usually the URL looks like this https://example.com/language-country/product-name
+- Saving all these URLs on the backend takes up a lot of space since it can easily be tens of millions of URLs
+- Therefore, *newer customers* don't get any page_urls in the displays anymore
+- The DisplayTransformers feature solves this problem by creating the URLs on the frontend instead
+- The frontend needs to be able to link to products on the Product Listings Pages, Search Page and in the Search Modal. It needs to be able to link to product listing pages in the QuickLinks and BreadCrumbs (navigation on listing pages) and the CategorySuggestions in the search modal. Also links to content in the content results in search need to go to the right place.
+
+## **Prerequisites**
+
+- If using TypeScript, type definitions of the Display. Please ask a depict engineer for this.
+- You need to have initialized the DepictProvider (`@depict-ai/react-ui`) or DepictSearchProvider/DepictCategoryProvider (`@depict-ai/js-ui`)
+- You *must provide* the display type as generic to the provider.
+- If you enrich further product data, it's recommended to pass the expected output format as second generic to the provider.
+
+## **Understanding DisplayTransformers**
+
+- Every time the SDK fetches data, it executes the DisplayTransformers functions on the listing, content search results and product displays. <b>Contrary to fetching data in the productCard, the DisplayTransformers gets executed once with all displays and not once per display.</b>
+- The DisplayTransformers function is passed the display, merchant, locale and the market as arguments.
+- The DisplayTransformers function can be async
+- The DisplayTransformers function should return a new array of displays that now have a page_url
+
+## **Caveats**
+
+- The SDK caches the results of both the API request and the DisplayTransformers function. That means that when going back/forwards, changing sorting or checking/unchecking filters it's not guaranteed that the DisplayTransformers will re-run if it has already been run for the same data. This is done to improve performance.
+- <b>Applies to `@depict-ai/js-ui` only:</b> `displayTransformers` won't be run for `RecommendationSlider` and `RecommendationGrid`, you'll have to enrich the `recommendations` data before passing it to the component.
+
+### **Structure of `DisplayTransformers`**
+
+**Table Overview:**
+
+| Function Name    | Options                                                                                            | Expected Return Type                                                                      |
+|------------------|----------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
+| `products`       | `{ merchant: string, market: string, displays: YourDisplay[] }`                                    | Array of displays that have a `page_url` property.                                        |
+| `categories`     | `{ merchant: string, market: string, data: ProductListingWithAncestors[] \| ListingSuggestion[] }` | Array of ProductListingWithAncestors or ListingSuggestion that have a `page_url` property |
+| `contentResults` | `{ merchant: string; market: string; data: ContentLink[] }`                                        | ContentLink[] as received, value of fields can be modified                                |
+
+Please review the types for a more exact type definition.
+
+## **Examples**
+
+### **Example 1: You want to add page_url's**
+
+```tsx
+const providerOptions = {
+  displayTransformers: {
+    products: options =>
+      options.displays.map(display => ({
+        ...display,
+        variant_displays: display.variant_displays.map(variant => ({
+          ...variant,
+          page_url: "/" + context.market.name + "/p/" + variant.uri,
+        })),
+      })),
+    categories: options =>
+      options.data.map(categoryDisplay => ({
+        ...categoryDisplay,
+        page_url: "/" + context.market.name + "/c/" + categoryDisplay.uri,
+      })),
+  },
+  // …other options
+};
+```
+
+### **Example 2: You want to enrich the display with data from somewhere else**
+
+The advantage of doing it here vs in the productCard function is that all the data is available in one place, and you don't have to make a request for every product.
+
+<Note>Keep in mind that the display for products always needs to contain the following properties for the `variant_display`s so the InstantResult's in the SearchModal to render properly:</Note>
+
+| Property                    | Type                                     |
+|-----------------------------|------------------------------------------|
+| `image_url` or `image_urls` | `string` if former, `string[]` if latter |
+| `original_price`            | `number`                                 |
+| `sale_price`                | `number`                                 |
+| `page_url`                  | `string`                                 |
+| `title`                     | `string`                                 |
+
+#### Low effort version, slowing down the rendering of results until the second API call has completed
+
+```tsx
+const providerOptions = {
+  displayTransformers: {
+    products: async options => {
+      const { market } = options;
+      const product_ids = options.displays.map(display => display.variant_displays[display.variant_index].product_id);
+      // For brevity retrying with exponential backoff and error handling is omitted, but recommended
+      const extra_data = await fetch("/get-extra-product-data", {
+        method: "POST",
+        body: JSON.stringify({ product_ids }),
+      }).then(res => res.json());
+      return options.displays.map((display, index) => ({
+        ...display,
+        variant_displays: display.variant_displays.map(variant => ({
+          ...variant,
+          page_url: `/${market}/` + variant.uri,
+          ...extra_data[index], // Add extra data to the displays
+        })),
+      }));
+    },
+    // …other options
+  }
+}
+```
+
+#### Medium effort version, progressively rendering data as it becomes available
+
+```tsx
+const providerOptions = {
+  displayTransformers: {
+    products: options => {
+      const { market } = options;
+      const product_ids = options.displays.map(display => display.variant_displays[display.variant_index].product_id);
+      // For brevity retrying with exponential backoff and error handling is omitted, but recommended
+      // Start request for extra data but don't wait for it
+      const extra_data = fetch("/get-extra-product-data", {
+        method: "POST",
+        body: JSON.stringify({ product_ids }),
+      }).then(res => res.json()) as Promise<{ extra_value: string }[]>;
+
+      return options.displays.map((display, index) => ({
+        ...display,
+        variant_displays: display.variant_displays.map(variant => ({
+          ...variant,
+          page_url: `/${market}/` + variant.handle,
+          // Add a promise to the displays that resolves to the extra data
+          extra_value_promise: extra_data.then(data => data[index].extra_value),
+        })),
+      }));
+    },
+    // …other options
+  }
+}
+```
+
+Then, in the productCard, add a TextPlaceholder for the information that you're enriching and replace it with the value of the `extra_value_promise` when it becomes available:
+

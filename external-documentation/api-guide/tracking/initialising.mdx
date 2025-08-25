@@ -1,0 +1,19 @@
+---
+title: "Initialising DPC"
+description: "Here we'll finally execute the imported code."
+---
+
+<Warning>If you are also using `@depict-ai/react-ui`, skip this step as DPC is already initialised automatically.</Warning>
+
+The third step is to initialise DPC with the information that's critically needed to do any tracking. Execute this code once in your application.
+
+```ts
+const dpc = new DPC("{merchant_id}", { market: "market" })
+```
+(Note that the merchant_id and market should always be sent in lowercase letters.)
+
+Once DPC is initialised the `dpq` global which can be used to imperatively send events also becomes available. See the [DPC reference](/reference/performance-client) for more information.
+
+<Note>Wondering what your MERCHANT_ID is? Depict engineers aren't very creative here, so you can probably guess. Odds are it's your company name or an abbreviation thereof, all lower case and only a-z or 1-9. Ask us if you can't get it working.</Note>
+
+<Note>Wondering what your MARKET(s) is/are? Me too. Ask a depict engineer or try something like `se-sv`, `se-sv_SE` or `se`.</Note>

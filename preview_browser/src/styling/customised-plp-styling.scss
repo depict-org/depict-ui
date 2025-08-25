@@ -1,0 +1,95 @@
+$darkmode: true !default;
+$bg-color: if($darkmode, black, white);
+// Customise variables defined in plp-styling here, will apply both to the @used and @forwarded versions
+
+@forward "@depict-ai/plp-styling" with (
+  $page-background-color: $bg-color,
+  $search-modal-layout: "v2",
+  $background-colors:
+    if(
+      $darkmode,
+      (
+        "base": (
+          "default": $bg-color,
+        ),
+      ),
+      ()
+    ),
+  $text-icon-colors:
+    if(
+      $darkmode,
+      (
+        "base": (
+          "default": #c9d3f8,
+        ),
+      ),
+      ()
+    ),
+  $border-colors:
+    if(
+      $darkmode,
+      (
+        "base": (
+          "default": #dcb1b1,
+        ),
+      ),
+      ()
+    )
+);
+
+@use "@depict-ai/plp-styling";
+@use "@depict-ai/plp-styling/components/ShopTheLook";
+@use "sass:map";
+
+@include ShopTheLook.ShopTheLook;
+
+// Overrides for border colors gotten by the exported get-border-color function, right now adding accent colors
+$border-color-overrides: (
+  "accent": (
+    "default": #5087c9,
+    "hover": #687d97,
+    "pressed": #485d78,
+    "disabled": #82b1ec,
+  ),
+);
+
+/// Used to get spacing
+/// @param {"xxl" | "xl" | "lg" | "md" | "sm" | "xs" | "xxs" | "none"} $size - How large the spacing should be
+@function get-spacing($size) {
+  $spaces: (
+    "xxl": 80px,
+    "xl": 40px,
+    "lg": 24px,
+    "md": 16px,
+    "sm": 12px,
+    "xs": 8px,
+    "xxs": 4px,
+    "none": 0px,
+  );
+  @return map.get($spaces, $size);
+}
+
+/// Makes it easy to get the border color
+/// @param {"base" | "neutral" | "subtle" | "inverse" | "accent"} $type - What type of color
+/// @param {"default" | "hover" | "pressed" | "disabled"} $state ["base"] - The state
+@function get-border-color($type, $state) {
+  $override-value: map.get($border-color-overrides, $type, $state);
+  @if $override-value {
+    @return $override-value;
+  }
+  @return plp-styling.get-border-color($type, $state);
+}
+
+@function contrasty-alpha($alpha: 0.5, $invert: false) {
+  @if $darkmode and $invert {
+    @return rgba(0, 0, 0, $alpha);
+  }
+  @if $invert {
+    @return rgba(255, 255, 255, $alpha);
+  }
+
+  @if $darkmode {
+    @return rgba(255, 255, 255, $alpha);
+  }
+  @return rgba(0, 0, 0, $alpha);
+}

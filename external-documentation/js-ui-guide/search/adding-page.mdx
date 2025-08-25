@@ -1,0 +1,28 @@
+---
+title: "Adding the SearchPage to your site"
+---
+
+The next step is to add the `SearchPage` component to the search results page you created, on the URL matching the `searchPagePath`. `SearchPage` is the component that will be used to display the search results.
+
+An example looks like this:
+
+```tsx
+import { SetupPageReplacer, SearchPage } from "@depict-ai/js-ui";
+
+SetupPageReplacer({
+  isPageToReplace: url => url.pathname === "PATH_TO_SEARCH_PAGE",
+  selectorToReplace: `.replace-for-depict`,
+  renderContent: () => {
+    const searchPage = SearchPage({
+      searchProvider, // The searchProvider instance you created in the previous step
+      productCard, // The productCard component you created in a previous step
+    });
+  },
+});
+```
+
+See a previous page about [`SetupPageReplacer`](/js-ui-guide/search/creating-page).
+
+Use the `columnsAtSize` prop to handle breakpoints on your search results page. It defines the number of product card columns displayed at each screen size.
+
+<Note>To find out more about possible configuration options, see the [reference](/reference/search-sdk/js-ui#searchpage-function)</Note>

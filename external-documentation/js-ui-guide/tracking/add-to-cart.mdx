@@ -1,0 +1,38 @@
+---
+title: "Add to cart tracking"
+description: "You need to track both the add-to-cart button on your product page and, if applicable, on your product cards"
+---
+
+You can either send `addToCart` events manually to Depict, or automatically by marking add-to-cart buttons in the DOM using the `depict-add-to-cart` class. The automatic tracking is limited to one product id per product detail page and product card. If your website uses size and color selectors before adding to cart, the imperative tracking is more reliable.
+
+**Sending add-to-cart events imperatively**
+
+<Note>
+  For attribution of purchases to work properly, the product ID used in
+  `setProductId` and `addToCart` events must be the same type of id that is
+  returned in the displays by our API as `product_id`. For an example of valid
+  product IDs, see the bottom table on the "Tracking status" tab on
+  [app.depict.ai](https://app.depict.ai).
+</Note>
+
+Whenever a product was successfully added to the cart anywhere on your website (including surfaces not directly related to Depict), send an `addToCart` event with the corresponding product id. If you implement imperative tracking, skip the automatic tracking section below.
+
+<CodeGroup>
+
+```typescript dpq
+dpq("addToCart", "[PRODUCT_ID_FOR_ADDED_PRODUCT]");
+```
+
+```typescript DPC instance
+dpc.sendAddToCartEvent({ product_id: "[PRODUCT_ID_FOR_ADDED_PRODUCT]" });
+```
+
+</CodeGroup>
+
+**Mark up your add-to-cart buttons for automatic tracking**
+
+Add the `depict-add-to-cart` class to all add-to-cart buttons on your website, including product cards and product detail pages. Depict will automatically track clicks as necessary, using the [product id](/js-ui-guide/tracking/product-pages) set on product detail pages or [result id](/js-ui-guide/tracking/product-cards) for buttons inside product cards.
+
+```html HTML
+<button class="depict-add-to-cart">Add to cart</button>
+```

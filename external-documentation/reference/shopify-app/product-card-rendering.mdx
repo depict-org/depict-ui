@@ -1,0 +1,20 @@
+---
+title: "Product card rendering"
+description: "This page answers more in-depth questions about the product card rendering in the shopify app."
+---
+
+See [this step in the integration guide](/shopify-guide/setup/edit-theme-body) for the high level overview.
+
+## How do I change what rendering approach is used?
+
+If there is any character that's not a whitespace character in the TSX tab of the product card editor, the product card will be rendered using the code written there. Otherwise, the existing .liquid product card template will be attempted to be used (make sure to follow the steps in the guide for this).
+
+## How does re-using the existing product card template work?
+
+You provide code in theme.liquid, the liquid file which gets included on every page of your website, that renders a bunch of product cards from data available in a metafield. The Depict app has written all required permutations of product card data into that metafield to get hover images, sale prices, etc, with a known set of data (for example the title is `DEPICT_TRACER_TITLE`). On every page, the server renders a product card using your provided .liquid product card code for every permutation of features. These product cards are the children of the hidden `#depict-cards` element. The JavaScript on the client which runs our SDK then picks the right pre-rendered product card and replaces all the data in it with the data of the actual product.
+
+## How does using the product card editor work?
+
+You create a product card TypeScript module in the VSCode-powered product card editor in the admin interface of the Depict app. You use TSX to write the markup and [Sass](https://sass-lang.com/) to write the styling. Solid-js' JSX transform is used which outputs plain DOM elements (so `<div />` is the same as `document.createElement("div")`). You can use solid-js' powerful [signals and reactivity](https://www.solidjs.com/tutorial/introduction_signals) to create interactive features. Every `ProductCard` runs in a solid-js context so just use `onCleanup` if you need to clean up any event listeners or other resource. When you press save in the product card or style editor, a bundle is built specifically for your site for both legacy and modern browsers and, once finished saving, will be served from our CDN for your pages' visitors.
+
+When using the product card editor, the `#depict-cards` element should not have children and is only used for getting essential data about the page via data-attributes.

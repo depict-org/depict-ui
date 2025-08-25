@@ -1,0 +1,31 @@
+---
+title: "Category Feed Specification"
+---
+
+We support feeds as JSON, CSV or XML. The feed should be refreshed at least every hour - otherwise it will take too much time for your product updates to take effect on your site.
+
+<Note>
+📘 **One feed per market**
+
+If your site has multiple markets, you need to provide a product feed for each of them. Each feed should then contain the correct URLs and translations for that market.
+</Note>
+
+## Category attributes
+
+The following table shows the category attributes, their accepted data types, and descriptions:
+
+<ResponseField name="Category ID" type="string">
+The unique identifier for each product category. Example value: `ABCD1234`.
+</ResponseField>
+
+<ResponseField name="Parent ID" type="string">
+The unique identifier for the parent of each product category, if the category has a parent. Example value: `1234ABCD`.
+</ResponseField>
+
+<ResponseField name="Category name" type="string">
+The category name as it is displayed for each market on your site. Example value: `Sunglasses`.
+</ResponseField>
+
+<ResponseField name="Page link" type="string">
+The URL of the category's landing page. Example value: `https://yourstore.com/categories/ABCD1234`.
+</ResponseField>

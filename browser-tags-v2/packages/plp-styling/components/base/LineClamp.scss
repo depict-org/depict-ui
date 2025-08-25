@@ -1,0 +1,11 @@
+@mixin LineClamp() {
+  .line-clamp {
+    text-overflow: ellipsis;
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-word;
+  }
+}
