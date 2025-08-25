@@ -3,8 +3,8 @@
   "version": "4.10.5",
   "packageManager": "yarn@3.2.2",
   "source": "src/index.ts",
-  "types": "ES10/index.d.ts",
-  "sass": "dist/styles/index.scss",
+  "//types": "ES10/index.d.ts",
+  "//sass": "dist/styles/index.scss",
   "context": "node",
   "license": "MIT",
   "description": "JavaScript flavour of the Depict UI library.",
@@ -127,7 +127,5 @@
     "@depict-ai/utilishared": "workspace:^",
     "solid-js": "^1.9.3"
   },
-  "type": "module",
-  "main": "ES10/index.cjs",
-  "module": "ES10/index.js"
+  "type": "module"
 }
