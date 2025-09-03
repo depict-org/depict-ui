@@ -63,10 +63,10 @@ export class PerformanceClient {
   }
 
   #resetSentPageViewForCurrentHref() {
-    let url = location.href;
+    let url = globalThis?.location?.href;
     instant_exec_on_suspect_history_change.add(
       catchify(() => {
-        const { href: new_href } = location;
+        const new_href = globalThis?.location?.href;
         if (url !== new_href) {
           this.#has_sent_pageview_for_current_href = false;
           url = new_href;
@@ -280,7 +280,7 @@ export class PerformanceClient {
     dlog("Setting product id", product_id);
 
     this.latest_product_id = product_id;
-    this.latest_product_id_path = location.pathname;
+    this.latest_product_id_path = globalThis?.location?.pathname;
 
     if (!this.#has_sent_pageview_for_current_href) {
       this.#sendTrackingEvent({ type: "page_view", product_id });
@@ -288,7 +288,7 @@ export class PerformanceClient {
     }
   }
   #getProductId() {
-    if (this.latest_product_id_path !== location.pathname) return undefined;
+    if (this.latest_product_id_path !== globalThis?.location?.pathname) return undefined;
     return this.latest_product_id;
   }
   /**
