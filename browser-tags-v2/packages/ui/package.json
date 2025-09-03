@@ -1,6 +1,6 @@
 {
   "name": "@depict-ai/ui",
-  "version": "4.10.8",
+  "version": "4.10.9",
   "description": "Base package containing the actual UI of Depict UI along with translations, with a not-simplified API. We recommend using @depict-ai/js-ui or @depict-ai/react-ui instead.",
   "packageManager": "yarn@3.2.2",
   "sass": "styles.scss",
