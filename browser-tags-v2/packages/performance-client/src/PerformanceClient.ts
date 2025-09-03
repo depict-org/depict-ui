@@ -46,9 +46,9 @@ export class PerformanceClient {
 
   constructor(merchant: string, options?: Options) {
     // Make sure we do not construct dpc more than once.
-    if (window.depict?.dpc instanceof PerformanceClient) {
+    if (globalThis?.depict?.dpc instanceof PerformanceClient) {
       dlog("DPC already initialized. Returning existing instance.");
-      return window.depict.dpc;
+      return globalThis?.depict.dpc;
     }
 
     this.merchant = merchant;

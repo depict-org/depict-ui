@@ -114,8 +114,8 @@ const event_handler = (dpc: PerformanceClient, eventName: EventName, eventData: 
  * Creates dpq if it doesn't exist.
  */
 export const setup_dpq = (dpc: PerformanceClient) => {
-  const dpq = (window.dpq ||= create_dpq());
-  const depict = (window.depict ||= {} as DepictObject);
+  const dpq = (globalThis.dpq ||= create_dpq());
+  const depict = (globalThis.depict ||= {} as DepictObject);
   depict.dpq = dpq; // refrencing dpq into the depict object
   depict.eventHistory = dpq.queue; // making this more visible in the depict object
   depict.dpc = dpc;
