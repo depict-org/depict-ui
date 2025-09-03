@@ -1,6 +1,6 @@
 {
   "name": "@depict-ai/portal-components",
-  "version": "2.9.7",
+  "version": "2.9.8",
   "packageManager": "yarn@3.2.2",
   "source": "src/index.ts",
   "main": "dist/main.js",
