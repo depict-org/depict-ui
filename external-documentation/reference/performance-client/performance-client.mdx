@@ -7,10 +7,10 @@ Depict Performance Client (DPC) handles the performance tracking of our products
 
 ## Installing
 
-**Depict Tag (CDN)**  
+**Depict Tag (CDN)**
 If you load Depict with a script tag, DPC will automatically be included.
 
-**NPM Package**  
+**NPM Package**
 DPC is available as a public [npm package](https://www.npmjs.com/package/@depict-ai/dpc). You can install it via `yarn` or `npm`
 
 <CodeGroup>
@@ -25,7 +25,7 @@ yarn add @depict-ai/dpc
 
 </CodeGroup>
 
-**UI package**  
+**UI package**
 If you're using one of our UI packages, DPC is already included.
 
 <CodeGroup>
@@ -143,8 +143,8 @@ dpc.addToCart(productId);
 <Note>
 📘 **External tag managers**
 
-To ensure that `window.dpq` is available when calling it from a different context such as Google Tag Manager, it can be initialized using:  
-`((e,n)=>{e.dpq||((n=e.dpq=function(){n.send_event?n.send_event.apply(n,arguments):n.queue.push(arguments)}).queue=[])})(window);`  
+To ensure that `window.dpq` is available when calling it from a different context such as Google Tag Manager, it can be initialized using:
+`((e,n)=>{e.dpq||((n=e.dpq=function(){n.send_event?n.send_event.apply(n,arguments):n.queue.push(arguments)}).queue=[])})(window);`
 Events added to the queue will be sent once DPC itself is initialized.
 
 </Note>
@@ -177,11 +177,11 @@ product IDs, see the bottom table on the "Tracking status" tab on
 <CodeGroup>
 
 ```typescript dpq
-dpq("setProductId", "[PRODUCT_ID_FOR_CURRENT_PDP]");
+dpq("setProductId", "PRODUCT_ID_FOR_CURRENT_PDP");
 ```
 
 ```typescript DPC instance
-dpc.setProductId("[PRODUCT_ID_FOR_CURRENT_PDP]");
+dpc.setProductId("PRODUCT_ID_FOR_CURRENT_PDP");
 ```
 
 </CodeGroup>
