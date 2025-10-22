@@ -4,6 +4,7 @@
  */
 
 import { Locale } from "./i18n_types";
+import { arabic_category_translation, arabic_search_translation } from "./arabic";
 import { czech_category_translation, czech_search_translation } from "./czech";
 import { danish_category_translation, danish_search_translation } from "./danish";
 import { dutch_category_translation, dutch_search_translation } from "./dutch";
@@ -20,6 +21,8 @@ import { swedish_category_translation, swedish_search_translation } from "./swed
 
 export type { Locale, plp_shared_i18n, search_i18n, category_i18n } from "./i18n_types";
 
+export const ar: Locale = { ...arabic_category_translation, ...arabic_search_translation, backend_locale_: "ar" };
+export const ar_SA: Locale = { ...arabic_category_translation, ...arabic_search_translation, backend_locale_: "ar_SA" };
 export const cz: Locale = { ...czech_category_translation, ...czech_search_translation, backend_locale_: "cz" };
 export const da: Locale = { ...danish_category_translation, ...danish_search_translation, backend_locale_: "da" };
 export const da_DK: Locale = { ...danish_category_translation, ...danish_search_translation, backend_locale_: "da_DK" };
