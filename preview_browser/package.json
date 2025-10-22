@@ -20,9 +20,9 @@
     "typescript": "^4.9.5"
   },
   "dependencies": {
-    "@depict-ai/js-ui": "^4.10.5",
-    "@depict-ai/plp-styling": "^4.6.0",
-    "@depict-ai/ui": "^4.10.7",
+    "@depict-ai/js-ui": "^4.10.8",
+    "@depict-ai/plp-styling": "^4.6.2",
+    "@depict-ai/ui": "^4.10.10",
     "@depict-ai/utilishared": "^2.6.0",
     "@solidjs/meta": "^0.29.2",
     "@solidjs/router": "^0.10.5",
