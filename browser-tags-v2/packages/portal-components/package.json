@@ -108,6 +108,6 @@
     "@depict-ai/ui": "workspace:^",
     "@depict-ai/utilishared": "workspace:^",
     "parcel": "^2.10.3",
-    "solid-js": "^1.9.3"
+    "solid-js": "^1.9.10"
   }
 }

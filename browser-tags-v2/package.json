@@ -185,7 +185,7 @@
     "proxy-polyfill": "latest",
     "resq": "latest",
     "smoothscroll-polyfill": "latest",
-    "solid-js": "^1.9.3",
+    "solid-js": "^1.9.10",
     "string.prototype.endswith": "latest",
     "string.prototype.includes": "latest",
     "string.prototype.replaceall": "latest",

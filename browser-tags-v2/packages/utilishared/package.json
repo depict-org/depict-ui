@@ -154,7 +154,7 @@
     "@babel/runtime": "latest",
     "@babel/runtime-corejs3": "latest",
     "@sentry/browser": "^7.75.1",
-    "solid-js": "^1.9.3"
+    "solid-js": "^1.9.10"
   },
   "type": "module",
   "main": "ES10/index.cjs",

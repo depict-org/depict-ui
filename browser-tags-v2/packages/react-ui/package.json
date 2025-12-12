@@ -139,7 +139,7 @@
     "@depict-ai/plp-styling": "workspace:^",
     "@depict-ai/ui": "workspace:^",
     "@depict-ai/utilishared": "workspace:^",
-    "solid-js": "^1.9.3"
+    "solid-js": "^1.9.10"
   },
   "peerDependencies": {
     "react": ">= 16.14.0",
