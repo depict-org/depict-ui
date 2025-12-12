@@ -1,6 +1,6 @@
 {
   "name": "@depict-ai/utilishared",
-  "version": "2.6.0",
+  "version": "2.6.1",
   "packageManager": "yarn@3.2.2",
   "source": "src/index.ts",
   "types": "ES10/index.d.ts",

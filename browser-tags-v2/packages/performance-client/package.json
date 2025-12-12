@@ -1,6 +1,6 @@
 {
   "name": "@depict-ai/dpc",
-  "version": "2.6.4",
+  "version": "2.6.5",
   "packageManager": "yarn@3.2.2",
   "source": "./src/index.ts",
   "types": "ES10/index.d.ts",
