@@ -3,6 +3,10 @@ title: "Purchase tracking"
 description: "To calculate revenue figures, you need to track purchases. This is done with the `purchase` event."
 ---
 
+<Warning>
+This page does not apply to installs made in 2025 or later of the Depict Shopify apps
+</Warning>
+
 A purchase is an event that tracks when a user has gone through the checkout process and paid for a set of products. The `transaction_id` should be whatever you use to identify the purchase in your system. The `item_id` in the `items` array should be the SKU of the product. The `price` should be the final price of the product, after any taxes, discounts, etc have been applied.
 
 Depict will automatically calculate what percentage of the purchases were made due to clicking on Depict product links, so you should send events for all purchases to Depict. In other words, even purchase events not coming from Depict.

@@ -2,6 +2,10 @@
 title: "Transforming and enriching display data"
 ---
 
+<Warning>
+This page does not apply to installs made in 2025 or later of the Depict Shopify apps
+</Warning>
+
 The keen observer might notice that the displays lack one key ingredient: page urls (URL to the product page).
 
 If you correctly add the display type to the `DepictProvider`, you should also encounter a type error due to this. This happens because the Depict backend omits the page_url for performance reasons.  We need to add it back in. If you need to add additional data to the product data you can also do so in this step. The advantage of doing it in the `DisplayTransformers` compared to the `productCard` is that the former is only ran once per server response, making it more suitable for making other API requests.
