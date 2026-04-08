@@ -1,7 +1,9 @@
 import { ShopifyContainedImage } from "./shopify/ShopifyContainedImage";
 import { generateShopifyImageUrl, ShopifyResponsiveImg } from "./shopify/ResponsiveImg";
 
-const customUrls = (
+export type ImageResizer = (url: string, width: number) => string;
+
+const defaultCustomUrls: ImageResizer = (
   url: string,
   width: number // Apparently don't have to encode url for CF's service
 ) => {
@@ -17,13 +19,16 @@ const customUrls = (
 /**
  * Hacks ShopifyContainedImage work even for non-shopify image urls by forcing the format to be WebP
  */
-export function ModernResponsiveContainedImage(props: Parameters<typeof ShopifyContainedImage>[0]) {
+export function ModernResponsiveContainedImage(
+  props: Parameters<typeof ShopifyContainedImage>[0] & { imageResizer_?: ImageResizer }
+) {
+  const resolvedCustomUrls = props.imageResizer_ ?? defaultCustomUrls;
   return (
     <ShopifyContainedImage
       {...props}
       imgProps={{
         ...props.imgProps,
-        customUrls,
+        customUrls: resolvedCustomUrls,
       }}
     />
   );
@@ -32,6 +37,8 @@ export function ModernResponsiveContainedImage(props: Parameters<typeof ShopifyC
 /**
  * Wrapper around ShopifyResponsiveImg (component that just does an image, without wrapping in div). The wrapper allows ShopifyResponsiveImg to work both with shopify CDN URLs and arbitrary URLs, where the latter will be fed through Depict's cloudflare resizer.
  */
-export function ModernResponsiveImage(props: Parameters<typeof ShopifyResponsiveImg>[0]) {
-  return <ShopifyResponsiveImg {...props} customUrls={customUrls} />;
+export function ModernResponsiveImage(
+  props: Parameters<typeof ShopifyResponsiveImg>[0] & { imageResizer_?: ImageResizer }
+) {
+  return <ShopifyResponsiveImg {...props} customUrls={props.imageResizer_ ?? defaultCustomUrls} />;
 }

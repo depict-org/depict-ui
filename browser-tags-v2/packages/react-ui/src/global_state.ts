@@ -32,6 +32,7 @@ export interface GlobalState {
   provider_is_updating: Signal<boolean>;
   disable_override_listing_id: Signal<boolean | undefined>;
   searchModalComponent_?: typeof SearchModalV2<any, any> | typeof ClassicSearchModal;
+  imageResizer?: (url: string, width: number) => string;
 }
 
 export const globalState: GlobalState = {

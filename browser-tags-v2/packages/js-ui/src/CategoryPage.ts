@@ -42,6 +42,11 @@ export interface CategoryPageConfig<OriginalDisplay extends Display, OutputDispl
    * Function returning content blocks (JSUIContentBlocksByRow). Use contentBlockStore if you want to be able to manipulate the content blocks later on.
    */
   getContentBlocksByRow?: Accessor<JSUIContentBlocksByRow>;
+  /**
+   * Optional function to override the default image resizing CDN for content block images.
+   * Falls back to the `imageResizer` on the `DepictCategoryProvider` if not set here.
+   */
+  imageResizer?: (url: string, width: number) => string;
 }
 
 export function CategoryPage<OriginalDisplay extends Display, OutputDisplay extends ModernDisplay | never>({
@@ -55,6 +60,7 @@ export function CategoryPage<OriginalDisplay extends Display, OutputDisplay exte
   onListingQueryChange,
   getContentBlocksByRow,
   layout,
+  imageResizer,
 }: CategoryPageConfig<OriginalDisplay, OutputDisplay>): HTMLElement {
   // Todo: get rid of wrapper div by making CategoryPage just export one element. Comments can go inside that element.
   const div = document.createElement("div");
@@ -69,6 +75,7 @@ export function CategoryPage<OriginalDisplay extends Display, OutputDisplay exte
       product_card_template: productCard,
       layout,
       on_listing_query_change: onListingQueryChange,
+      imageResizer_: imageResizer ?? categoryProvider.imageResizer,
       get content_blocks_by_row() {
         const value = getContentBlocksByRow?.();
         if (!value) return value;

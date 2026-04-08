@@ -181,6 +181,7 @@ function SolidCategoryPage<OriginalDisplay extends Display, OutputDisplay extend
         get switchToFiltersDrawerBreakpoint_() {
           return props.switchToFiltersDrawerBreakpoint;
         },
+        imageResizer_: globalState.imageResizer,
         product_card_template: (display, info) =>
           render_display_or_block_from_react_template({
             component_props: { display },

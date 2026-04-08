@@ -71,6 +71,7 @@ export class DepictSearchProvider<
       searchPagePath,
       displayTransformers,
       searchModalComponent,
+      imageResizer,
     } = options;
 
     const api = new DepictAPI({
@@ -97,6 +98,7 @@ export class DepictSearchProvider<
       unique_instance_key_for_state: options.uniqueInstanceKeyForState,
       enable_content_search: enableContentSearch,
       searchModalComponent: modalComponentToUse,
+      imageResizer_: imageResizer,
     });
 
     internalSearch.set(this, this.#search);

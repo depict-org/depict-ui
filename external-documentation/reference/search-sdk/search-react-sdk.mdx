@@ -94,6 +94,14 @@ A `<string, string>` map of custom metadata to include in API requests to Depict
     data](/reference/listings-search/display-transformers).
 </ResponseField>
 
+<ResponseField name="imageResizer?" type="(url: string, width: number) => string">
+    Optional function to override the default image resizing CDN. When provided, this function
+    is called with the original image URL and desired width, and should return the resized image URL.
+    By default, Depict uses Cloudflare's image resizer for non-Shopify images, and Shopify's built-in
+    resizer for Shopify CDN images. If you need to handle Shopify CDN URLs specially in your custom
+    function, you can import and use `generateShopifyImageUrl` from `@depict-ai/react-ui`.
+</ResponseField>
+
 The `search` property on the `DepictProvider` wrapper is a configuration object that allows you to modify search parameters on your website. Use the config to tailor your search URL and behavior. The following table shows the `search` object's configuration properties:
 
 <ResponseField name="searchPagePath" type="string" default="undefined">

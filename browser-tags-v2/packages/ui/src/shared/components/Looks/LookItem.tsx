@@ -15,7 +15,7 @@ import {
 } from "solid-js";
 import { ImagePlaceholder } from "../Placeholders/ImagePlaceholder";
 import { aspectRatioOverrideCssVariableName } from "../../../search/components/DefaultInstantCardPlaceholder";
-import { ModernResponsiveContainedImage } from "../ModernResponsiveContainedImage";
+import { ImageResizer, ModernResponsiveContainedImage } from "../ModernResponsiveContainedImage";
 import { TextPlaceholder } from "../Placeholders/TextPlaceholder";
 import { plp_shared_i18n } from "../../../locales";
 import { SolidFormatPrice } from "../../helper_functions/solid_format_price";
@@ -33,6 +33,7 @@ export function LookItem({
   animationDuration_,
   priceFormatting_,
   pseudoRouter_,
+  imageResizer_,
 }: {
   display_: Accessor<ModernDisplay | null | undefined>;
   FavoriteButton_?: (props: { display_: Accessor<ModernDisplay | null | undefined> }) => JSX.Element;
@@ -42,6 +43,7 @@ export function LookItem({
   animationDuration_: number;
   priceFormatting_: Accessor<plp_shared_i18n["price_formatting_"]>;
   pseudoRouter_: PseudoRouter;
+  imageResizer_?: ImageResizer;
 }) {
   const variantToUse = createMemo(() => {
     const display = display_();
@@ -98,6 +100,7 @@ export function LookItem({
               // Need to smooth the aspect ratio because even if it just changes slightly during the transition, the transition will re-start its duration
               autoAdjustAspectRatio={userWantsExpanded()}
               imgProps={{ keyRatioUpdating: true }}
+              imageResizer_={imageResizer_}
             />
           </Show>
         </div>

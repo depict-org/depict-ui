@@ -61,6 +61,7 @@ type GeneralConstructorOptions<InputDisplay extends Display, OutputDisplay exten
   enable_content_search?: boolean;
   unique_instance_key_for_state?: string;
   searchModalComponent: typeof SearchModalV2<InputDisplay, OutputDisplay> | typeof ClassicSearchModal;
+  imageResizer_?: (url: string, width: number) => string;
   // Stuff needed for non-standard customer deployments that we shouldn't actually expose
   disable_scrolling_during_modal?: boolean;
   bottom_distance_under_modal?: Accessor<number | undefined>;
@@ -170,6 +171,7 @@ export class DepictSearch<
     display_transformers,
     api,
     searchModalComponent,
+    imageResizer_,
     // Stuff needed for non-standard customer deployments that we shouldn't actually expose
     disable_scrolling_during_modal = true,
     bottom_distance_under_modal,
@@ -315,6 +317,7 @@ export class DepictSearch<
             } as const,
             i18n_,
             enable_category_suggestions_: enable_category_suggestions,
+            imageResizer_,
             disable_scrolling_: disable_scrolling_during_modal,
             bottom_distance_under_modal_: bottom_distance_under_modal,
           },

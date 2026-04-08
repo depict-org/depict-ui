@@ -102,6 +102,7 @@ export function CategoryPage<T extends Display>({
   showSliderArrow_,
   hideCount0FilterOptions_,
   switchToFiltersDrawerBreakpoint_,
+  imageResizer_,
 }: {
   depict_api_: DepictAPI<T>;
   id_to_query_for_: Accessor<string>;
@@ -135,6 +136,7 @@ export function CategoryPage<T extends Display>({
   showSliderArrow_: Accessor<boolean | undefined>;
   hideCount0FilterOptions_: Accessor<boolean>;
   switchToFiltersDrawerBreakpoint_: Accessor<number | undefined>;
+  imageResizer_?: (url: string, width: number) => string;
 }) {
   let results_for: solid_JSX.Element;
   let only_show_filters_opener_: Accessor<boolean> | undefined;
@@ -234,7 +236,8 @@ export function CategoryPage<T extends Display>({
     plp_meta,
     content_blocks_by_row_,
     router_,
-    () => plp_products_.loading
+    () => plp_products_.loading,
+    imageResizer_
   );
 
   const countOfProductsForUI = useCountOfProductsForUI(plp_products_, all_products_loaded_, currentlyLoadedDisplays);

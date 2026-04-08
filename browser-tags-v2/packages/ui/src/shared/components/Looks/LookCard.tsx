@@ -4,7 +4,7 @@ import { ImagePlaceholder } from "../Placeholders/ImagePlaceholder";
 import { media_query_to_accessor } from "../../helper_functions/media_query_to_accessor";
 import { LooksOverlay } from "./LooksOverlay";
 import { FeaturedInDisplay } from "@depict-ai/types/api/FeaturedInResponseV3";
-import { ModernResponsiveContainedImage } from "../ModernResponsiveContainedImage";
+import { ImageResizer, ModernResponsiveContainedImage } from "../ModernResponsiveContainedImage";
 import { aspectRatioOverrideCssVariableName } from "../../../search/components/DefaultInstantCardPlaceholder";
 import { plp_shared_i18n } from "../../../locales";
 import { PseudoRouter } from "../../helper_functions/pseudo_router";
@@ -22,6 +22,7 @@ export function LookCard({
   animationDuration_,
   priceFormatting_,
   pseudoRouter_,
+  imageResizer_,
 }: {
   display_: Accessor<FeaturedInDisplay | null>;
   FavoriteButton_?: (props: { display_: Accessor<ModernDisplay | null | undefined> }) => JSX.Element;
@@ -30,6 +31,7 @@ export function LookCard({
   expandedLooksSignal_: Signal<Set<symbol>>;
   priceFormatting_: Accessor<plp_shared_i18n["price_formatting_"]>;
   pseudoRouter_: PseudoRouter;
+  imageResizer_?: ImageResizer;
 }) {
   let container: HTMLDivElement;
   const useWantsExpandedSignal_ = createSignal(false);
@@ -122,6 +124,7 @@ export function LookCard({
           src={display_()?.image_urls?.[0] as string}
           aspectRatio={placeholderImageAspectRatio_}
           autoAdjustAspectRatio={true}
+          imageResizer_={imageResizer_}
         />
       </Show>
       <LooksOverlay
@@ -134,6 +137,7 @@ export function LookCard({
         priceFormatting_={priceFormatting_}
         pseudoRouter_={pseudoRouter_}
         containerHeight_={containerHeight_}
+        imageResizer_={imageResizer_}
       />
     </div>
   );

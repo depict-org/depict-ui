@@ -4,7 +4,7 @@ import { useVisibilityState } from "../../shared/helper_functions/useVisibilityS
 import { Accessor, createEffect, createSignal, getOwner, Match, runWithOwner, Show, Switch } from "solid-js";
 import { dlog } from "@depict-ai/utilishared";
 import { Dynamic } from "solid-js/web";
-import { ModernResponsiveImage } from "../../shared/components/ModernResponsiveContainedImage";
+import { ImageResizer, ModernResponsiveImage } from "../../shared/components/ModernResponsiveContainedImage";
 import { makeSizeAccessors } from "../../shared/components/shopify/makeSizeAccessors";
 import { ImagePlaceholder } from "../../shared/components/Placeholders/ImagePlaceholder";
 import { loadHlsPolyfill } from "../helpers/loadHlsPolyfill";
@@ -16,6 +16,7 @@ export function ContentElement({
   setAspectRatioWas_,
   mediaUrl_,
   aspectRatioWhenAloneInRow_,
+  imageResizer_,
 }: {
   link_: null | string;
   type_: "image" | "video" | undefined;
@@ -23,6 +24,7 @@ export function ContentElement({
   router_: PseudoRouter;
   setAspectRatioWas_: (aspectRatio: number) => void;
   aspectRatioWhenAloneInRow_: Accessor<number | undefined>;
+  imageResizer_?: ImageResizer;
 }) {
   let wroteAspectRatioToContainer = false; // Only write this once so we don't get into a aspect ratio changed -> size changed -> image source changed -> aspect ratio slightly changed infinite loop
   const [wrapperSize, setWrapperSize] = createSignal<[Accessor<number>, Accessor<number>] | undefined>();
@@ -70,6 +72,7 @@ export function ContentElement({
                 catchify(() => setAspectRatio(el.naturalWidth / el.naturalHeight))
               )
             }
+            imageResizer_={imageResizer_}
           />
         </Match>
         <Match when={type_ === "video"}>

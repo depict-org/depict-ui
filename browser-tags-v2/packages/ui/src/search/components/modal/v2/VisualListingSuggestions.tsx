@@ -10,6 +10,7 @@ import {
 import { ListingCard } from "./ListingCard";
 import { SlidableItems } from "../../../../shared/components/SlidableItems";
 import { SolidLayoutWithProvidedElement } from "../../../../shared/components/SolidLayout";
+import { ImageResizer } from "../../../../shared/components/ModernResponsiveContainedImage";
 
 /**
  * Shows the listing suggestions (formerly called category suggestions) visually, with lots of images and stuff
@@ -27,6 +28,7 @@ export function VisualListingSuggestions({
   modalLayoutStacked_,
   showPlaceholders_,
   currently_showing_suggestions_: [, set_currently_showing_suggestions],
+  imageResizer_,
 }: {
   listing_suggestions_: Accessor<undefined | ListingSuggestionAfterURLCreator[]>;
   router_: PseudoRouter;
@@ -39,6 +41,7 @@ export function VisualListingSuggestions({
   currently_showing_suggestions_: CurrentlyShowingKeyboardSelectableItems;
   modalLayoutStacked_: Accessor<boolean>;
   showPlaceholders_: Accessor<boolean>;
+  imageResizer_?: ImageResizer;
 }) {
   const listings_by_id = createMemo(() =>
     Object.fromEntries((listing_suggestions_() || []).map(listing => [listing.listing_id, listing]))
@@ -58,6 +61,7 @@ export function VisualListingSuggestions({
             keyboardNavigationGroupIndex_={itemIndex_}
             index_={index}
             selected_index_={selected_index_}
+            imageResizer_={imageResizer_}
           />
         );
       }}
