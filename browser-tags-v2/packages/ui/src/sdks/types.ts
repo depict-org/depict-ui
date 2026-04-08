@@ -41,8 +41,7 @@ export type BaseProviderConfig<
    * Optional function to override the default image resizing CDN. When provided, this function is called
    * with the original image URL and desired width, and should return the resized image URL.
    * By default, Depict uses Cloudflare's image resizer for non-Shopify images, and Shopify's built-in
-   * resizer for Shopify CDN images. If you need to handle Shopify CDN URLs specially in your custom
-   * function, you can import and use `generateShopifyImageUrl` from the same package.
+   * resizer for Shopify CDN images.
    */
   imageResizer?: (url: string, width: number) => string;
 } & (InputDisplay extends ModernDisplay // kudos to chatGPT for typing help
