@@ -81,7 +81,7 @@
     "htmlnano": "2.0.3",
     "@parcel/workers@2.9.3": "patch:@parcel/workers@npm%3A2.9.3#./.yarn/patches/@parcel-workers-npm-2.9.3-b0559c8ccb.patch"
   },
-  "packageManager": "yarn@4.5.3",
+  "packageManager": "yarn@4.13.0",
   "devDependencies": {
     "@babel/cli": "latest",
     "@babel/core": "latest",
