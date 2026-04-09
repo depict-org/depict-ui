@@ -35,7 +35,7 @@ import { set_max_height_based_on_bottom_distance } from "../../../helper_functio
 import { JsxStyle } from "../../../../shared/components/JsxStyle/JsxStyle";
 import { DEPICT_ID } from "../../../../shared/ids";
 import { request_suggestions } from "./request_suggestions";
-import { ModernResponsiveContainedImage } from "../../../../shared/components/ModernResponsiveContainedImage";
+import { ImageResizer, ModernResponsiveContainedImage } from "../../../../shared/components/ModernResponsiveContainedImage";
 import { backIconSymbol, modalVersionSymbol } from "../../../helper_functions/modalVersionSymbol";
 import { BackIconV2 } from "../../../../shared/components/icons/BackIconV2";
 import { autocomplete_keyboard_navigation } from "../../../helper_functions/autocomplete_keyboard_navigation";
@@ -77,6 +77,7 @@ function RawSearchModalV2<InputDisplay extends Display, OutputDisplay extends Mo
   filter_query_param_prefix_,
   setSearchFieldOuterWidth_,
   forceUseDiv_,
+  imageResizer_,
 }: {
   search_field_value_: Signal<string>;
   get_search_query_: Accessor<string>;
@@ -113,6 +114,7 @@ function RawSearchModalV2<InputDisplay extends Display, OutputDisplay extends Mo
   enable_category_suggestions_?: boolean;
   dont_sync_search_field_value_except_on_submit_?: boolean;
   content_search_enabled_: Accessor<boolean>;
+  imageResizer_?: ImageResizer;
 }) {
   let on_enter_in_search_field_function: ((e: KeyboardEvent) => boolean) | undefined;
   let listingSuggestionsDebounceTimeout: ReturnType<typeof setTimeout>;
@@ -359,6 +361,7 @@ function RawSearchModalV2<InputDisplay extends Display, OutputDisplay extends Mo
                   aspectRatio={1}
                   class={props.class_}
                   imgProps={{ alt: "Product image" }}
+                  imageResizer_={imageResizer_}
                 />
               ),
               ...instant_results_options_,
@@ -381,6 +384,7 @@ function RawSearchModalV2<InputDisplay extends Display, OutputDisplay extends Mo
               currently_showing_suggestions_={currently_showing_suggestions_}
               modalLayoutStacked_={modalLayoutStacked_}
               showPlaceholders_={() => !suggestions_response_.latest}
+              imageResizer_={imageResizer_}
             />
           </Show>
         </ListingProvider>

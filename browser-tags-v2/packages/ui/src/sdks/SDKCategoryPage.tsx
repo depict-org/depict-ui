@@ -44,6 +44,7 @@ export function SDKCategoryPage<OriginalDisplay extends Display, OutputDisplay e
   filterModalParent_?: HTMLElement | ShadowRoot; // Needed by style editor in shopify plugin
   showSliderArrow_?: boolean;
   hideCount0FilterOptions_?: boolean; // <- reactive
+  imageResizer_?: (url: string, width: number) => string;
 }) {
   const { depict_category, product_card_template, category_title } = props;
 
@@ -142,6 +143,7 @@ export function SDKCategoryPage<OriginalDisplay extends Display, OutputDisplay e
       sorting_query_param_,
       filter_query_param_prefix_,
       switchToFiltersDrawerBreakpoint_: () => props.switchToFiltersDrawerBreakpoint_,
+      imageResizer_: props.imageResizer_,
     });
   }, "Entire CategoryPage failed");
 }

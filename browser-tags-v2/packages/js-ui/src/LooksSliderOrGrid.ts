@@ -27,6 +27,7 @@ export function LooksSliderOrGrid({
   imagePlaceholderAspectRatio = 0.75,
   displayTransformers,
   class: classValue,
+  imageResizer,
 }: {
   gridSpacing?: SDKGridSpacing;
   columnsAtSize?: SDKColsAtSize;
@@ -65,6 +66,7 @@ export function LooksSliderOrGrid({
    * Price formatting object for formatting the prices in the looks cards.
    */
   priceFormatting: plp_shared_i18n["price_formatting_"];
+  imageResizer?: (url: string, width: number) => string;
 }): HTMLElement {
   const viewMoreButton = gridOptions?.viewMoreButton;
 
@@ -80,6 +82,7 @@ export function LooksSliderOrGrid({
     columnsAtSize_: columnsAtSize ?? defaultColsAtSize,
     productId_: productId,
     class_: classValue,
+    imageResizer_: imageResizer,
     gridOptions_: gridOptions && {
       max_rows: gridOptions.maxRows,
       view_more_button: viewMoreButton && {

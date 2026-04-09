@@ -8,7 +8,7 @@ export {
   setExtraDisplayTransformers,
   getExtraDisplayTransformers,
 } from "./shared/helper_functions/extraDisplayTransformers";
-export { ModernResponsiveImage } from "./shared/components/ModernResponsiveContainedImage";
+export { ModernResponsiveImage, type ImageResizer } from "./shared/components/ModernResponsiveContainedImage";
 export { remap_blocks_to_index } from "./shared/components/PLPResults/create_content_blocks";
 export { useMobileHover } from "./shared/helper_functions/useMobileHover";
 export { useVisibilityState } from "./shared/helper_functions/useVisibilityState";

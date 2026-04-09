@@ -148,6 +148,7 @@ function ActualDepictProvider<
   globalState.enableCategorySuggestions = enableCategorySuggestions;
   globalState.disable_override_listing_id[1](props.category?.disableOverrideListingId);
   globalState.searchModalComponent_ = searchModalComponent;
+  globalState.imageResizer = props.imageResizer;
 
   setup_performance_client(merchant, market, sessionId);
 

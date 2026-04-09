@@ -27,6 +27,7 @@ export function create_search_instance(disposable: boolean, stateKey?: string) {
       searchModalComponent:
         globalState.searchModalComponent_ ||
         ((process.env.NO_SEARCH_MODAL_DEFAULT === "true" ? undefined : SearchModalV2) as typeof SearchModalV2),
+      imageResizer_: globalState.imageResizer,
     });
 
     createComputed(() => {

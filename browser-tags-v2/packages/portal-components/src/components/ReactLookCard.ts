@@ -26,6 +26,7 @@ export function ReactLookCard(react_props: { display_: FeaturedInDisplay | null 
               places_after_comma_: 0,
             }),
             pseudoRouter_: pseudoRouter,
+            imageResizer_: undefined,
           });
         },
       }),

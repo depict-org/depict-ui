@@ -6,6 +6,7 @@ import { isAffectedByChromeBug326498383 } from "../../helper_functions/IsAffecte
 import { plp_shared_i18n } from "../../../locales";
 import { PseudoRouter } from "../../helper_functions/pseudo_router";
 import { useMobileHover } from "../../helper_functions/useMobileHover";
+import { ImageResizer } from "../ModernResponsiveContainedImage";
 
 /**
  * The overlay on a look card showcasing the individual items that make up the look
@@ -20,6 +21,7 @@ export function LooksOverlay({
   priceFormatting_,
   pseudoRouter_,
   containerHeight_,
+  imageResizer_,
 }: {
   displays_: Accessor<ModernDisplay[] | undefined>;
   FavoriteButton_?: (props: { display_: Accessor<ModernDisplay | null | undefined> }) => JSX.Element;
@@ -30,6 +32,7 @@ export function LooksOverlay({
   supportsHover_: Accessor<boolean>;
   priceFormatting_: Accessor<plp_shared_i18n["price_formatting_"]>;
   pseudoRouter_: PseudoRouter;
+  imageResizer_?: ImageResizer;
 }) {
   let isAffectedByChromeBug = false;
   // If the user requests the drawer to be expanded or not
@@ -100,6 +103,7 @@ export function LooksOverlay({
                     userWantsExpandedSignal_={userWantsExpandedSignal_}
                     textFadeInAnimationRunning_={textFadeInAnimationRunning}
                     priceFormatting_={priceFormatting_}
+                    imageResizer_={imageResizer_}
                     outerRef_={el =>
                       createEffect(() => {
                         if (index !== 0) return;

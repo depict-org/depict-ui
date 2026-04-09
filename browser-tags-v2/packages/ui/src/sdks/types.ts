@@ -37,6 +37,13 @@ export type BaseProviderConfig<
    * We recommend to just use an incrementing number for this, e.g. "1", "2", "3", ...
    */
   uniqueInstanceKeyForState?: string;
+  /**
+   * Optional function to override the default image resizing CDN. When provided, this function is called
+   * with the original image URL and desired width, and should return the resized image URL.
+   * By default, Depict uses Cloudflare's image resizer for non-Shopify images, and Shopify's built-in
+   * resizer for Shopify CDN images.
+   */
+  imageResizer?: (url: string, width: number) => string;
 } & (InputDisplay extends ModernDisplay // kudos to chatGPT for typing help
   ? "page_url" extends keyof InputDisplay["variant_displays"][number]
     ? {

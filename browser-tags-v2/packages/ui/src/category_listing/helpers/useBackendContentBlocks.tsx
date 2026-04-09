@@ -4,6 +4,7 @@ import { ContentBlock as BackendContentBlock } from "@depict-ai/types/api/GetLis
 import { ContentBlock, ContentBlocksByRow } from "../../shared/components/PLPResults/create_content_blocks";
 import { PseudoRouter } from "../../shared/helper_functions/pseudo_router";
 import { GetListingResponseAfterDisplayTransformer } from "../types";
+import { ImageResizer } from "../../shared/components/ModernResponsiveContainedImage";
 
 export type ContentBlockHistoryState = { blocks: BackendContentBlock[]; aspectRatios: Record<string, number> };
 
@@ -12,7 +13,8 @@ export function useBackendContentBlocks(
   plp_meta: Resource<(GetListingResponseAfterDisplayTransformer & { failed?: true | undefined }) | undefined>,
   content_blocks_by_row_: Accessor<ContentBlocksByRow | undefined>,
   router_: PseudoRouter,
-  products_request_loading_: Accessor<boolean>
+  products_request_loading_: Accessor<boolean>,
+  imageResizer_?: ImageResizer,
 ) {
   let hasSeenContentBlock = false;
   const [historyContentBlocks, setHistoryContentBlocks] = history_content_blocks_;
@@ -67,6 +69,7 @@ export function useBackendContentBlocks(
                 aspectRatios: { ...prev.aspectRatios, [componentCacheKey]: Math.round(aspectRatio * 100) / 100 },
               }))
             }
+            imageResizer_={imageResizer_}
           />
         );
         contentComponents.set(componentCacheKey, component);

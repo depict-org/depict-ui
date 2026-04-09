@@ -11,7 +11,7 @@ import {
 } from "../../../helper_functions/modal_keyboard_navigation_helpers";
 import { BreadCrumbs } from "../../../../category_listing/components/BreadCrumbs";
 import { ListingProvider } from "../../../../shared/helper_functions/ListingContext";
-import { ModernResponsiveContainedImage } from "../../../../shared/components/ModernResponsiveContainedImage";
+import { ImageResizer, ModernResponsiveContainedImage } from "../../../../shared/components/ModernResponsiveContainedImage";
 import { ArrowRightIcon } from "../../../../shared/components/icons/ArrowRightIcon";
 import { TextPlaceholder } from "../../../../shared/components/Placeholders/TextPlaceholder";
 
@@ -32,6 +32,7 @@ export function ListingCard({
   keyboardNavigationGroupIndex_,
   index_,
   selected_index_: [read_selected_index_, write_selected_index_],
+  imageResizer_,
 }: {
   listing_: Accessor<ListingSuggestionAfterURLCreator | undefined>;
   router_: PseudoRouter;
@@ -42,6 +43,7 @@ export function ListingCard({
   keyboardNavigationGroupIndex_: Accessor<number>;
   index_: Accessor<number>;
   selected_index_: SelectedIndexType;
+  imageResizer_?: ImageResizer;
 }) {
   const href = createMemo(() => listing_()?.page_url); // <- could be made reactive getter created in displayTransformers, read it in memo here since it might create computations (for example in the preview-brower), and there's no owner in the onClick handler
   const LinkToListing = (props: Omit<JSX.AnchorHTMLAttributes<HTMLAnchorElement>, "href" | "onClick">) => (
@@ -96,7 +98,7 @@ export function ListingCard({
       <LinkToListing class="image-part" style={`--image-count: ${image_urls()?.length ?? 0}`} tabIndex={-1}>
         {/* Don't make the first link keyboard selectable with tab, it works on the second one and we show an outline around the whole card when selecting the second one */}
         <div class="images-wrapper">
-          <ListingSuggestionCollage image_urls_={image_urls} />
+          <ListingSuggestionCollage image_urls_={image_urls} imageResizer_={imageResizer_} />
         </div>
       </LinkToListing>
       <Show when={crumbData()?.length !== 0}>
@@ -116,7 +118,13 @@ export function ListingCard({
   );
 }
 
-export function ListingSuggestionCollage({ image_urls_ }: { image_urls_: Accessor<string[] | undefined> }) {
+export function ListingSuggestionCollage({
+  image_urls_,
+  imageResizer_,
+}: {
+  image_urls_: Accessor<string[] | undefined>;
+  imageResizer_?: ImageResizer;
+}) {
   return (
     <Show when={image_urls_()?.length} fallback={<EmptyImage />}>
       <ListingProvider>
@@ -126,6 +134,7 @@ export function ListingSuggestionCollage({ image_urls_ }: { image_urls_: Accesso
               src={url}
               aspectRatio={aspectRatioWidthComponent / image_urls_()!.length / aspectRatioHeightComponent}
               imgProps={{ style: "object-fit: cover;" }}
+              imageResizer_={imageResizer_}
             />
           )}
         </For>

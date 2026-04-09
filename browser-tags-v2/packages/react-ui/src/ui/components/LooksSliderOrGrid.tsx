@@ -100,5 +100,8 @@ export function SolidLooksWrapper(props: {
     get displayTransformers_() {
       return globalState.api?.display_transformers;
     },
+    get imageResizer_() {
+      return globalState.imageResizer;
+    },
   });
 }

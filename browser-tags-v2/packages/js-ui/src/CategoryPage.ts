@@ -69,6 +69,7 @@ export function CategoryPage<OriginalDisplay extends Display, OutputDisplay exte
       product_card_template: productCard,
       layout,
       on_listing_query_change: onListingQueryChange,
+      imageResizer_: categoryProvider.imageResizer,
       get content_blocks_by_row() {
         const value = getContentBlocksByRow?.();
         if (!value) return value;

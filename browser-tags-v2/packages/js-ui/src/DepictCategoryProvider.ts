@@ -35,6 +35,7 @@ export class DepictCategoryProvider<
 > {
   #category: DepictCategory<OriginalDisplay, OutputDisplay>;
   #listing_query_state_key: string;
+  readonly imageResizer?: (url: string, width: number) => string;
 
   get listingQuery(): ListingQuery {
     return this.#category.listing_query;
@@ -96,6 +97,8 @@ export class DepictCategoryProvider<
     if (typeof disableOverrideListingId === "boolean") {
       this.#category.disable_override_listing_id = disableOverrideListingId;
     }
+
+    this.imageResizer = options.imageResizer;
 
     internalCategory.set(this, this.#category);
 

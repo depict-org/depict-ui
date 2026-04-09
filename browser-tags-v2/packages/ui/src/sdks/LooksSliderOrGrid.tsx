@@ -61,6 +61,7 @@ export function SDKLooksSliderOrGrid(props: {
   };
   onNavigation_?: OnNavigation; // <- reactive
   priceFormatting_: plp_shared_i18n["price_formatting_"]; // <- reactive
+  imageResizer_?: (url: string, width: number) => string;
 }): HTMLDivElement {
   return run_in_root_or_auto_cleanup(() => {
     expandedLooksSignal_ ||= createSignal(new Set<symbol>(), { equals: false });
@@ -114,6 +115,7 @@ export function SDKLooksSliderOrGrid(props: {
           expandedLooksSignal_,
           priceFormatting_: () => props.priceFormatting_,
           pseudoRouter_: pseudoRouter,
+          imageResizer_: props.imageResizer_,
         }),
       recommendations_resource_: looksResource,
       title_: () => props.title_,
