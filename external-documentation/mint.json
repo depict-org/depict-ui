@@ -265,6 +265,12 @@
       ]
     },
     {
+      "group": "Security",
+      "pages": [
+        "reference/security"
+      ]
+    },
+    {
       "group": "Shopify app",
       "pages": [
         "reference/shopify-app/product-card-rendering"

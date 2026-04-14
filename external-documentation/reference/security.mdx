@@ -1,0 +1,63 @@
+---
+title: "Security Policy"
+description: "Vulnerability reporting, remediation timelines, and security contact information for Depict."
+---
+
+## Security contact
+
+To report a security vulnerability, email [security-compliance@depict.ai](mailto:security-compliance@depict.ai).
+
+Include as much of the following as possible:
+
+- Description of the vulnerability
+- Steps to reproduce
+- Affected components or endpoints
+- Potential impact
+- Any proof-of-concept code or screenshots
+
+We will acknowledge your report within **2 business days** and provide an initial assessment within **5 business days**.
+
+## Scope
+
+Reports are in scope if they affect:
+
+- The Depict platform and its APIs (`api.depict.ai`)
+- Depict merchant-facing applications (portal, Shopify app)
+- Depict client-side SDKs and UI components
+
+Out of scope:
+
+- Third-party services not operated by Depict
+- Vulnerabilities requiring physical access to a user's device
+- Social engineering attacks against Depict employees or customers
+- Denial-of-service attacks
+
+## Remediation timelines
+
+When a vulnerability is confirmed, we commit to remediating it within the timelines below based on its [CVSS v3.1](https://www.first.org/cvss/calculator/3.1) severity score.
+
+Remediation means resolving the vulnerability through one of:
+
+- **Patching** the affected component
+- **Mitigating** the risk with a compensating control
+- **Accepting the risk** with a documented justification (e.g. the vulnerable code path is unreachable in our deployment)
+
+| Severity | CVSS score | Remediation target |
+|----------|------------|--------------------|
+| Critical | 9.0 -- 10.0  | 48 hours           |
+| High     | 7.0 -- 8.9   | 7 days             |
+| Medium   | 4.0 -- 6.9   | 30 days            |
+| Low      | 0.1 -- 3.9   | 90 days            |
+
+## Safe harbor
+
+Depict will not take legal action against security researchers who:
+
+- Act in good faith to avoid privacy violations, data destruction, and service disruption
+- Only interact with accounts they own or with explicit permission of the account holder
+- Report vulnerabilities promptly and provide reasonable time for remediation before any disclosure
+- Do not exploit a vulnerability beyond what is necessary to demonstrate it
+
+## Disclosure
+
+We practice coordinated disclosure. After a vulnerability has been remediated, we will work with the reporter to agree on a disclosure timeline. We ask that reporters do not publicly disclose vulnerabilities before remediation is complete.
