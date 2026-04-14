@@ -54,7 +54,7 @@
   "navigation": [
     {
       "group": "Home",
-      "pages": ["home/homepage", "home/depict-ui-intro"]
+      "pages": ["home/homepage", "home/depict-ui-intro", "home/security"]
     },
     {
       "group": "Overview",
