@@ -54,7 +54,7 @@
   "navigation": [
     {
       "group": "Home",
-      "pages": ["home/homepage", "home/depict-ui-intro", "home/security"]
+      "pages": ["home/homepage", "home/depict-ui-intro"]
     },
     {
       "group": "Overview",
@@ -262,6 +262,12 @@
       "pages": [
         "reference/glossary/naming-discrepancies",
         "reference/glossary/types-of-listing-pages"
+      ]
+    },
+    {
+      "group": "Security",
+      "pages": [
+        "reference/security"
       ]
     },
     {
