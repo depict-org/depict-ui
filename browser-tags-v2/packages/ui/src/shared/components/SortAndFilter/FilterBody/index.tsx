@@ -1,6 +1,6 @@
 /** @jsxImportSource solid-js */
 import { Accessor, createMemo, createSignal, For, Index, JSX as solid_JSX, Show, Signal } from "solid-js";
-import { catchify } from "@depict-ai/utilishared";
+import { catchify, make_random_classname } from "@depict-ai/utilishared";
 import { SearchFilter } from "@depict-ai/types/api/SearchResponse";
 import filter_components from "../filter_components";
 import { ExpandingDetails } from "../../ExpandingDetails";
@@ -135,6 +135,7 @@ function ActualFilterBody(props: FilterBodyProps) {
                 Accessor<number | undefined> | undefined
               >();
               const details_element_width_ = createMemo(() => get_details_width?.()?.());
+              const title_id = make_random_classname();
 
               return (
                 <ExpandingDetails
@@ -153,7 +154,7 @@ function ActualFilterBody(props: FilterBodyProps) {
                       <summary class="filter-group-summary">
                         <div class="summary">
                           {/* workaround https://github.com/philipwalton/flexbugs#flexbug-9 */}
-                          <span>{section_}</span>
+                          <span id={title_id}>{section_}</span>
                           <div class="selected-w-sign">
                             <Show when={a_filter_is_selected()}>
                               <SelectedSummary
@@ -169,7 +170,7 @@ function ActualFilterBody(props: FilterBodyProps) {
                   }
                 >
                   <div class="filter-collapsible-body">
-                    <div class="filter-part">
+                    <fieldset class="filter-part" aria-labelledby={title_id}>
                       <SearchThisFilterGroup_ />
                       <Index each={searched_filter_array_()}>
                         {filter => (
@@ -194,7 +195,7 @@ function ActualFilterBody(props: FilterBodyProps) {
                           </SentryErrorBoundary>
                         )}
                       </Index>
-                    </div>
+                    </fieldset>
                     <Show
                       when={createMemo(() => {
                         const signal_value = view_more_button_below_group[0]();
@@ -237,7 +238,7 @@ function ActualFilterBody(props: FilterBodyProps) {
       }}
     </For>,
     <Show when={untogglable_filters()?.length}>
-      <div class="ungrouped">
+      <fieldset class="ungrouped">
         <Index each={untogglable_filters()}>
           {filter => {
             const view_more_button_below_group = createSignal<solid_JSX.Element>();
@@ -262,7 +263,7 @@ function ActualFilterBody(props: FilterBodyProps) {
             );
           }}
         </Index>
-      </div>
+      </fieldset>
     </Show>,
     <Show when={!props.are_in_modal_ /* modal has its own clear button */ && props.selected_filters_[0]()?.length}>
       <button

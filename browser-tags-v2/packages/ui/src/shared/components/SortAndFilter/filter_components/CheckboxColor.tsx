@@ -99,7 +99,13 @@ export function CheckboxColor({
       return !!data?.some(item => to_lower_case_if_possible(item) === value);
     });
     const value = createMemo(() => checkbox().value_);
-    const label_text = createMemo(() => checkbox().name_ || value() + "");
+    const label_text = createMemo(() => {
+      const name = checkbox().name_;
+      if (name) return name;
+      const value_string = value() + "";
+      if (backendFilterV2()) return value_string;
+      return value_string.split(";")[0] || value_string;
+    });
     const count = createMemo(() => checkbox().count_);
     const colorNameDatasetValue = createMemo(() => {
       if (backendFilterV2()) {

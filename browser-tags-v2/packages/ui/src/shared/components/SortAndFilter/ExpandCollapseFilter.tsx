@@ -15,6 +15,7 @@ export function ExpandCollapseFilter({
     <button
       type="button"
       class="expand-filter"
+      aria-expanded={get_show_extras()}
       classList={{ expanded: get_show_extras() }}
       onClick={catchify(() => set_show_extras(p => !p))}
     >

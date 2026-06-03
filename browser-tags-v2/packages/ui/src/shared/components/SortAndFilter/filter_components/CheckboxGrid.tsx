@@ -97,6 +97,9 @@ export const CheckboxGrid = ({
               return (
                 <button
                   {...attributes}
+                  type="button"
+                  aria-pressed={is_selected()}
+                  aria-label={value().count_ != undefined ? `${label()}, ${value().count_}` : label()}
                   disabled={count_zero() && !is_selected()}
                   classList={{ minor: !is_selected(), major: is_selected(), "major-minor-transition": true }}
                   onClick={catchify(() => {
