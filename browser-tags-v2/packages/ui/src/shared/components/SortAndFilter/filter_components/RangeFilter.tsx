@@ -12,9 +12,17 @@ import {
   untrack,
 } from "solid-js";
 import { RangeFilterMeta, SearchFilter } from "@depict-ai/types/api/SearchResponse";
-import { catchify } from "@depict-ai/utilishared";
+import { catchify, standard_price_format } from "@depict-ai/utilishared";
 import { SolidFormatPrice } from "../../../helper_functions/solid_format_price";
 import { solid_plp_shared_i18n } from "../../../../locales/i18n_types";
+
+type PriceFormatting = {
+  pre_: string;
+  post_: string;
+  decimal_places_delimiter_: string;
+  thousands_delimiter_: string;
+  places_after_comma_: number | "auto";
+};
 
 /**
  * Renders a filter that is a range slider, commonly used for the price filter
@@ -116,13 +124,7 @@ function RangeSelector({
   max_: Accessor<number>;
   current_range_: Signal<[number, number]>;
   i18n_: solid_plp_shared_i18n;
-  price_formatting_: Accessor<{
-    pre_: string;
-    post_: string;
-    decimal_places_delimiter_: string;
-    thousands_delimiter_: string;
-    places_after_comma_: number | "auto";
-  }>;
+  price_formatting_: Accessor<PriceFormatting>;
 }) {
   let price_input_1: HTMLInputElement;
   let price_input_2: HTMLInputElement;
@@ -152,7 +154,9 @@ function RangeSelector({
             ref={price_input_1!}
           />
         </div>
-        <div class="separator">-</div>
+        <div class="separator" aria-hidden="true">
+          -
+        </div>
         <div class="field">
           <input
             disabled={should_be_disabled_()}
@@ -177,6 +181,7 @@ function RangeSelector({
         current_range_={current_range_}
         i18n_={i18n_}
         should_be_disabled_={should_be_disabled_}
+        priceFormatting_={price_formatting_}
       />
       <div class="value-text">
         <span class="min">
@@ -200,12 +205,14 @@ function ExponentialSlider({
   i18n_,
   max_,
   should_be_disabled_,
+  priceFormatting_,
 }: {
   min_: Accessor<number>;
   i18n_: solid_plp_shared_i18n;
   max_: Accessor<number>;
   current_range_: Signal<[number, number]>;
   should_be_disabled_: Accessor<boolean>;
+  priceFormatting_: Accessor<PriceFormatting>;
 }) {
   // inspired by https://observablehq.com/@mbostock/nonlinear-slider
   const transform_linear_to_nonlinear = ([smaller, larger]: [number, number]) =>
@@ -250,6 +257,7 @@ function ExponentialSlider({
     offset_value_calculator_,
     i18n_,
     should_be_disabled_,
+    priceFormatting_,
   });
 }
 
@@ -260,6 +268,7 @@ function LinearSlider({
   offset_value_calculator_,
   i18n_,
   should_be_disabled_,
+  priceFormatting_,
 }: {
   i18n_: solid_plp_shared_i18n;
   min_: Accessor<number>;
@@ -267,12 +276,26 @@ function LinearSlider({
   current_range_: Signal<[number, number]>;
   offset_value_calculator_: (value: number, how_many: number) => number;
   should_be_disabled_: Accessor<boolean>;
+  priceFormatting_: Accessor<PriceFormatting>;
 }) {
   let range_input_1: HTMLInputElement;
   let range_input_2: HTMLInputElement;
   let clickable_slider: HTMLDivElement;
 
   const [get_current_range, set_current_range] = current_range_;
+  const formatRealPrice = (value: number) => {
+    const priceFormatting = priceFormatting_();
+    return (
+      priceFormatting.pre_ +
+      standard_price_format(
+        value,
+        priceFormatting.places_after_comma_,
+        priceFormatting.decimal_places_delimiter_,
+        priceFormatting.thousands_delimiter_
+      ) +
+      priceFormatting.post_
+    );
+  };
 
   const progress_styling = createMemo(() => {
     const min = min_();
@@ -329,6 +352,7 @@ function LinearSlider({
           disabled={should_be_disabled_()}
           type="range"
           aria-label={i18n_.range_filter_low_point_aria_label_()}
+          aria-valuetext={formatRealPrice(get_current_range()[0])}
           min={min_()}
           max={max_()}
           value={createMemo(
@@ -352,6 +376,7 @@ function LinearSlider({
         <input
           disabled={should_be_disabled_()}
           aria-label={i18n_.range_filter_high_point_aria_label_()}
+          aria-valuetext={formatRealPrice(get_current_range()[1])}
           type="range"
           min={min_()}
           max={max_()}

@@ -184,7 +184,7 @@
       }
 
       .count {
-        color: variables.get-text-icon-color("subtle", "default");
+        color: variables.get-text-icon-color("neutral", "default");
         font-weight: variables.get-font-weight(400);
       }
 
@@ -375,6 +375,9 @@
         }
 
         .filter-part {
+          border: 0;
+          margin: 0;
+          min-inline-size: 0;
           padding: 15px 10px 20px 10px;
           display: flex;
           flex-direction: column;
@@ -584,7 +587,7 @@
               outline: none;
               text-align: center;
               -moz-appearance: textfield;
-              color: variables.get-text-icon-color("subtle", "default");
+              color: variables.get-text-icon-color("neutral", "default");
 
               &:focus-visible {
                 background: variables.get-background-color("subtle", "hover");
@@ -653,6 +656,7 @@
               height: $thumb_size;
               width: $thumb_size;
               border-radius: 50%;
+              border: 2px solid variables.get-background-color("base", "default");
               background: variables.get-background-color("inverse", "default");
               @include supports-hover.supports-hover() {
                 &:hover {
@@ -661,6 +665,7 @@
               }
               pointer-events: auto;
               -webkit-appearance: none;
+              box-sizing: border-box;
               box-shadow: 0 0 6px rgba(0, 0, 0, 0.05);
             }
 
@@ -669,7 +674,7 @@
               cursor: pointer;
               height: $thumb_size;
               width: $thumb_size;
-              border: none;
+              border: 2px solid variables.get-background-color("base", "default");
               border-radius: 50%;
               background: variables.get-background-color("inverse", "default");
               @include supports-hover.supports-hover() {
@@ -679,16 +684,23 @@
               }
               pointer-events: auto;
               -moz-appearance: none;
+              box-sizing: border-box;
               box-shadow: 0 0 6px rgba(0, 0, 0, 0.05);
             }
 
             &:focus-visible {
               &::-webkit-slider-thumb {
                 background: variables.get-background-color("inverse", "hover");
+                box-shadow:
+                  0 0 0 2px variables.get-background-color("base", "default"),
+                  0 0 0 4px variables.get-border-color("base", "default");
               }
 
               &::-moz-range-thumb {
                 background: variables.get-background-color("inverse", "hover");
+                box-shadow:
+                  0 0 0 2px variables.get-background-color("base", "default"),
+                  0 0 0 4px variables.get-border-color("base", "default");
               }
             }
           }
@@ -754,10 +766,10 @@
         flex-wrap: wrap;
 
         .minor {
-          border: 1px solid variables.get-border-color("subtle", "default");
+          border: 1px solid variables.get-border-color("neutral", "hover");
           color: variables.get-text-icon-color("neutral", "default"); // same as input-row text
           .count {
-            color: variables.get-text-icon-color("subtle", "default");
+            color: variables.get-text-icon-color("neutral", "default");
           }
         }
 
