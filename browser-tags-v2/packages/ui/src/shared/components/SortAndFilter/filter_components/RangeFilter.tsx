@@ -283,12 +283,12 @@ function LinearSlider({
   let clickable_slider: HTMLDivElement;
 
   const [get_current_range, set_current_range] = current_range_;
-  const formatRealPrice = (sqrtValue: number) => {
+  const formatRealPrice = (value: number) => {
     const priceFormatting = priceFormatting_();
     return (
       priceFormatting.pre_ +
       standard_price_format(
-        sqrtValue * sqrtValue,
+        value,
         priceFormatting.places_after_comma_,
         priceFormatting.decimal_places_delimiter_,
         priceFormatting.thousands_delimiter_
