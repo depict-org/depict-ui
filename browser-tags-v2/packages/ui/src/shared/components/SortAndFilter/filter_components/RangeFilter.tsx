@@ -181,7 +181,7 @@ function RangeSelector({
         current_range_={current_range_}
         i18n_={i18n_}
         should_be_disabled_={should_be_disabled_}
-        price_formatting_={price_formatting_}
+        priceFormatting_={price_formatting_}
       />
       <div class="value-text">
         <span class="min">
@@ -205,14 +205,14 @@ function ExponentialSlider({
   i18n_,
   max_,
   should_be_disabled_,
-  price_formatting_,
+  priceFormatting_,
 }: {
   min_: Accessor<number>;
   i18n_: solid_plp_shared_i18n;
   max_: Accessor<number>;
   current_range_: Signal<[number, number]>;
   should_be_disabled_: Accessor<boolean>;
-  price_formatting_: Accessor<PriceFormatting>;
+  priceFormatting_: Accessor<PriceFormatting>;
 }) {
   // inspired by https://observablehq.com/@mbostock/nonlinear-slider
   const transform_linear_to_nonlinear = ([smaller, larger]: [number, number]) =>
@@ -257,7 +257,7 @@ function ExponentialSlider({
     offset_value_calculator_,
     i18n_,
     should_be_disabled_,
-    price_formatting_,
+    priceFormatting_,
   });
 }
 
@@ -268,7 +268,7 @@ function LinearSlider({
   offset_value_calculator_,
   i18n_,
   should_be_disabled_,
-  price_formatting_,
+  priceFormatting_,
 }: {
   i18n_: solid_plp_shared_i18n;
   min_: Accessor<number>;
@@ -276,24 +276,24 @@ function LinearSlider({
   current_range_: Signal<[number, number]>;
   offset_value_calculator_: (value: number, how_many: number) => number;
   should_be_disabled_: Accessor<boolean>;
-  price_formatting_: Accessor<PriceFormatting>;
+  priceFormatting_: Accessor<PriceFormatting>;
 }) {
   let range_input_1: HTMLInputElement;
   let range_input_2: HTMLInputElement;
   let clickable_slider: HTMLDivElement;
 
   const [get_current_range, set_current_range] = current_range_;
-  const format_real_price = (sqrt_value: number) => {
-    const price_formatting = price_formatting_();
+  const formatRealPrice = (sqrtValue: number) => {
+    const priceFormatting = priceFormatting_();
     return (
-      price_formatting.pre_ +
+      priceFormatting.pre_ +
       standard_price_format(
-        Math.round(sqrt_value * sqrt_value),
-        price_formatting.places_after_comma_,
-        price_formatting.decimal_places_delimiter_,
-        price_formatting.thousands_delimiter_
+        sqrtValue * sqrtValue,
+        priceFormatting.places_after_comma_,
+        priceFormatting.decimal_places_delimiter_,
+        priceFormatting.thousands_delimiter_
       ) +
-      price_formatting.post_
+      priceFormatting.post_
     );
   };
 
@@ -352,7 +352,7 @@ function LinearSlider({
           disabled={should_be_disabled_()}
           type="range"
           aria-label={i18n_.range_filter_low_point_aria_label_()}
-          aria-valuetext={format_real_price(get_current_range()[0])}
+          aria-valuetext={formatRealPrice(get_current_range()[0])}
           min={min_()}
           max={max_()}
           value={createMemo(
@@ -376,7 +376,7 @@ function LinearSlider({
         <input
           disabled={should_be_disabled_()}
           aria-label={i18n_.range_filter_high_point_aria_label_()}
-          aria-valuetext={format_real_price(get_current_range()[1])}
+          aria-valuetext={formatRealPrice(get_current_range()[1])}
           type="range"
           min={min_()}
           max={max_()}

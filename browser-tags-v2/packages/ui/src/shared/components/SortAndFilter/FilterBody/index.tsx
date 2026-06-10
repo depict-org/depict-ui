@@ -238,7 +238,7 @@ function ActualFilterBody(props: FilterBodyProps) {
       }}
     </For>,
     <Show when={untogglable_filters()?.length}>
-      <fieldset class="ungrouped">
+      <div class="ungrouped">
         <Index each={untogglable_filters()}>
           {filter => {
             const view_more_button_below_group = createSignal<solid_JSX.Element>();
@@ -263,7 +263,7 @@ function ActualFilterBody(props: FilterBodyProps) {
             );
           }}
         </Index>
-      </fieldset>
+      </div>
     </Show>,
     <Show when={!props.are_in_modal_ /* modal has its own clear button */ && props.selected_filters_[0]()?.length}>
       <button

@@ -104,6 +104,7 @@ export function CheckboxColor({
       if (name) return name;
       const value_string = value() + "";
       if (backendFilterV2()) return value_string;
+      // Legacy values are "Name;#hex" — only use the name so screen readers don't announce the hex code
       return value_string.split(";")[0] || value_string;
     });
     const count = createMemo(() => checkbox().count_);
