@@ -129,8 +129,11 @@ export function SortAndFilter({
     let current_panel_toggle_button: HTMLButtonElement | undefined;
     const focus_panel_when_in_dom = (panel: HTMLElement) =>
       catchify(async () => {
-        await observer.wait_for_element(panel);
-        panel.focus();
+        // Bounded wait: if the panel never lands in the DOM (e.g. it's superseded by a rapid re-render before
+        // insertion), the timeout lets this promise resolve instead of keeping `panel` - and the observer
+        // listener it registers - referenced forever.
+        await observer.wait_for_element(panel, 4000);
+        if (panel.isConnected) panel.focus();
       })();
     const register_desktop_panel = (
       el: HTMLElement,
@@ -205,7 +208,7 @@ export function SortAndFilter({
     // `<section>` + `aria-label` so the panel announces itself ("Filters"/"Sort") when we move focus to it; the bare
     // tabindex=-1 container would otherwise give screen readers nothing to read on focus. A semantic <section> avoids
     // an ARIA role and the UA styling pitfalls of <fieldset>; the existing CSS targets the `.filters`/`.sorting` class.
-    const filters_panel = (should_focus: boolean) => (
+    const FiltersPanel = (should_focus: boolean) => (
       <Show when={!hide_filters()}>
         <section
           class="filters"
@@ -219,7 +222,7 @@ export function SortAndFilter({
         </section>
       </Show>
     );
-    const sorting_panel = (should_focus: boolean) =>
+    const SortingPanel = (should_focus: boolean) =>
       (
         <section
           class="sorting"
@@ -258,9 +261,9 @@ export function SortAndFilter({
       } else {
         close_modal_?.();
         if (filters_open()) {
-          set_extra_els_in_results_container_(() => filters_panel(should_focus_panel));
+          set_extra_els_in_results_container_(() => FiltersPanel(should_focus_panel));
         } else {
-          set_extra_els_in_results_container_(sorting_panel(should_focus_panel));
+          set_extra_els_in_results_container_(SortingPanel(should_focus_panel));
         }
       }
     });
