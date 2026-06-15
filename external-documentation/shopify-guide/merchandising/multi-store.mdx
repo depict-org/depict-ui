@@ -1,0 +1,62 @@
+---
+title: "Multi-store"
+description: "Merchandise once on your main store and replicate it across your connected Shopify stores"
+---
+
+Multi-store lets you run several Shopify stores and manage their Depict merchandising from a single place. You do the work once on your **main store** — set your sorting, pin products, add content cards — and Depict mirrors those actions onto every **connected store**. No redoing the same job on each store.
+
+<Note>Multi-store is available on the **Pro** and **Custom** plans.</Note>
+
+## The short version
+
+You nominate one store as your main, then connect your other Shopify stores to it using an activation code. Once connected, the stores form a group. Collections that exist on more than one store get **linked**, and the merchandising you do on the source store of a linked collection is replicated to the others automatically.
+
+## What it does
+
+- **Replicates your merchandising.** Sort order, pinned products, and content cards you set on the source store of a linked collection are copied to the other stores in the group.
+- **Links collections across stores by handle.** A collection counts as "the same" collection across stores when it shares the same collection handle. Those matching collections are grouped together so they can be merchandised as one.
+- **Matches products across stores by SKU.** When merchandising is replicated, Depict figures out which product on Store B corresponds to the one you pinned on Store A by matching SKUs — so a pin or a product card lands on the right product even though each store has its own product IDs.
+- **Keeps each store's catalog separate.** Every store still connects to its own Shopify and ingests its own products. Multi-store shares the *merchandising decisions*, not the catalogs.
+
+## How to set it up
+
+You'll generate a code on your main store and enter it while installing Depict on the store you want to connect.
+
+<Steps>
+  <Step title="Create and copy an activation code">
+    In **Multi-store settings** on your main store, add a new activation code, then copy it.
+  </Step>
+  <Step title="Install Depict on the store you're connecting">
+    Go to Shopify, switch to the store you want to connect, and install Depict.
+  </Step>
+  <Step title="Enter the code">
+    On the plan-selection screen, choose **"Enter store activation code"**, paste the code you saved, and press **"Activate store"**.
+  </Step>
+</Steps>
+
+The store is now connected. Repeat for any other store you want to add to the group.
+
+After stores are connected, open **Multi-store → Collections** to see which collections are linked across the group and to choose, for each linked collection, **which store is the source** that the others replicate from.
+
+## Benefits
+
+- **Do the work once.** Merchandise your main store and let Depict handle the rest — a big time saver when you run the same brand across several storefronts.
+- **Consistency across storefronts.** Linked collections stay in sync, so customers get the same curated experience whichever store they land on.
+- **No manual re-pinning.** SKU matching means you don't have to find and re-pin the same product on every store by hand.
+
+## Caveats & limitations
+
+- **Pro or Custom plan only.** Multi-store isn't available on the lower tiers.
+- **Collections link by handle.** Two collections are only treated as the same collection across stores when their handles match. If a collection has a different handle on one store, it won't link automatically.
+- **Products map by SKU.** A product can only be matched across stores if it shares a SKU. Products with missing or mismatched SKUs won't carry their merchandising across.
+- **You can't disconnect a store that's still a source.** If a store is set as the replication source for any linked collection, disconnecting it is blocked until you reassign those collections to a different source.
+- **Not everything replicates.** Replication covers your standard collection merchandising. Special cases — for example, most metaobject-based setups, and any **market-specific** versions of a collection — are handled per store.
+
+<CardGroup cols={2}>
+  <Card title="Multi-market" href="/shopify-guide/merchandising/multi-market" icon="globe">
+    Tailor one store's merchandising per region.
+  </Card>
+  <Card title="Combining both" href="/shopify-guide/merchandising/multi-store-with-multi-market" icon="layer-group">
+    What changes when you run multi-store and multi-market together.
+  </Card>
+</CardGroup>
