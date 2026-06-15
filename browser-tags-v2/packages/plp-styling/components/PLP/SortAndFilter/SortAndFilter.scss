@@ -123,6 +123,11 @@
     .filters {
       flex-shrink: 0;
       flex-basis: 330px;
+      // These panels get tabindex="-1" so we can move keyboard focus into them on open; suppress the
+      // focus outline on the container itself (its focusable children keep their own focus styles).
+      &:focus {
+        outline: none;
+      }
     }
   }
   // Shared body style for filters and sorting containers

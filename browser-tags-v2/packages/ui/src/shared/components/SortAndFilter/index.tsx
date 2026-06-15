@@ -12,7 +12,7 @@ import {
   untrack,
 } from "solid-js";
 import { SearchFilter, SortModel } from "@depict-ai/types/api/SearchResponse";
-import { catchify, Elem } from "@depict-ai/utilishared";
+import { catchify, Elem, observer } from "@depict-ai/utilishared";
 import { modal_opener } from "../../../search/helper_functions/modal_opener";
 import { FilterBody } from "./FilterBody";
 import { SortBody } from "./SortBody";
@@ -118,6 +118,32 @@ export function SortAndFilter({
     } as const;
     const hide_filters = createMemo(() => should_hide_filtering(filter_options));
     const sorting_options = { current_sorting_, available_sortings_, meta_of_currently_selected_sorting_ } as const;
+    // Keyboard accessibility for the desktop panels (rendered after the product grid in the DOM): when the user
+    // opens a panel we move focus into it, and restore focus to the toggle button on close. Intent is tracked with
+    // a plain flag set in the buttons' click handlers - `filters_open`/`sorting_open` also change programmatically
+    // (undo toast, history-state restore, SDK consumers), and those must not steal focus.
+    let user_opened_panel = false;
+    let filter_toggle_button: HTMLButtonElement | undefined;
+    let sort_toggle_button: HTMLButtonElement | undefined;
+    let current_panel: HTMLElement | undefined;
+    let current_panel_toggle_button: HTMLButtonElement | undefined;
+    const focus_panel_when_in_dom = (panel: HTMLElement) =>
+      catchify(async () => {
+        // Bounded wait: if the panel never lands in the DOM (e.g. it's superseded by a rapid re-render before
+        // insertion), the timeout lets this promise resolve instead of keeping `panel` - and the observer
+        // listener it registers - referenced forever.
+        await observer.wait_for_element(panel, 4000);
+        if (panel.isConnected) panel.focus();
+      })();
+    const register_desktop_panel = (
+      el: HTMLElement,
+      toggle_button: HTMLButtonElement | undefined,
+      should_focus: boolean
+    ) => {
+      current_panel = el;
+      current_panel_toggle_button = toggle_button;
+      if (should_focus) focus_panel_when_in_dom(el);
+    };
     const make_open_filters_button = (adhere_to_width = false, is_tabbable = false) => (
       <OpenFiltersButton
         tabindex_={is_tabbable ? 0 : -1}
@@ -127,6 +153,8 @@ export function SortAndFilter({
         number_of_rendered_selected_filters_items_={number_of_rendered_selected_filters_items_}
         filter_button_width_={adhere_to_width ? filter_button_width_ : undefined}
         hide_button_={hide_filters}
+        on_user_open_={() => (user_opened_panel = true)}
+        button_ref_={is_tabbable ? el => (filter_toggle_button = el) : undefined}
       />
     );
     const make_open_sorting_button = (adhere_to_width = false, is_tabbable = false) => (
@@ -139,6 +167,8 @@ export function SortAndFilter({
         available_sortings_={available_sortings_}
         sort_button_width_={adhere_to_width ? sort_button_width_ : undefined}
         meta_of_currently_selected_sorting_={meta_of_currently_selected_sorting_}
+        on_user_open_={() => (user_opened_panel = true)}
+        button_ref_={is_tabbable ? el => (sort_toggle_button = el) : undefined}
       />
     );
     let open_modal_: (
@@ -167,9 +197,54 @@ export function SortAndFilter({
       }
     });
 
+    // Restore focus to the relevant toggle button when a desktop panel is torn down while focus is still inside it.
+    const restore_focus_to_toggle_on_close = () => {
+      const button_to_restore = current_panel_toggle_button;
+      const focus_was_in_panel = !!current_panel && current_panel.contains(document.activeElement);
+      current_panel = undefined;
+      current_panel_toggle_button = undefined;
+      if (focus_was_in_panel) button_to_restore?.focus();
+    };
+    // `<section>` + `aria-label` so the panel announces itself ("Filters"/"Sort") when we move focus to it; the bare
+    // tabindex=-1 container would otherwise give screen readers nothing to read on focus. A semantic <section> avoids
+    // an ARIA role and the UA styling pitfalls of <fieldset>; the existing CSS targets the `.filters`/`.sorting` class.
+    const FiltersPanel = (should_focus: boolean) => (
+      <Show when={!hide_filters()}>
+        <section
+          class="filters"
+          tabindex={-1}
+          aria-label={i18n_.filters_()}
+          ref={el => register_desktop_panel(el, filter_toggle_button, should_focus)}
+        >
+          <div class="body">
+            <FilterBody {...filter_options} />
+          </div>
+        </section>
+      </Show>
+    );
+    const SortingPanel = (should_focus: boolean) =>
+      (
+        <section
+          class="sorting"
+          tabindex={-1}
+          aria-label={i18n_.sorting_text_()}
+          ref={el => register_desktop_panel(el, sort_toggle_button, should_focus)}
+        >
+          <div class="body">
+            <SortBody {...sorting_options} />
+          </div>
+        </section>
+      ) as Elem;
+
     createEffect(() => {
+      // Consume the user-intent flag once per run, in every branch, so a stale flag can't leak into a later
+      // resize-triggered re-render and steal focus.
+      const should_focus_panel = user_opened_panel;
+      user_opened_panel = false;
+
       if (!filters_open() && !sorting_open()) {
         close_modal_?.();
+        restore_focus_to_toggle_on_close();
         set_extra_els_in_results_container_("");
       } else if (isSmall()()) {
         if (untrack(() => input_modal_open_?.())) {
@@ -178,28 +253,17 @@ export function SortAndFilter({
           set_sorting_open(false);
           return;
         }
+        // The modal manages its own focus; just drop the desktop panel reference.
+        current_panel = undefined;
+        current_panel_toggle_button = undefined;
         open_modal_?.();
         set_extra_els_in_results_container_("");
       } else {
         close_modal_?.();
         if (filters_open()) {
-          set_extra_els_in_results_container_(() => (
-            <Show when={!hide_filters()}>
-              <div class="filters">
-                <div class="body">
-                  <FilterBody {...filter_options} />
-                </div>
-              </div>
-            </Show>
-          ));
+          set_extra_els_in_results_container_(() => FiltersPanel(should_focus_panel));
         } else {
-          set_extra_els_in_results_container_(
-            <div class="sorting">
-              <div class="body">
-                <SortBody {...sorting_options} />
-              </div>
-            </div>
-          );
+          set_extra_els_in_results_container_(SortingPanel(should_focus_panel));
         }
       }
     });
@@ -262,6 +326,8 @@ function OpenFiltersButton({
   tabindex_,
   number_of_rendered_selected_filters_items_: [num_selected_filters],
   hide_button_,
+  on_user_open_,
+  button_ref_,
 }: {
   i18n_: solid_plp_shared_i18n;
   search_filters_open_: Signal<boolean>;
@@ -270,6 +336,8 @@ function OpenFiltersButton({
   filter_button_width_?: Accessor<number | undefined>;
   tabindex_: number;
   hide_button_: Accessor<boolean>;
+  on_user_open_?: VoidFunction;
+  button_ref_?: (el: HTMLButtonElement) => void;
 }) {
   const filters_closed = createMemo(() => !search_filters_open_[0]());
 
@@ -283,10 +351,12 @@ function OpenFiltersButton({
       </Show>
       <button
         tabindex={tabindex_}
+        ref={button_ref_}
         classList={{ major: !filters_closed(), minor: filters_closed() }}
         class={"filter toggle-button major-minor-transition" + (isServer ? " minor" : "")}
         type="button"
         aria-label={(filters_closed() ? i18n_.open_filters_ : i18n_.close_filters_)()}
+        aria-expanded={!filters_closed()}
         style={filter_button_width_?.() ? { width: filter_button_width_() + "px" } : {}}
         onClick={catchify(() =>
           batch(() => {
@@ -294,6 +364,7 @@ function OpenFiltersButton({
               search_filters_open_[1](false);
               return;
             }
+            on_user_open_?.();
             search_filters_open_[1](true);
             search_sorting_open_[1](false);
           })
@@ -317,6 +388,8 @@ function OpenSortingButton({
   sort_button_width_,
   tabindex_,
   meta_of_currently_selected_sorting_,
+  on_user_open_,
+  button_ref_,
 }: {
   search_filters_open_: Signal<boolean>;
   search_sorting_open_: Signal<boolean>;
@@ -326,6 +399,8 @@ function OpenSortingButton({
   sort_button_width_?: Accessor<number | undefined>;
   tabindex_: number;
   meta_of_currently_selected_sorting_: Accessor<SortMeta | undefined>;
+  on_user_open_?: VoidFunction;
+  button_ref_?: (el: HTMLButtonElement) => void;
 }) {
   const sorting_closed = createMemo(() => !search_sorting_open_[0]());
   // We assume in embedded_num_products that this is a single HTMLElement so pls change there if you change it here
@@ -334,7 +409,9 @@ function OpenSortingButton({
       classList={{ major: !sorting_closed(), minor: sorting_closed() }}
       class="toggle-button for-sorting major-minor-transition"
       tabindex={tabindex_}
+      ref={button_ref_}
       aria-label={(sorting_closed() ? i18n_.open_sorting_ : i18n_.close_sorting_)()}
+      aria-expanded={!sorting_closed()}
       style={sort_button_width_?.() ? { width: sort_button_width_() + "px" } : {}}
       onClick={catchify(() =>
         batch(() => {
@@ -342,6 +419,7 @@ function OpenSortingButton({
             search_sorting_open_[1](false);
             return;
           }
+          on_user_open_?.();
           search_filters_open_[1](false);
           search_sorting_open_[1](true);
         })
