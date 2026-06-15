@@ -202,22 +202,35 @@ export function SortAndFilter({
       current_panel_toggle_button = undefined;
       if (focus_was_in_panel) button_to_restore?.focus();
     };
+    // `<section>` + `aria-label` so the panel announces itself ("Filters"/"Sort") when we move focus to it; the bare
+    // tabindex=-1 container would otherwise give screen readers nothing to read on focus. A semantic <section> avoids
+    // an ARIA role and the UA styling pitfalls of <fieldset>; the existing CSS targets the `.filters`/`.sorting` class.
     const filters_panel = (should_focus: boolean) => (
       <Show when={!hide_filters()}>
-        <div class="filters" tabindex={-1} ref={el => register_desktop_panel(el, filter_toggle_button, should_focus)}>
+        <section
+          class="filters"
+          tabindex={-1}
+          aria-label={i18n_.filters_()}
+          ref={el => register_desktop_panel(el, filter_toggle_button, should_focus)}
+        >
           <div class="body">
             <FilterBody {...filter_options} />
           </div>
-        </div>
+        </section>
       </Show>
     );
     const sorting_panel = (should_focus: boolean) =>
       (
-        <div class="sorting" tabindex={-1} ref={el => register_desktop_panel(el, sort_toggle_button, should_focus)}>
+        <section
+          class="sorting"
+          tabindex={-1}
+          aria-label={i18n_.sorting_text_()}
+          ref={el => register_desktop_panel(el, sort_toggle_button, should_focus)}
+        >
           <div class="body">
             <SortBody {...sorting_options} />
           </div>
-        </div>
+        </section>
       ) as Elem;
 
     createEffect(() => {
