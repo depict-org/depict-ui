@@ -28,6 +28,7 @@ import { SortIconDesc } from "../icons/SortIconDesc";
 import { isServer } from "solid-js/web";
 import { should_hide_filtering } from "../../helper_functions/should_hide_filtering";
 import { media_query_to_accessor } from "../../helper_functions/media_query_to_accessor";
+import { focus_without_scroll_jump } from "./focus_without_scroll_jump";
 
 export function SortAndFilter({
   current_sorting_,
@@ -118,10 +119,12 @@ export function SortAndFilter({
     } as const;
     const hide_filters = createMemo(() => should_hide_filtering(filter_options));
     const sorting_options = { current_sorting_, available_sortings_, meta_of_currently_selected_sorting_ } as const;
-    // Keyboard accessibility for the desktop panels (rendered after the product grid in the DOM): when the user
-    // opens a panel we move focus into it, and restore focus to the toggle button on close. Intent is tracked with
-    // a plain flag set in the buttons' click handlers - `filters_open`/`sorting_open` also change programmatically
-    // (undo toast, history-state restore, SDK consumers), and those must not steal focus.
+    // Keyboard accessibility for the desktop panels (rendered after the product grid in the DOM): when a keyboard
+    // user opens a panel we move focus into it, and restore focus to the toggle button on close. Mouse opens skip
+    // the focus move entirely (they can see the panel and don't need it - and it would scroll/jump the viewport).
+    // Intent is tracked with a plain flag set only on keyboard activation in the buttons' click handlers -
+    // `filters_open`/`sorting_open` also change programmatically (undo toast, history-state restore, SDK consumers),
+    // and those must not steal focus.
     let user_opened_panel = false;
     let filter_toggle_button: HTMLButtonElement | undefined;
     let sort_toggle_button: HTMLButtonElement | undefined;
@@ -133,7 +136,7 @@ export function SortAndFilter({
         // insertion), the timeout lets this promise resolve instead of keeping `panel` - and the observer
         // listener it registers - referenced forever.
         await observer.wait_for_element(panel, 4000);
-        if (panel.isConnected) panel.focus();
+        if (panel.isConnected) focus_without_scroll_jump(panel);
       })();
     const register_desktop_panel = (
       el: HTMLElement,
@@ -153,7 +156,9 @@ export function SortAndFilter({
         number_of_rendered_selected_filters_items_={number_of_rendered_selected_filters_items_}
         filter_button_width_={adhere_to_width ? filter_button_width_ : undefined}
         hide_button_={hide_filters}
-        on_user_open_={() => (user_opened_panel = true)}
+        on_user_open_={keyboard_activated => {
+          if (keyboard_activated) user_opened_panel = true;
+        }}
         button_ref_={is_tabbable ? el => (filter_toggle_button = el) : undefined}
       />
     );
@@ -167,7 +172,9 @@ export function SortAndFilter({
         available_sortings_={available_sortings_}
         sort_button_width_={adhere_to_width ? sort_button_width_ : undefined}
         meta_of_currently_selected_sorting_={meta_of_currently_selected_sorting_}
-        on_user_open_={() => (user_opened_panel = true)}
+        on_user_open_={keyboard_activated => {
+          if (keyboard_activated) user_opened_panel = true;
+        }}
         button_ref_={is_tabbable ? el => (sort_toggle_button = el) : undefined}
       />
     );
@@ -203,7 +210,7 @@ export function SortAndFilter({
       const focus_was_in_panel = !!current_panel && current_panel.contains(document.activeElement);
       current_panel = undefined;
       current_panel_toggle_button = undefined;
-      if (focus_was_in_panel) button_to_restore?.focus();
+      if (focus_was_in_panel && button_to_restore) focus_without_scroll_jump(button_to_restore);
     };
     // `<section>` + `aria-label` so the panel announces itself ("Filters"/"Sort") when we move focus to it; the bare
     // tabindex=-1 container would otherwise give screen readers nothing to read on focus. A semantic <section> avoids
@@ -336,7 +343,7 @@ function OpenFiltersButton({
   filter_button_width_?: Accessor<number | undefined>;
   tabindex_: number;
   hide_button_: Accessor<boolean>;
-  on_user_open_?: VoidFunction;
+  on_user_open_?: (keyboard_activated: boolean) => void;
   button_ref_?: (el: HTMLButtonElement) => void;
 }) {
   const filters_closed = createMemo(() => !search_filters_open_[0]());
@@ -358,13 +365,14 @@ function OpenFiltersButton({
         aria-label={(filters_closed() ? i18n_.open_filters_ : i18n_.close_filters_)()}
         aria-expanded={!filters_closed()}
         style={filter_button_width_?.() ? { width: filter_button_width_() + "px" } : {}}
-        onClick={catchify(() =>
+        onClick={catchify((event: MouseEvent) =>
           batch(() => {
             if (search_filters_open_[0]()) {
               search_filters_open_[1](false);
               return;
             }
-            on_user_open_?.();
+            // `detail === 0` => activated via keyboard (Enter/Space); only then move focus into the panel.
+            on_user_open_?.(event.detail === 0);
             search_filters_open_[1](true);
             search_sorting_open_[1](false);
           })
@@ -399,7 +407,7 @@ function OpenSortingButton({
   sort_button_width_?: Accessor<number | undefined>;
   tabindex_: number;
   meta_of_currently_selected_sorting_: Accessor<SortMeta | undefined>;
-  on_user_open_?: VoidFunction;
+  on_user_open_?: (keyboard_activated: boolean) => void;
   button_ref_?: (el: HTMLButtonElement) => void;
 }) {
   const sorting_closed = createMemo(() => !search_sorting_open_[0]());
@@ -413,13 +421,14 @@ function OpenSortingButton({
       aria-label={(sorting_closed() ? i18n_.open_sorting_ : i18n_.close_sorting_)()}
       aria-expanded={!sorting_closed()}
       style={sort_button_width_?.() ? { width: sort_button_width_() + "px" } : {}}
-      onClick={catchify(() =>
+      onClick={catchify((event: MouseEvent) =>
         batch(() => {
           if (search_sorting_open_[0]()) {
             search_sorting_open_[1](false);
             return;
           }
-          on_user_open_?.();
+          // `detail === 0` => activated via keyboard (Enter/Space); only then move focus into the panel.
+          on_user_open_?.(event.detail === 0);
           search_filters_open_[1](false);
           search_sorting_open_[1](true);
         })
