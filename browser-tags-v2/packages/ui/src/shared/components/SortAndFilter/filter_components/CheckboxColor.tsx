@@ -174,7 +174,15 @@ export function CheckboxColor({
 
   createRenderEffect(() => {
     set_view_more_button_below_group_(
-      togglable_rest() ? <ExpandCollapseFilter show_extras_={show_extras_signal} i18n_={i18n_} /> : []
+      togglable_rest() ? (
+        <ExpandCollapseFilter
+          show_extras_={show_extras_signal}
+          i18n_={i18n_}
+          expanding_container_element_={expanding_container_els}
+        />
+      ) : (
+        []
+      )
     );
   });
 

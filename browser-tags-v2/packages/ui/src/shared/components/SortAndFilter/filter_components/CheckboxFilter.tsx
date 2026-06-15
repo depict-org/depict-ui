@@ -104,11 +104,19 @@ export function CheckboxFilter({
         <Index each={checkboxes().slice(show_non_collapsible_when_collapsed)}>{render_checkbox}</Index>
       </Show>
     </ExpandingContainer>
-  );
+  ) as HTMLElement;
 
   createRenderEffect(() => {
     set_view_more_button_below_group_(
-      togglable_rest() ? <ExpandCollapseFilter show_extras_={show_extras_signal} i18n_={i18n_} /> : []
+      togglable_rest() ? (
+        <ExpandCollapseFilter
+          show_extras_={show_extras_signal}
+          i18n_={i18n_}
+          expanding_container_element_={expanding_container_els}
+        />
+      ) : (
+        []
+      )
     );
   });
 

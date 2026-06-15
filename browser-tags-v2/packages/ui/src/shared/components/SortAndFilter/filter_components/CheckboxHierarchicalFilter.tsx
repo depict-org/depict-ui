@@ -170,11 +170,19 @@ export function CheckboxHierarchicalFilter({
           )}
         </Show>
       </ExpandingContainer>
-    );
+    ) as HTMLElement;
 
   createRenderEffect(() => {
     set_view_more_button_below_group(
-      some_top_level_are_hidden() ? <ExpandCollapseFilter show_extras_={show_extras} i18n_={i18n_} /> : []
+      some_top_level_are_hidden() ? (
+        <ExpandCollapseFilter
+          show_extras_={show_extras}
+          i18n_={i18n_}
+          expanding_container_element_={expanding_container_els}
+        />
+      ) : (
+        []
+      )
     );
   });
 

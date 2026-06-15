@@ -44,6 +44,9 @@ export const useExpandingContainer = ({ duration = 500, delay = 0 } = { duration
         {innerRef}
       </div>
     ) as HTMLDivElement;
+    // Start collapsed: `inert` removes the hidden children from tab order and the a11y tree.
+    // `visibility:hidden`/`aria-hidden` above are kept as the fallback for browsers without `inert` (e.g. Safari < 15.5).
+    outerRef.inert = true;
 
     return outerRef;
   };
@@ -52,6 +55,7 @@ export const useExpandingContainer = ({ duration = 500, delay = 0 } = { duration
     const start = get_current_height_possibly_during_transition(); // need to read this before cancelling the old animation
     outerRef.style.visibility = "";
     outerRef.removeAttribute("aria-hidden");
+    outerRef.inert = false; // re-enable focus/tabbing as soon as we start expanding
     current_animation?.cancel?.(); // cancel already running animation so it doesn't get a finish event while we're still animating
     const animation = outerRef.animate(
       { height: [start, get_height()] },
@@ -79,6 +83,7 @@ export const useExpandingContainer = ({ duration = 500, delay = 0 } = { duration
     current_animation?.cancel?.();
     outerRef.style.overflow = "hidden";
     outerRef.ariaHidden = "true";
+    outerRef.inert = true; // remove the collapsing children from tab order immediately (visibility:hidden only lands on finish)
     const animation = outerRef.animate(
       { height: [start, "0px"] },
       {
