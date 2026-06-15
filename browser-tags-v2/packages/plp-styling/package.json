@@ -12,7 +12,7 @@
     "README.md"
   ],
   "sass": "index.scss",
-  "version": "4.6.5",
+  "version": "4.6.6",
   "description": "Depict PLP UI SCSS Styling",
   "author": "Daniel Troger <daniel@depict.ai>",
   "contributors": [
