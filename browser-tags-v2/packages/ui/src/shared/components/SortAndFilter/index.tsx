@@ -135,7 +135,13 @@ export function SortAndFilter({
         // insertion), the timeout lets this promise resolve instead of keeping `panel` - and the observer
         // listener it registers - referenced forever.
         await observer.wait_for_element(panel, 4000);
-        if (panel.isConnected) panel.focus({ preventScroll: true });
+        if (panel.isConnected) {
+          // Take focus without the browser's uncontrolled focus-scroll, then bring the panel into view with a
+          // deterministic minimal scroll: `nearest` is a no-op when it's already visible (common case) and only
+          // scrolls when the panel opened off-screen (e.g. opened via a sticky button while scrolled down).
+          panel.focus({ preventScroll: true });
+          panel.scrollIntoView({ block: "nearest" });
+        }
       })();
     const register_desktop_panel = (
       el: HTMLElement,
