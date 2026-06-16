@@ -189,6 +189,10 @@
       "pages": ["shopify-guide/customisation/style-editor","shopify-guide/customisation/product-card-editor"]
     },
     {
+      "group": "Merchandising",
+      "pages": ["shopify-guide/merchandising/multi-store", "shopify-guide/merchandising/multi-market", "shopify-guide/merchandising/multi-store-with-multi-market"]
+    },
+    {
       "group": "Overview",
       "pages": ["api-guide/introduction", "api-guide/data-ingestion"]
     },
