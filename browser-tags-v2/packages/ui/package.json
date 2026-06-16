@@ -234,7 +234,7 @@
   },
   "dependencies": {
     "@babel/plugin-transform-typescript": "^7.22.9",
-    "@babel/runtime": "latest",
+    "@babel/runtime": "^7.22.6",
     "@babel/runtime-corejs3": "^7.22.6",
     "@depict-ai/plp-styling": "workspace:^",
     "@depict-ai/types": "workspace:^",
