@@ -135,10 +135,16 @@ export function SortAndFilter({
         // listener it registers - referenced forever.
         await observer.wait_for_element(panel, 4000);
         if (panel.isConnected) {
-          // `preventScroll` avoids the browser's uncontrolled focus-scroll; `scrollIntoView({ block: "nearest" })`
-          // then does a minimal scroll - a no-op when already visible, only scrolling when it opened off-screen.
-          panel.focus({ preventScroll: true });
-          panel.scrollIntoView({ block: "nearest" });
+          // Focus the first interactive control (often a group's <summary>), not the <section>: the section has no
+          // visible focus ring and is flex-stretched to full grid height (scrolling it mis-aligns). The first
+          // control keeps focus visible and lets Tab walk through the panel. `summary` is focusable but not matched
+          // by the input/button/etc. selectors, so it must be listed explicitly.
+          const focus_target =
+            panel.querySelector<HTMLElement>(
+              "summary, input:not([type='hidden']):not(:disabled), button:not(:disabled), a[href], select:not(:disabled), [tabindex]:not([tabindex='-1'])"
+            ) ?? panel;
+          focus_target.focus({ preventScroll: true });
+          focus_target.scrollIntoView({ block: "nearest" });
         }
       })();
     const register_desktop_panel = (
