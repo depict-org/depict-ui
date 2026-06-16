@@ -3,6 +3,7 @@ import { Signal } from "solid-js";
 import { catchify } from "@depict-ai/utilishared";
 import { solid_plp_shared_i18n } from "../../../locales/i18n_types";
 import { PlusIcon } from "../icons/PlusIcon";
+import { is_keyboard_activation } from "../../helper_functions/is_keyboard_activation";
 
 export function ExpandCollapseFilter({
   show_extras_: [get_show_extras, set_show_extras],
@@ -29,17 +30,14 @@ export function ExpandCollapseFilter({
       onClick={catchify((event: MouseEvent) => {
         const container = expanding_container_element_;
         const will_expand = !get_show_extras();
-        // A click from Enter/Space on the button reports `detail === 0`; a real pointer click reports >= 1.
-        // Only hijack focus for keyboard activation - mouse users can see the revealed options and don't need it
-        // (and would otherwise get the viewport scrolled and an unexpected focus ring).
-        const keyboard_activated = event.detail === 0;
+        // Only move focus for keyboard activation; mouse users see the revealed options and don't need a focus jump.
+        const keyboard_activated = is_keyboard_activation(event);
         const had_focus_inside = !!container && container.contains(document.activeElement);
         set_show_extras(will_expand);
         if (will_expand) {
           if (!keyboard_activated) return;
-          // The container's `expand()` (run from the consumer's effect after this handler) clears `inert`/`visibility`;
-          // focus the first revealed option on the next frame so Tab continues through the newly shown options.
-          // `preventScroll` so moving focus never yanks the viewport down to the first checkbox.
+          // `expand()` (consumer's effect, runs after this) clears `inert`/`visibility`; focus the first revealed
+          // option next frame so Tab continues through them. `preventScroll` so it doesn't yank the viewport down.
           requestAnimationFrame(
             catchify(() =>
               container?.querySelector<HTMLInputElement>("input:not(:disabled)")?.focus({ preventScroll: true })
@@ -48,7 +46,7 @@ export function ExpandCollapseFilter({
         } else if (had_focus_inside) {
           // Keep focus on the toggle when collapsing, otherwise making the container `inert` dumps focus to <body>
           // (Safari doesn't focus buttons on mouse click, so focus can still be inside the container here).
-          button.focus();
+          button.focus({ preventScroll: true });
         }
       })}
     >
