@@ -436,10 +436,10 @@ function OpenSortingButton({
             search_sorting_open_[1](false);
             return;
           }
-            // Only keyboard opens move focus into the panel; mouse opens leave the viewport put.
-            on_user_open_?.(is_keyboard_activation(event));
-            search_filters_open_[1](false);
-            search_sorting_open_[1](true);
+          // Only keyboard opens move focus into the panel; mouse opens leave the viewport put.
+          on_user_open_?.(is_keyboard_activation(event));
+          search_filters_open_[1](false);
+          search_sorting_open_[1](true);
         })
       )}
     >
