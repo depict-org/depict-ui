@@ -3,7 +3,6 @@ import { Signal } from "solid-js";
 import { catchify } from "@depict-ai/utilishared";
 import { solid_plp_shared_i18n } from "../../../locales/i18n_types";
 import { PlusIcon } from "../icons/PlusIcon";
-import { focus_without_scroll_jump } from "./focus_without_scroll_jump";
 
 export function ExpandCollapseFilter({
   show_extras_: [get_show_extras, set_show_extras],
@@ -40,17 +39,16 @@ export function ExpandCollapseFilter({
           if (!keyboard_activated) return;
           // The container's `expand()` (run from the consumer's effect after this handler) clears `inert`/`visibility`;
           // focus the first revealed option on the next frame so Tab continues through the newly shown options.
-          // Keep the focus move from yanking the viewport down to the first checkbox.
+          // `preventScroll` so moving focus never yanks the viewport down to the first checkbox.
           requestAnimationFrame(
-            catchify(() => {
-              const first_input = container?.querySelector<HTMLInputElement>("input:not(:disabled)");
-              if (first_input) focus_without_scroll_jump(first_input);
-            })
+            catchify(() =>
+              container?.querySelector<HTMLInputElement>("input:not(:disabled)")?.focus({ preventScroll: true })
+            )
           );
         } else if (had_focus_inside) {
           // Keep focus on the toggle when collapsing, otherwise making the container `inert` dumps focus to <body>
           // (Safari doesn't focus buttons on mouse click, so focus can still be inside the container here).
-          focus_without_scroll_jump(button);
+          button.focus({ preventScroll: true });
         }
       })}
     >

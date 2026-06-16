@@ -28,7 +28,6 @@ import { SortIconDesc } from "../icons/SortIconDesc";
 import { isServer } from "solid-js/web";
 import { should_hide_filtering } from "../../helper_functions/should_hide_filtering";
 import { media_query_to_accessor } from "../../helper_functions/media_query_to_accessor";
-import { focus_without_scroll_jump } from "./focus_without_scroll_jump";
 
 export function SortAndFilter({
   current_sorting_,
@@ -136,7 +135,7 @@ export function SortAndFilter({
         // insertion), the timeout lets this promise resolve instead of keeping `panel` - and the observer
         // listener it registers - referenced forever.
         await observer.wait_for_element(panel, 4000);
-        if (panel.isConnected) focus_without_scroll_jump(panel);
+        if (panel.isConnected) panel.focus({ preventScroll: true });
       })();
     const register_desktop_panel = (
       el: HTMLElement,
@@ -210,7 +209,7 @@ export function SortAndFilter({
       const focus_was_in_panel = !!current_panel && current_panel.contains(document.activeElement);
       current_panel = undefined;
       current_panel_toggle_button = undefined;
-      if (focus_was_in_panel && button_to_restore) focus_without_scroll_jump(button_to_restore);
+      if (focus_was_in_panel && button_to_restore) button_to_restore.focus({ preventScroll: true });
     };
     // `<section>` + `aria-label` so the panel announces itself ("Filters"/"Sort") when we move focus to it; the bare
     // tabindex=-1 container would otherwise give screen readers nothing to read on focus. A semantic <section> avoids
