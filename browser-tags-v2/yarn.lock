@@ -3527,16 +3527,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/runtime-corejs3@npm:latest":
-  version: 7.20.7
-  resolution: "@babel/runtime-corejs3@npm:7.20.7"
-  dependencies:
-    core-js-pure: "npm:^3.25.1"
-    regenerator-runtime: "npm:^0.13.11"
-  checksum: 10/cd98dc9c34a2ffc3b1a06fd80e9e674d5e50c957157325e7ad1d7a44a3bde885bcbcfceb369a279437edaad94f9464f196e55662e888de9b18b95fb73b39e8a6
-  languageName: node
-  linkType: hard
-
 "@babel/runtime@npm:^7.12.5":
   version: 7.22.6
   resolution: "@babel/runtime@npm:7.22.6"
@@ -3546,7 +3536,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/runtime@npm:^7.8.4, @babel/runtime@npm:latest":
+"@babel/runtime@npm:^7.22.6":
+  version: 7.29.7
+  resolution: "@babel/runtime@npm:7.29.7"
+  checksum: 10/9883b4951787779fd382b121f22f92966d85f19434841f65fb00b2dfec232107e139683f47c6f252891826ad8ee18317b46c3a0e4819116a9885f47b46d7126a
+  languageName: node
+  linkType: hard
+
+"@babel/runtime@npm:^7.8.4":
   version: 7.20.7
   resolution: "@babel/runtime@npm:7.20.7"
   dependencies:
@@ -3679,7 +3676,7 @@ __metadata:
   dependencies:
     "@babel/core": "npm:latest"
     "@babel/plugin-transform-typescript": "npm:^7.22.9"
-    "@babel/runtime": "npm:latest"
+    "@babel/runtime": "npm:^7.22.6"
     "@babel/runtime-corejs3": "npm:^7.22.6"
     "@depict-ai/types": "workspace:^"
     "@depict-ai/utilishared": "workspace:^"
@@ -3697,8 +3694,8 @@ __metadata:
     "@babel/plugin-transform-typescript": "npm:^7.22.9"
     "@babel/preset-env": "npm:latest"
     "@babel/preset-typescript": "npm:latest"
-    "@babel/runtime": "npm:latest"
-    "@babel/runtime-corejs3": "npm:latest"
+    "@babel/runtime": "npm:^7.22.6"
+    "@babel/runtime-corejs3": "npm:^7.22.6"
     "@depict-ai/dpc": "workspace:^"
     "@depict-ai/plp-styling": "workspace:^"
     "@depict-ai/ui": "workspace:^"
@@ -3731,7 +3728,7 @@ __metadata:
     "@babel/core": "npm:latest"
     "@babel/preset-env": "npm:latest"
     "@babel/preset-typescript": "npm:latest"
-    "@babel/runtime": "npm:latest"
+    "@babel/runtime": "npm:^7.22.6"
     "@babel/runtime-corejs3": "npm:^7.22.6"
     "@depict-ai/plp-styling": "workspace:^"
     "@depict-ai/react-ui": "workspace:^"
@@ -3765,8 +3762,8 @@ __metadata:
     "@babel/plugin-transform-typescript": "npm:^7.22.9"
     "@babel/preset-env": "npm:latest"
     "@babel/preset-typescript": "npm:latest"
-    "@babel/runtime": "npm:latest"
-    "@babel/runtime-corejs3": "npm:latest"
+    "@babel/runtime": "npm:^7.22.6"
+    "@babel/runtime-corejs3": "npm:^7.22.6"
     "@depict-ai/dpc": "workspace:^"
     "@depict-ai/plp-styling": "workspace:^"
     "@depict-ai/ui": "workspace:^"
@@ -3810,7 +3807,7 @@ __metadata:
     "@babel/plugin-transform-typescript": "npm:^7.22.9"
     "@babel/preset-env": "npm:latest"
     "@babel/preset-typescript": "npm:latest"
-    "@babel/runtime": "npm:latest"
+    "@babel/runtime": "npm:^7.22.6"
     "@babel/runtime-corejs3": "npm:^7.22.6"
     "@depict-ai/plp-styling": "workspace:^"
     "@depict-ai/types": "workspace:^"
@@ -3835,8 +3832,8 @@ __metadata:
   dependencies:
     "@babel/core": "npm:latest"
     "@babel/plugin-transform-typescript": "npm:^7.22.9"
-    "@babel/runtime": "npm:latest"
-    "@babel/runtime-corejs3": "npm:latest"
+    "@babel/runtime": "npm:^7.22.6"
+    "@babel/runtime-corejs3": "npm:^7.22.6"
     "@depict-ai/types": "workspace:^"
     "@parcel/resolver-default": "npm:^2.10.3"
     "@sentry/browser": "npm:^7.75.1"
@@ -7925,13 +7922,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"core-js-pure@npm:^3.25.1":
-  version: 3.27.2
-  resolution: "core-js-pure@npm:3.27.2"
-  checksum: 10/f9ca946385b3ba6c40ef0dc6ece16ab5e7909b327c926aa1b709ab3e8a8cb69115a1572fbe17fd4e9db845a8177e10ccefdbaee193eeb26ae35d975f95e4c5b1
-  languageName: node
-  linkType: hard
-
 "core-js-pure@npm:^3.30.2":
   version: 3.31.1
   resolution: "core-js-pure@npm:3.31.1"
@@ -8434,7 +8424,7 @@ __metadata:
     "@babel/plugin-transform-typescript": "npm:^7.22.9"
     "@babel/preset-env": "npm:latest"
     "@babel/preset-typescript": "npm:latest"
-    "@babel/runtime": "npm:latest"
+    "@babel/runtime": "npm:^7.22.6"
     "@babel/runtime-corejs3": "npm:^7.22.6"
     "@babel/traverse": "npm:latest"
     "@babel/types": "npm:latest"
