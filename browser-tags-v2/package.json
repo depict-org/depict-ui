@@ -164,7 +164,7 @@
   },
   "dependencies": {
     "@babel/plugin-transform-runtime": "^7.22.9",
-    "@babel/runtime": "latest",
+    "@babel/runtime": "^7.22.6",
     "@babel/runtime-corejs3": "^7.22.6",
     "@depict-ai/dpc": "workspace:^",
     "@depict-ai/ui": "workspace:^",
