@@ -3,6 +3,7 @@ import { Signal } from "solid-js";
 import { catchify } from "@depict-ai/utilishared";
 import { solid_plp_shared_i18n } from "../../../locales/i18n_types";
 import { PlusIcon } from "../icons/PlusIcon";
+import { is_keyboard_activation } from "../../helper_functions/is_keyboard_activation";
 
 export function ExpandCollapseFilter({
   show_extras_: [get_show_extras, set_show_extras],
@@ -29,9 +30,8 @@ export function ExpandCollapseFilter({
       onClick={catchify((event: MouseEvent) => {
         const container = expanding_container_element_;
         const will_expand = !get_show_extras();
-        // `detail === 0` => keyboard (Enter/Space); pointer clicks report >= 1. Only move focus for keyboard;
-        // mouse users see the revealed options and don't need a focus jump.
-        const keyboard_activated = event.detail === 0;
+        // Only move focus for keyboard activation; mouse users see the revealed options and don't need a focus jump.
+        const keyboard_activated = is_keyboard_activation(event);
         const had_focus_inside = !!container && container.contains(document.activeElement);
         set_show_extras(will_expand);
         if (will_expand) {

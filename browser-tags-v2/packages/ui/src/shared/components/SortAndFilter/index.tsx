@@ -28,6 +28,7 @@ import { SortIconDesc } from "../icons/SortIconDesc";
 import { isServer } from "solid-js/web";
 import { should_hide_filtering } from "../../helper_functions/should_hide_filtering";
 import { media_query_to_accessor } from "../../helper_functions/media_query_to_accessor";
+import { is_keyboard_activation } from "../../helper_functions/is_keyboard_activation";
 
 export function SortAndFilter({
   current_sorting_,
@@ -373,8 +374,8 @@ function OpenFiltersButton({
               search_filters_open_[1](false);
               return;
             }
-            // `detail === 0` => activated via keyboard (Enter/Space); only then move focus into the panel.
-            on_user_open_?.(event.detail === 0);
+            // Only keyboard opens move focus into the panel; mouse opens leave the viewport put.
+            on_user_open_?.(is_keyboard_activation(event));
             search_filters_open_[1](true);
             search_sorting_open_[1](false);
           })
@@ -429,10 +430,10 @@ function OpenSortingButton({
             search_sorting_open_[1](false);
             return;
           }
-          // `detail === 0` => activated via keyboard (Enter/Space); only then move focus into the panel.
-          on_user_open_?.(event.detail === 0);
-          search_filters_open_[1](false);
-          search_sorting_open_[1](true);
+            // Only keyboard opens move focus into the panel; mouse opens leave the viewport put.
+            on_user_open_?.(is_keyboard_activation(event));
+            search_filters_open_[1](false);
+            search_sorting_open_[1](true);
         })
       )}
     >
