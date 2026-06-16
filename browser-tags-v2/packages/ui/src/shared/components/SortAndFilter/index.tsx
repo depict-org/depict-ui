@@ -118,12 +118,10 @@ export function SortAndFilter({
     } as const;
     const hide_filters = createMemo(() => should_hide_filtering(filter_options));
     const sorting_options = { current_sorting_, available_sortings_, meta_of_currently_selected_sorting_ } as const;
-    // Keyboard accessibility for the desktop panels (rendered after the product grid in the DOM): when a keyboard
-    // user opens a panel we move focus into it, and restore focus to the toggle button on close. Mouse opens skip
-    // the focus move entirely (they can see the panel and don't need it - and it would scroll/jump the viewport).
-    // Intent is tracked with a plain flag set only on keyboard activation in the buttons' click handlers -
-    // `filters_open`/`sorting_open` also change programmatically (undo toast, history-state restore, SDK consumers),
-    // and those must not steal focus.
+    // Keyboard a11y for desktop panels (DOM order: after the grid). Keyboard opens move focus into the panel and
+    // restore it to the toggle on close; mouse opens skip the focus move (already visible, and it'd jump the viewport).
+    // `user_opened_panel` is set only on keyboard activation - `filters_open`/`sorting_open` also change
+    // programmatically (undo toast, history restore, SDK consumers), which must not steal focus.
     let user_opened_panel = false;
     let filter_toggle_button: HTMLButtonElement | undefined;
     let sort_toggle_button: HTMLButtonElement | undefined;
@@ -136,9 +134,8 @@ export function SortAndFilter({
         // listener it registers - referenced forever.
         await observer.wait_for_element(panel, 4000);
         if (panel.isConnected) {
-          // Take focus without the browser's uncontrolled focus-scroll, then bring the panel into view with a
-          // deterministic minimal scroll: `nearest` is a no-op when it's already visible (common case) and only
-          // scrolls when the panel opened off-screen (e.g. opened via a sticky button while scrolled down).
+          // `preventScroll` avoids the browser's uncontrolled focus-scroll; `scrollIntoView({ block: "nearest" })`
+          // then does a minimal scroll - a no-op when already visible, only scrolling when it opened off-screen.
           panel.focus({ preventScroll: true });
           panel.scrollIntoView({ block: "nearest" });
         }
