@@ -46,8 +46,8 @@ export const swedish_search_translation: search_i18n = {
   ...english_search_translation, // fallbacks for untranslated strings
   ...swedish_base_translation,
   "no_results_text_": "Inga resultat",
-  modal_view_all_results_: (number_of_results: HTMLElement) => ["Visa alla ", number_of_results, " resultat"],
-  modal_view_all_no_results_: "Visa andra alternativ",
+  modal_view_all_results_: (_number_of_results: HTMLElement) => ["Visa alla resultat."],
+  modal_view_all_no_results_: "Visa alla resultat.",
   "search_recs_title_": "Andra alternativ",
   "clear_filters_query_sorting_after_submit_": "Rensa förfråga och filter + sorting efter ny förfråga",
   "previous_searches_text_": "Dina tidigare sökningar",
