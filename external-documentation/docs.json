@@ -316,15 +316,6 @@
             ]
           },
           {
-            "group": "Depict Search",
-            "pages": [
-              "shopify-guide/blocks/search-button-settings.mdx",
-              "shopify-guide/blocks/search-customization-overview.mdx",
-              "shopify-guide/blocks/search-modal-layout",
-              "shopify-guide/blocks/search-modal-theming"
-            ]
-          },
-          {
             "group": "Depict blocks",
             "pages": [
               "shopify-guide/blocks/introduction",
@@ -332,6 +323,15 @@
               "shopify-guide/blocks/search-page",
               "shopify-guide/blocks/search-modal",
               "shopify-guide/blocks/collection-page"
+            ]
+          },
+          {
+            "group": "Depict Search",
+            "pages": [
+              "shopify-guide/blocks/search-button-settings.mdx",
+              "shopify-guide/blocks/search-customization-overview.mdx",
+              "shopify-guide/blocks/search-modal-layout",
+              "shopify-guide/blocks/search-modal-theming"
             ]
           },
           {
