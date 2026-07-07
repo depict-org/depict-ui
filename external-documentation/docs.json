@@ -331,13 +331,13 @@
               "shopify-guide/blocks/introduction",
               "shopify-guide/blocks/recommendations",
               "shopify-guide/blocks/search-page",
-              "shopify-guide/blocks/search-modal",
               "shopify-guide/blocks/collection-page"
             ]
           },
           {
             "group": "Depict Search",
             "pages": [
+              "shopify-guide/blocks/search-modal",
               "shopify-guide/blocks/search-button-settings",
               "shopify-guide/blocks/search-customization-overview",
               "shopify-guide/blocks/search-modal-layout",
