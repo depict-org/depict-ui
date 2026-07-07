@@ -1,0 +1,89 @@
+---
+title: "Customization overview"
+description: "Where to find Depict Search customization settings in Shopify, and how they are organized."
+---
+
+This section documents every merchant-facing setting for Depict Search and what each one does, for both **desktop** and **mobile**.
+
+All settings live in the **Shopify theme editor**. To open it: **Shopify admin → Online Store → Themes → Customize** (on your live/selected theme).
+
+There are two places settings live:
+
+## A) App embeds (global search experience)
+
+These control the whole search modal, regardless of how many search buttons you have.
+
+<Frame>
+  ![Image](/images/image.png)
+</Frame>
+
+<Steps>
+  <Step title="Open App embeds">
+    In the theme editor, click the **App embeds** icon in the left sidebar (the puzzle-piece / toggle icon near the bottom).
+  </Step>
+  <Step title="Expand the relevant embed">
+    - **Depict Search layout** → layout & behaviour of the search modal. See [Search modal — Layout & behaviour](/shopify-guide/blocks/search-modal-layout).
+      <Frame>
+        <img
+          src="/images/image-1.png"
+          alt="Image"
+          title="Image"
+          style={{ width:"47%" }}
+        />
+      </Frame>
+    - **Depict Search theme** → visual theming of the search modal. See [Search modal — Theming](/shopify-guide/blocks/search-modal-theming).
+      <Frame>
+        <img
+          src="/images/image-2.png"
+          alt="Image"
+          title="Image"
+          style={{ width:"47%" }}
+        />
+      </Frame>
+  </Step>
+  <Step title="Enable and save">
+    Make sure the embed's toggle is **enabled**, adjust the settings, then click **Save**.
+  </Step>
+</Steps>
+
+## B) Search button block (the on-page button)
+
+This controls only the button that opens search. See [Search button settings](/shopify-guide/blocks/search-button-settings).
+
+<Steps>
+  <Step title="Navigate to the button">
+    In the theme editor, navigate to the page/section where the search button is placed (commonly the **Header**).
+
+    <Frame>
+      ![Image](/images/image-3.png)
+    </Frame>
+  </Step>
+  <Step title="Select the block">
+    Select the **Depict Search** block to reveal its settings.
+  </Step>
+  <Step title="Save">
+    Adjust the settings, then click **Save**.
+  </Step>
+</Steps>
+
+<Note>
+  The search modal is a single, global UI. Its experience (grid, cards, theming, logo, mobile layout) is configured once in the **app embeds** — not per button — so the configuration is unambiguous no matter how many search buttons you place. The **Search button** block only styles the button itself.
+</Note>
+
+## How settings are organized
+
+Each settings page uses an **Applies to** column to indicate whether a setting affects the desktop view, the mobile view, or both.
+
+<CardGroup cols={3}>
+  <Card title="Search button" icon="square-mouse-pointer" href="/shopify-guide/blocks/search-button-settings">
+    Styling for the button that opens the search modal.
+  </Card>
+
+  <Card title="Modal — Layout & behaviour" icon="table-cells-large" href="/shopify-guide/blocks/search-modal-layout">
+    Grid, product card, mobile layout, suggestions and header logo.
+  </Card>
+
+  <Card title="Modal — Theming" icon="palette" href="/shopify-guide/blocks/search-modal-theming">
+    Shape, typography, colors, dark mode and custom CSS.
+  </Card>
+</CardGroup>
