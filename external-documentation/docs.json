@@ -142,9 +142,10 @@
     }
   ],
   "navigation": {
-    "tabs": [
+    "anchors": [
       {
-        "tab": "Home",
+        "anchor": "Home",
+        "icon": "house",
         "groups": [
           {
             "group": "Home",
@@ -156,7 +157,8 @@
         ]
       },
       {
-        "tab": "Guide: Data ingestion",
+        "anchor": "Guide: Data ingestion",
+        "icon": "database",
         "groups": [
           {
             "group": "Data ingestion",
@@ -171,7 +173,8 @@
         ]
       },
       {
-        "tab": "Guide: Depict UI integration (React)",
+        "anchor": "Guide: Depict UI integration (React)",
+        "icon": "react",
         "groups": [
           {
             "group": "Overview",
@@ -232,7 +235,8 @@
         ]
       },
       {
-        "tab": "Guide: Depict UI integration (JavaScript)",
+        "anchor": "Guide: Depict UI integration (JavaScript)",
+        "icon": "js",
         "groups": [
           {
             "group": "Overview",
@@ -297,7 +301,8 @@
         ]
       },
       {
-        "tab": "Guide: Shopify app",
+        "anchor": "Guide: Shopify app",
+        "icon": "shopify",
         "groups": [
           {
             "group": "Overview",
@@ -344,7 +349,8 @@
         ]
       },
       {
-        "tab": "Guide: API integration",
+        "anchor": "Guide: API integration",
+        "icon": "plug",
         "groups": [
           {
             "group": "Overview",
@@ -386,7 +392,8 @@
         ]
       },
       {
-        "tab": "Other guides",
+        "anchor": "Other guides",
+        "icon": "book",
         "groups": [
           {
             "group": "Other guides",
@@ -427,7 +434,8 @@
         ]
       },
       {
-        "tab": "Reference",
+        "anchor": "Reference",
+        "icon": "book-open",
         "groups": [
           {
             "group": "Glossary",
