@@ -139,6 +139,11 @@
     {
       "source": "/reference/category-search/display-transformers.mdx",
       "destination": "/reference/listings-search/display-transformers.mdx"
+    },
+    {
+      "source": "/home/homepage",
+      "destination": "/",
+      "permanent": true
     }
   ],
   "navigation": {
@@ -151,7 +156,7 @@
             "group": "Home",
             "pages": [
               "home/depict-ui-intro",
-              "home/homepage"
+              "index"
             ]
           }
         ]
