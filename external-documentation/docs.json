@@ -155,8 +155,8 @@
           {
             "group": "Home",
             "pages": [
-              "home/depict-ui-intro",
-              "index"
+              "index",
+              "home/depict-ui-intro"
             ]
           }
         ]
