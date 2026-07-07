@@ -147,13 +147,8 @@
         "anchor": "Home",
         "icon": "house",
         "pages": [
-          {
-            "group": "Home",
-            "pages": [
-              "home/homepage",
-              "home/depict-ui-intro"
-            ]
-          }
+          "home/homepage",
+          "home/depict-ui-intro"
         ]
       },
       {
