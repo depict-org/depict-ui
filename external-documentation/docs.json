@@ -146,9 +146,14 @@
       {
         "anchor": "Home",
         "icon": "house",
-        "pages": [
-          "home/homepage",
-          "home/depict-ui-intro"
+        "groups": [
+          {
+            "group": "Home",
+            "pages": [
+              "home/depict-ui-intro",
+              "home/homepage"
+            ]
+          }
         ]
       },
       {
