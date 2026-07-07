@@ -1,0 +1,67 @@
+---
+title: "Combining multi-store and multi-market"
+description: "Running connected stores and per-region merchandising at the same time — what replicates and what's per store"
+---
+
+You can run **both** features at the same time: a group of connected stores (multi-store) where one or more of those stores also serves several regions (multi-market). They're designed to work side by side. The key thing to understand is **which parts replicate across stores and which parts you set up per store** — because the two features stay in their own lanes.
+
+<Note>
+If you haven't read them yet, start with [Multi-store](/shopify-guide/merchandising/multi-store) and [Multi-market](/shopify-guide/merchandising/multi-market). This article only covers what changes when you use them together.
+</Note>
+
+## The short version
+
+- **Multi-store** replicates your **default** collection merchandising from a source store to the other connected stores.
+- **Multi-market** versions are **per store** — they are *not* replicated across the group.
+- Each store has its **own** Shopify Markets. Markets are not shared across the group.
+
+So your baseline merchandising spreads automatically across stores, while regional tailoring is done on each store individually.
+
+## What replicates and what doesn't
+
+| Thing | Replicates across stores? |
+| --- | --- |
+| Default sort order & pinned products (the "global" version) | **Yes** — from the source store to the connected stores |
+| Content cards on the default version | **Yes** |
+| **Market-specific versions** (product order, cards, duplicates, image settings for a market) | **No** — set up on each store separately |
+| Which markets are enabled, and how they're grouped | **No** — configured per store |
+
+Think of it this way: multi-store mirrors the *base* experience of a collection across your stores. Multi-market layers regional variations *on top*, and that layer lives on each store on its own.
+
+## How to set it up
+
+<Steps>
+  <Step title="Connect your stores first">
+    Follow the [multi-store setup](/shopify-guide/merchandising/multi-store) to group your stores and link collections. Your default merchandising will start replicating from the source store.
+  </Step>
+  <Step title="Enable markets on each store that needs them">
+    Multi-market is per store, so open **Settings → Enabled markets** on each store and turn on the markets that store serves.
+  </Step>
+  <Step title="Build market versions per store">
+    On each store, create the market-specific versions you want for its regions. There's no cross-store copy of these, so you create them where you need them.
+  </Step>
+</Steps>
+
+## Benefits
+
+- **Best of both.** You still save time by merchandising your baseline once and replicating it across stores, *and* you can fine-tune for regions on the stores that need it.
+- **Independent regional strategies.** Because markets and market versions are per store, two stores in the same group can serve different regions, or merchandise the same region differently, without stepping on each other.
+
+## Caveats & limitations
+
+<Warning>
+**Market versions don't replicate — this is the big one.** If several stores serve the same region and you want identical per-market merchandising, you'll set that up on each store separately. Replication won't carry it for you.
+</Warning>
+
+- **Markets are per store.** Enabling and grouping markets is done independently on every store; there's no group-wide market list.
+- **Replication still maps by handle and SKU.** As with plain multi-store, only collections with matching handles link, and only products with matching SKUs map across stores — and that mapping applies to the default version that replicates, not to market versions.
+- **All the single-feature caveats still apply.** Everything in [Multi-store](/shopify-guide/merchandising/multi-store) and [Multi-market](/shopify-guide/merchandising/multi-market) holds on each side; combining them doesn't remove any of those limits.
+
+<CardGroup cols={2}>
+  <Card title="Multi-store" href="/shopify-guide/merchandising/multi-store" icon="store">
+    Manage several Shopify stores from one place.
+  </Card>
+  <Card title="Multi-market" href="/shopify-guide/merchandising/multi-market" icon="globe">
+    Tailor one store's merchandising per region.
+  </Card>
+</CardGroup>

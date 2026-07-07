@@ -1,0 +1,71 @@
+---
+title: "Multi-market"
+description: "Tailor a single Shopify store's merchandising per region using Shopify Markets"
+---
+
+Multi-market lets a **single** Shopify store show different merchandising to shoppers in different regions. It's built on **Shopify Markets**, so the regions, countries, and currencies come straight from how you've already set up Markets in Shopify. You can give a collection its own product order, content cards, and duplicated cards for one market, while shoppers everywhere else keep the default.
+
+<Note>Multi-market is available once your store uses Shopify Markets and the feature is enabled for your account.</Note>
+
+## The short version
+
+A "market" is one of your Shopify Markets — a country (or group of countries) with its own currency, like *Sweden*, *Germany*, or a grouped *Scandinavia*. Once multi-market is active, you choose which markets Depict should merchandise, then create **market-specific versions** of a collection. The theme detects each shopper's market at page load and shows them the matching version, falling back to your default version when there's no market-specific one.
+
+## What a "market" is
+
+- A **market** maps to one or more countries and a currency, exactly as defined in Shopify Markets (for example *Sweden — SEK*).
+- Markets can be bundled into **market groups** so similar regions share one version — for example a "Scandinavia" group covering Sweden and Finland together.
+- Depict reads your markets directly from Shopify during ingestion, so the list stays in step with your Shopify Markets configuration.
+
+## How to set it up
+
+<Steps>
+  <Step title="Enable the markets you care about">
+    In **Settings → Enabled markets**, you'll see your Shopify markets listed with their country flags. Toggle on the ones you want Depict to merchandise separately. Only enabled markets get their own versions.
+  </Step>
+  <Step title="Create a market version on a collection">
+    Open a collection, add a new version, and assign it to a market or market group. The default "global" version applies everywhere you haven't made a specific version.
+  </Step>
+  <Step title="Merchandise that version">
+    Set its product order, content cards, duplicates, and image settings — independently from your default and from your other markets.
+  </Step>
+  <Step title="Publish">
+    Depict syncs each market's setup to your store, and the theme takes over from there.
+  </Step>
+</Steps>
+
+## How shoppers get the right version
+
+When a shopper opens a collection page, your theme reads their **Shopify market** and asks Depict for the version built for that market. If a market-specific version exists, they see it; if not, they fall back to your default ("global") version. This happens automatically per shopper — you don't route anything by hand.
+
+## What market affects
+
+- **Product order** — each market can have its own sort and pinned products.
+- **Content cards & duplicates** — placed per market version.
+- **Image settings** — configured per market version.
+- **On-sale badges** — reflect where a product is actually on sale, so a product can show as on sale in one market and not another.
+- **Bestseller & trending badges** — rankings are calculated from what sells *in that market group*, with currencies converted to your shop currency before they're compared, so "bestselling" reflects regional demand rather than your whole catalog at once.
+- **Analytics** — clicks and purchases can be broken down by market.
+
+## Benefits
+
+- **One store, many regional experiences.** Tailor merchandising per region without spinning up separate stores.
+- **Group similar regions.** Market groups let you merchandise, say, all your Nordic markets together instead of one by one.
+- **Locally relevant bestsellers and sales.** Rankings and sale badges follow what's actually happening in each region.
+
+## Caveats & limitations
+
+- **Shopify Markets is a prerequisite.** Multi-market builds on your Shopify Markets setup; if you don't use Markets, there's nothing to segment by.
+- **You must enable markets explicitly.** A market only gets its own behavior after you enable it; markets you leave off keep the default version.
+- **New markets need data before badges fill in.** Bestseller and trending badges are computed from each market's own activity, so a newly enabled market can take time to gather enough data before those badges look right.
+- **Badge currency is your shop currency.** Even though rankings account for each market's sales, the figures behind bestseller/trending badges are normalised to your shop's base currency rather than formatted in the local one.
+- **The "global" version is the catch-all.** Anything you don't build a specific version for falls back to global, so keep your global version healthy — it's what most shoppers see.
+
+<CardGroup cols={2}>
+  <Card title="Multi-store" href="/shopify-guide/merchandising/multi-store" icon="store">
+    Manage several Shopify stores from one place.
+  </Card>
+  <Card title="Combining both" href="/shopify-guide/merchandising/multi-store-with-multi-market" icon="layer-group">
+    What changes when you run multi-store and multi-market together.
+  </Card>
+</CardGroup>
