@@ -338,8 +338,8 @@
           {
             "group": "Depict Search",
             "pages": [
-              "shopify-guide/blocks/search-button-settings.mdx",
-              "shopify-guide/blocks/search-customization-overview.mdx",
+              "shopify-guide/blocks/search-button-settings",
+              "shopify-guide/blocks/search-customization-overview",
               "shopify-guide/blocks/search-modal-layout",
               "shopify-guide/blocks/search-modal-theming"
             ]
