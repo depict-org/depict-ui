@@ -88,5 +88,4 @@ export const danish_search_translation: search_i18n = {
       : [`Fandt `, number_of_results_element, ` ${page_form}`];
   },
   modal_view_all_no_results_: "Se alternativer",
-  alternate_image_alt_: (product_title: string) => `${product_title}, alternativ visning`,
 } as const;

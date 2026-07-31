@@ -89,5 +89,4 @@ export const italian_search_translation: search_i18n = {
   popular_: "Popolare",
   products_: "Prodotti",
   modal_view_all_no_results_: "Visualizza alternative",
-  alternate_image_alt_: (product_title: string) => `${product_title}, vista alternativa`,
 } as const;

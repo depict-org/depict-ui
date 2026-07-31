@@ -104,5 +104,4 @@ export const czech_search_translation: search_i18n = {
   popular_: "Populární",
   products_: "Produkty",
   modal_view_all_no_results_: "Zobrazit alternativy",
-  alternate_image_alt_: (product_title: string) => `${product_title}, alternativní pohled`,
 } as const;

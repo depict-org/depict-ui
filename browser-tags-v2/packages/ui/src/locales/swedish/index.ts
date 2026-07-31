@@ -88,5 +88,4 @@ export const swedish_search_translation: search_i18n = {
       : [`Hittade `, number_of_results_element, ` sid${singular ? "a" : "or"}`];
   },
   show_n_results_: (number_of_results: HTMLElement) => ["Visa ", number_of_results, " resultat"],
-  alternate_image_alt_: (product_title: string) => `${product_title}, alternativ vy`,
 } as const;

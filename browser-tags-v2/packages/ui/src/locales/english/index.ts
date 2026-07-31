@@ -95,5 +95,4 @@ export const english_search_translation: search_i18n = {
       : [`Found `, number_of_results_element, ` ${page_form}`];
   },
   modal_view_all_no_results_: "View alternatives",
-  alternate_image_alt_: (product_title: string) => `${product_title}, alternate view`,
 } as const;

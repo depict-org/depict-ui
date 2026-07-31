@@ -88,5 +88,4 @@ export const finnish_search_translation: search_i18n = {
   popular_: "Suosittu",
   products_: "Tuotteet",
   modal_view_all_no_results_: "Näytä vaihtoehdot",
-  alternate_image_alt_: (product_title: string) => `${product_title}, vaihtoehtoinen näkymä`,
 } as const;

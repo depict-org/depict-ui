@@ -102,5 +102,4 @@ export const polish_search_translation: search_i18n = {
   popular_: "Popularne",
   products_: "Produkty",
   modal_view_all_no_results_: "Zobacz alternatywy",
-  alternate_image_alt_: (product_title: string) => `${product_title}, widok alternatywny`,
 } as const;

@@ -86,6 +86,8 @@ export const DefaultInstantCard = ({
       <div class="img-part">
         <InstantCardImageComponent_
           src_={variant.image_urls?.[0] || variant.image_url || variant.display_image_url}
+          // Duplicates the visible title in the link's accessible name on purpose: the graphic itself must announce
+          // the product name when a screen reader steps onto it (VROOM-573), not just the link as a whole
           alt_={variant.title}
         />
         {/*Only show hover images in SearchModalV2*/}
@@ -93,8 +95,9 @@ export const DefaultInstantCard = ({
           <InstantCardImageComponent_
             src_={secondary_image_url}
             class_="secondary"
-            // Optional chaining since merchant-provided locale objects created before this key existed won't have it
-            alt_={variant.title && (i18n_.alternate_image_alt_?.()(variant.title) || variant.title)}
+            // Decorative: hover-only duplicate of the main image that's hidden with opacity: 0, so it stays in the
+            // a11y tree — naming it would duplicate the card title for an image screen-reader users can't perceive
+            alt_=""
           />
         </Show>
       </div>

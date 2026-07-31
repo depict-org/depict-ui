@@ -26,9 +26,15 @@ export async function modal_opener<
 ) {
   const body = parent || document.body || (await observer.wait_for_element("body"));
   let dispose_and_remove: undefined | VoidFunction;
+  let restoring_focus = false;
 
   const open_modal_ = catchify(
     async (extra_options_for_modal = {} as ExtraOptionsProvidedOnOpen, on_dispose?: VoidFunction) => {
+      if (restoring_focus) {
+        // Ignore opens triggered by our own focus restore below (a merchant can open the modal on the trigger's
+        // `focus` event, and without this closing the modal would instantly reopen it, trapping keyboard users)
+        return;
+      }
       // Below await is very intentional,
       // The reason is that effects don't run in <Suspense> boundaries before they've resolved and this carries even through roots created, but if a modal is opened from a suspense boundary we still want the effects in it to run
       // This is because the suspense is for the content in the page and not the modal (the modal goes above it)
@@ -38,6 +44,8 @@ export async function modal_opener<
         // modal is already open
         return;
       }
+      // When the modal is mounted into a shadow root, document.activeElement is the shadow host, so this capture
+      // (like the contains()/blur() below always have) treats shadow-root mounts as best-effort: it fails closed
       const opening_active_element = document.activeElement;
       const element_focused_before_open =
         opening_active_element instanceof HTMLElement && opening_active_element !== document.body
@@ -63,7 +71,14 @@ export async function modal_opener<
               el.remove();
             });
             if (should_restore_focus && element_focused_before_open?.isConnected) {
-              element_focused_before_open.focus();
+              restoring_focus = true;
+              try {
+                // preventScroll so this can't re-introduce the safari page-jump the blur() above works around
+                element_focused_before_open.focus({ preventScroll: true });
+              } finally {
+                // Cleared on a task instead of synchronously in case a browser delivers the focus event async
+                setTimeout(() => (restoring_focus = false), 0);
+              }
             }
           };
           if (animation_started && +new Date() - animation_started > 1000) {

@@ -84,7 +84,6 @@ export interface search_i18n extends plp_shared_i18n {
   popular_: string;
   products_: string;
   modal_view_all_no_results_: string;
-  alternate_image_alt_: (product_title: string) => string;
 }
 
 /**
