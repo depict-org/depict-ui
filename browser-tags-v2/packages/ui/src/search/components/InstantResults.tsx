@@ -51,7 +51,7 @@ export function InstantResults<InputDisplay extends Display, OutputDisplay exten
   i18n_: solid_search_i18n;
   router_: PseudoRouter;
   // Image component to use. Passed down so that old modal can use old ContainedImage that supports browsers that don't support webp but otherwise is bloated while new one uses modern component
-  InstantCardImageComponent_: (props: { src_: string; class_?: string }) => JSX.Element;
+  InstantCardImageComponent_: (props: { src_: string; class_?: string; alt_?: string }) => JSX.Element;
   set_modal_search_results_: Setter<
     undefined | Resource<(SearchResponseAfterDisplayTransformer & { failed?: true | undefined }) | undefined>
   >;

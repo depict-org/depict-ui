@@ -25,7 +25,7 @@ export const DefaultInstantCard = ({
   display_: ModernDisplayWithPageUrl<any>;
   i18n_: solid_search_i18n;
   router_: PseudoRouter;
-  InstantCardImageComponent_: (props: { src_: string; class_?: string }) => JSX.Element;
+  InstantCardImageComponent_: (props: { src_: string; class_?: string; alt_?: string }) => JSX.Element;
   index_: Accessor<number>;
 } & (
   | { keyboardNavigationGroupIndex_?: never; selected_index_?: never } // <- ClassicSearchModal
@@ -84,10 +84,18 @@ export const DefaultInstantCard = ({
       }
     >
       <div class="img-part">
-        <InstantCardImageComponent_ src_={variant.image_urls?.[0] || variant.image_url || variant.display_image_url} />
+        <InstantCardImageComponent_
+          src_={variant.image_urls?.[0] || variant.image_url || variant.display_image_url}
+          alt_={variant.title}
+        />
         {/*Only show hover images in SearchModalV2*/}
         <Show when={selected_index_ && secondary_image_url && supports_hover()}>
-          <InstantCardImageComponent_ src_={secondary_image_url} class_="secondary" />
+          <InstantCardImageComponent_
+            src_={secondary_image_url}
+            class_="secondary"
+            // Optional chaining since merchant-provided locale objects created before this key existed won't have it
+            alt_={variant.title && (i18n_.alternate_image_alt_?.()(variant.title) || variant.title)}
+          />
         </Show>
       </div>
       <div class="right-part">

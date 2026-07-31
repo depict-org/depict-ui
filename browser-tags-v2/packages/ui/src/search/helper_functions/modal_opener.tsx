@@ -38,6 +38,11 @@ export async function modal_opener<
         // modal is already open
         return;
       }
+      const opening_active_element = document.activeElement;
+      const element_focused_before_open =
+        opening_active_element instanceof HTMLElement && opening_active_element !== document.body
+          ? opening_active_element
+          : undefined;
       const modal_els = createRoot(dispose => {
         let closing_animation: () => Promise<void> | undefined;
         let animation_started: number | undefined;
@@ -46,6 +51,10 @@ export async function modal_opener<
             dispose();
             on_dispose?.();
             const { activeElement } = document;
+            // Don't steal focus if the user has already focused something outside the modal by the time it closes
+            // (for example when the modal closes due to navigating away while they're typing elsewhere)
+            const should_restore_focus =
+              !activeElement || activeElement === document.body || modal_els.some(el => el.contains(activeElement));
             modal_els.forEach(el => {
               if (el.contains(activeElement)) {
                 // Fix page jumping to the bottom when closing modal with scape after animation in safari
@@ -53,6 +62,9 @@ export async function modal_opener<
               }
               el.remove();
             });
+            if (should_restore_focus && element_focused_before_open?.isConnected) {
+              element_focused_before_open.focus();
+            }
           };
           if (animation_started && +new Date() - animation_started > 1000) {
             // Animation broke, close it this time

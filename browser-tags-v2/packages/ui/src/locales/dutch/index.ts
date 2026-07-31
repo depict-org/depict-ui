@@ -89,4 +89,5 @@ export const dutch_search_translation: search_i18n = {
   popular_: "Populair",
   products_: "Producten",
   modal_view_all_no_results_: "Bekijk alternatieven",
+  alternate_image_alt_: (product_title: string) => `${product_title}, alternatieve weergave`,
 } as const;

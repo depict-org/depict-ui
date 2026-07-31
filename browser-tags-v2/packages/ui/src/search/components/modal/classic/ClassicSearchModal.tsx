@@ -254,7 +254,7 @@ function RawClassicSearchModal({
                     ContainedImage({
                       loading: "lazy",
                       aspect_ratio: 1,
-                      alt: "",
+                      alt: props.alt_ ?? "",
                       rendering_options: {},
                       "src": props.src_,
                       srcset_opts: { set_dataset: false },
