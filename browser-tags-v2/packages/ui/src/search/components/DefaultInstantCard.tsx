@@ -25,7 +25,7 @@ export const DefaultInstantCard = ({
   display_: ModernDisplayWithPageUrl<any>;
   i18n_: solid_search_i18n;
   router_: PseudoRouter;
-  InstantCardImageComponent_: (props: { src_: string; class_?: string }) => JSX.Element;
+  InstantCardImageComponent_: (props: { src_: string; class_?: string; alt_?: string }) => JSX.Element;
   index_: Accessor<number>;
 } & (
   | { keyboardNavigationGroupIndex_?: never; selected_index_?: never } // <- ClassicSearchModal
@@ -84,10 +84,21 @@ export const DefaultInstantCard = ({
       }
     >
       <div class="img-part">
-        <InstantCardImageComponent_ src_={variant.image_urls?.[0] || variant.image_url || variant.display_image_url} />
+        <InstantCardImageComponent_
+          src_={variant.image_urls?.[0] || variant.image_url || variant.display_image_url}
+          // Duplicates the visible title in the link's accessible name on purpose: the graphic itself must announce
+          // the product name when a screen reader steps onto it (VROOM-573), not just the link as a whole
+          alt_={variant.title}
+        />
         {/*Only show hover images in SearchModalV2*/}
         <Show when={selected_index_ && secondary_image_url && supports_hover()}>
-          <InstantCardImageComponent_ src_={secondary_image_url} class_="secondary" />
+          <InstantCardImageComponent_
+            src_={secondary_image_url}
+            class_="secondary"
+            // Decorative: hover-only duplicate of the main image that's hidden with opacity: 0, so it stays in the
+            // a11y tree — naming it would duplicate the card title for an image screen-reader users can't perceive
+            alt_=""
+          />
         </Show>
       </div>
       <div class="right-part">

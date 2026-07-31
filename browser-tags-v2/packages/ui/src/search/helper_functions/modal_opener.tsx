@@ -26,9 +26,19 @@ export async function modal_opener<
 ) {
   const body = parent || document.body || (await observer.wait_for_element("body"));
   let dispose_and_remove: undefined | VoidFunction;
+  let restoring_focus = false;
 
   const open_modal_ = catchify(
     async (extra_options_for_modal = {} as ExtraOptionsProvidedOnOpen, on_dispose?: VoidFunction) => {
+      if (restoring_focus) {
+        // Ignore opens triggered by our own focus restore below (a merchant can open the modal on the trigger's
+        // `focus` event, and without this closing the modal would instantly reopen it, trapping keyboard users).
+        // Only covers handlers that open within the same task as the restore — a handler that opens
+        // asynchronously (debounce, framework effect) can still reopen the modal on close. Inversely, ANY open
+        // in that task is dropped, including a programmatic close_modal_(); open_modal_() sequence when no
+        // closing animation is registered — a focus-handler open is indistinguishable from one here.
+        return;
+      }
       // Below await is very intentional,
       // The reason is that effects don't run in <Suspense> boundaries before they've resolved and this carries even through roots created, but if a modal is opened from a suspense boundary we still want the effects in it to run
       // This is because the suspense is for the content in the page and not the modal (the modal goes above it)
@@ -38,6 +48,16 @@ export async function modal_opener<
         // modal is already open
         return;
       }
+      // When the modal is mounted into a shadow root, document.activeElement is the shadow host, not the real
+      // focused element — focus capture/restore (and the pre-existing contains()/blur() below) are best-effort
+      // there and fail closed
+      const opening_active_element = document.activeElement;
+      const element_focused_before_open =
+        opening_active_element instanceof HTMLElement &&
+        opening_active_element !== document.body &&
+        opening_active_element !== document.documentElement
+          ? opening_active_element
+          : undefined;
       const modal_els = createRoot(dispose => {
         let closing_animation: () => Promise<void> | undefined;
         let animation_started: number | undefined;
@@ -46,6 +66,16 @@ export async function modal_opener<
             dispose();
             on_dispose?.();
             const { activeElement } = document;
+            // Don't steal focus if the user has already focused something outside the modal by the time it closes
+            // (for example when the modal closes due to navigating away while they're typing elsewhere).
+            // !dispose_and_remove: if the modal was reopened during our closing animation, don't steal focus from
+            // the new instance — its input focuses asynchronously, so activeElement can still be body here
+            const should_restore_focus =
+              (!activeElement ||
+                activeElement === document.body ||
+                activeElement === document.documentElement ||
+                modal_els.some(el => el.contains(activeElement))) &&
+              !dispose_and_remove;
             modal_els.forEach(el => {
               if (el.contains(activeElement)) {
                 // Fix page jumping to the bottom when closing modal with scape after animation in safari
@@ -53,6 +83,16 @@ export async function modal_opener<
               }
               el.remove();
             });
+            if (should_restore_focus && element_focused_before_open?.isConnected) {
+              restoring_focus = true;
+              try {
+                // preventScroll so this can't re-introduce the safari page-jump the blur() above works around
+                element_focused_before_open.focus({ preventScroll: true });
+              } finally {
+                // Cleared on a task instead of synchronously in case a browser delivers the focus event async
+                setTimeout(() => (restoring_focus = false), 0);
+              }
+            }
           };
           if (animation_started && +new Date() - animation_started > 1000) {
             // Animation broke, close it this time

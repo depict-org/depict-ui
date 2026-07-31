@@ -360,7 +360,7 @@ function RawSearchModalV2<InputDisplay extends Display, OutputDisplay extends Mo
                   // Let people override aspect ratio with css variable
                   aspectRatio={1}
                   class={props.class_}
-                  imgProps={{ alt: "Product image" }}
+                  imgProps={{ alt: props.alt_ ?? "" }}
                   imageResizer_={imageResizer_}
                 />
               ),
