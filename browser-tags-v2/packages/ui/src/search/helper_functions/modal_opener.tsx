@@ -34,7 +34,9 @@ export async function modal_opener<
         // Ignore opens triggered by our own focus restore below (a merchant can open the modal on the trigger's
         // `focus` event, and without this closing the modal would instantly reopen it, trapping keyboard users).
         // Only covers handlers that open within the same task as the restore — a handler that opens
-        // asynchronously (debounce, framework effect) can still reopen the modal on close.
+        // asynchronously (debounce, framework effect) can still reopen the modal on close. Inversely, ANY open
+        // in that task is dropped, including a programmatic close_modal_(); open_modal_() sequence when no
+        // closing animation is registered — a focus-handler open is indistinguishable from one here.
         return;
       }
       // Below await is very intentional,
@@ -51,7 +53,9 @@ export async function modal_opener<
       // there and fail closed
       const opening_active_element = document.activeElement;
       const element_focused_before_open =
-        opening_active_element instanceof HTMLElement && opening_active_element !== document.body
+        opening_active_element instanceof HTMLElement &&
+        opening_active_element !== document.body &&
+        opening_active_element !== document.documentElement
           ? opening_active_element
           : undefined;
       const modal_els = createRoot(dispose => {

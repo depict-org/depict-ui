@@ -10,17 +10,6 @@ const flush_tasks = () => new Promise(resolve => setTimeout(resolve, 0));
 describe("modal_opener focus restore", () => {
   let trigger: HTMLButtonElement;
 
-  beforeAll(async () => {
-    // The web-animations polyfill loaded by jest.setup.js queues an rAF tick at load that throws under jsdom
-    // the first time real timers run. Nothing in modal_opener needs rAF — stop new ticks and drain the
-    // poisoned one here (swallowing only during the drain) so it can't fail the first test that uses timers.
-    window.requestAnimationFrame = () => 0;
-    const swallow = (event: Event) => event.preventDefault();
-    window.addEventListener("error", swallow);
-    await new Promise(resolve => setTimeout(resolve, 50));
-    window.removeEventListener("error", swallow);
-  });
-
   beforeEach(() => {
     document.body.innerHTML = "";
     trigger = document.createElement("button");
@@ -68,7 +57,8 @@ describe("modal_opener focus restore", () => {
     get_inside_button_().focus();
     trigger.remove();
     close_modal_();
-    expect(document.activeElement).not.toBe(trigger);
+    // Nothing else may grab focus either — it should rest on body, as before this feature
+    expect(document.activeElement).toBe(document.body);
     await flush_tasks();
   });
 
