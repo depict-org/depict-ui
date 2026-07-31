@@ -32,7 +32,9 @@ export async function modal_opener<
     async (extra_options_for_modal = {} as ExtraOptionsProvidedOnOpen, on_dispose?: VoidFunction) => {
       if (restoring_focus) {
         // Ignore opens triggered by our own focus restore below (a merchant can open the modal on the trigger's
-        // `focus` event, and without this closing the modal would instantly reopen it, trapping keyboard users)
+        // `focus` event, and without this closing the modal would instantly reopen it, trapping keyboard users).
+        // Only covers handlers that open within the same task as the restore — a handler that opens
+        // asynchronously (debounce, framework effect) can still reopen the modal on close.
         return;
       }
       // Below await is very intentional,
@@ -44,8 +46,9 @@ export async function modal_opener<
         // modal is already open
         return;
       }
-      // When the modal is mounted into a shadow root, document.activeElement is the shadow host, so this capture
-      // (like the contains()/blur() below always have) treats shadow-root mounts as best-effort: it fails closed
+      // When the modal is mounted into a shadow root, document.activeElement is the shadow host, not the real
+      // focused element — focus capture/restore (and the pre-existing contains()/blur() below) are best-effort
+      // there and fail closed
       const opening_active_element = document.activeElement;
       const element_focused_before_open =
         opening_active_element instanceof HTMLElement && opening_active_element !== document.body
@@ -60,9 +63,15 @@ export async function modal_opener<
             on_dispose?.();
             const { activeElement } = document;
             // Don't steal focus if the user has already focused something outside the modal by the time it closes
-            // (for example when the modal closes due to navigating away while they're typing elsewhere)
+            // (for example when the modal closes due to navigating away while they're typing elsewhere).
+            // !dispose_and_remove: if the modal was reopened during our closing animation, don't steal focus from
+            // the new instance — its input focuses asynchronously, so activeElement can still be body here
             const should_restore_focus =
-              !activeElement || activeElement === document.body || modal_els.some(el => el.contains(activeElement));
+              (!activeElement ||
+                activeElement === document.body ||
+                activeElement === document.documentElement ||
+                modal_els.some(el => el.contains(activeElement))) &&
+              !dispose_and_remove;
             modal_els.forEach(el => {
               if (el.contains(activeElement)) {
                 // Fix page jumping to the bottom when closing modal with scape after animation in safari
