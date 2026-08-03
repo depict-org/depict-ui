@@ -94,3 +94,22 @@ The SDK connects to Depict's API endpoints for:
 - Personalized recommendations
 - Analytics and tracking events
 
+## License
+
+This project's source code is licensed under the [MIT License](LICENSE). The Inter font bundled in this repository is licensed separately under the SIL Open Font License 1.1 (see [`preview_browser/src/fonts/LICENSE`](preview_browser/src/fonts/LICENSE)).
+
+## Disclaimer
+
+[`LICENSE`](LICENSE) is the governing agreement for this SDK. The notes below restate parts of it in plain language for visibility and add no terms of their own.
+
+- The SDK is provided **"as is", without warranty of any kind**, and the copyright holders are not liable for claims or damages arising from its use.
+- You are responsible for how you deploy, configure, extend and style the SDK on your own site, and for any legal or regulatory obligations that attach to that site.
+
+### Accessibility
+
+We aim to follow the [WAI-ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/) in the components this SDK renders, and we fix reported accessibility defects. We do not claim conformance to WCAG or any other accessibility standard.
+
+The accessibility of a finished site depends largely on the integrator's own markup, styling, content and surrounding page structure, which are outside this SDK's control — so using the SDK does not by itself make a site accessible.
+
+Found an accessibility problem in the SDK? Please [open an issue](https://github.com/depict-org/depict-ui/issues) — we would rather fix it than have it worked around.
+
