@@ -96,18 +96,18 @@ The SDK connects to Depict's API endpoints for:
 
 ## License
 
-This project's source code is licensed under the [MIT License](LICENSE). The Inter font bundled in this repository is licensed separately under the SIL Open Font License 1.1 (see [`preview_browser/src/fonts/LICENSE`](preview_browser/src/fonts/LICENSE)).
+This project's source code is licensed under the [MIT License](LICENSE). Two parts of this repository carry their own notices: the bundled Inter font is under the SIL Open Font License 1.1 (see [`preview_browser/src/fonts/LICENSE`](preview_browser/src/fonts/LICENSE)), and the vendored example storefronts under [`storefronts/`](storefronts/) are MIT with different copyright holders.
 
 ## Disclaimer
 
-[`LICENSE`](LICENSE) is the governing agreement for this SDK. The notes below restate parts of it in plain language for visibility and add no terms of their own.
+[`LICENSE`](LICENSE) is the governing agreement for this SDK. The first note below restates part of it in plain language for visibility; the second describes how responsibility divides in practice. Neither adds terms to `LICENSE`.
 
-- The SDK is provided **"as is", without warranty of any kind**, and the copyright holders are not liable for claims or damages arising from its use.
+- The SDK is provided **"as is", without warranty of any kind, express or implied**, and neither the authors nor the copyright holders are liable for claims or damages arising from or in connection with it.
 - You are responsible for how you deploy, configure, extend and style the SDK on your own site, and for any legal or regulatory obligations that attach to that site.
 
 ### Accessibility
 
-We aim to follow the [WAI-ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/) in the components this SDK renders, and we fix reported accessibility defects. We do not claim conformance to WCAG or any other accessibility standard.
+We aim to follow the [WAI-ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/) in the components this SDK renders, and we work to fix reported accessibility defects. We do not claim conformance to WCAG or any other accessibility standard.
 
 The accessibility of a finished site depends largely on the integrator's own markup, styling, content and surrounding page structure, which are outside this SDK's control — so using the SDK does not by itself make a site accessible.
 
