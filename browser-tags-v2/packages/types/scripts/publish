@@ -2,10 +2,7 @@
 set -e
 
 mv api api_symlink
+trap 'rm -rf api; mv api_symlink api' EXIT
 mkdir api
 cp -r api_symlink/* api/
-publish_status=0
-yarn npm publish $@ || publish_status=$?
-rm -rf api
-mv api_symlink api
-exit "$publish_status"
+yarn npm publish "$@"

@@ -33,9 +33,12 @@ node "$SCRIPT_DIR"/post_build.cjs
 # There's a bug in parcel so when we selectively only build some targets, what we have to do to be able to build with different env vars for SSR, we can't build the types
 # To workaround that we make the package.json very simple to force parcel to just build the types
 
-package_json_contents="$(node "$SCRIPT_DIR"/pre_types_build.cjs)"
-if [ $? -ne 0 ]; then
+package_json_contents="$(node "$SCRIPT_DIR"/pre_types_build.cjs)" || {
   echo "ERROR: Couldn't read/write package.json, aborting"
+  exit 1
+}
+if [ -z "$package_json_contents" ]; then
+  echo "ERROR: pre_types_build.cjs produced no package.json contents, refusing to overwrite"
   exit 1
 fi
 
@@ -50,9 +53,12 @@ fi
 
 
 # Build types for locales
-package_json_contents="$(node "$SCRIPT_DIR"/pre_types_build.cjs locales)"
-if [ $? -ne 0 ]; then
+package_json_contents="$(node "$SCRIPT_DIR"/pre_types_build.cjs locales)" || {
   echo "ERROR: Couldn't read/write package.json, aborting"
+  exit 1
+}
+if [ -z "$package_json_contents" ]; then
+  echo "ERROR: pre_types_build.cjs produced no package.json contents, refusing to overwrite"
   exit 1
 fi
 
