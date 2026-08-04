@@ -39,6 +39,7 @@ node $SCRIPT_DIR/../../../build_scripts/organise_transpiled_package_exports.cjs 
 
 # Find all .js and .cjs files and prepend "use client" to opt out of react server components
 find "$SCRIPT_DIR"/../server "$SCRIPT_DIR"/../latest "$SCRIPT_DIR"/../ES10 -type f \( -name "*.js" -o -name "*.cjs" \) -exec bash -c '
+    set -e
     for file; do
         # Temporarily move the file
         mv "$file" "$file.tmp"
