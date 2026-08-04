@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 # https://stackoverflow.com/a/246128
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
@@ -6,11 +7,24 @@ node "$SCRIPT_DIR"/pre_build.cjs
 
 ## Build server and client bundles in parallel
 SOLID_JSX_RUNTIME=true NO_PRIVATE_TRANSPILATION=true HYDRATABLE=true SERVER=false parcel build --no-source-maps --target localesModule_latest --target localesCommonJS_latest --target client_esmodule_latest --target client_commonjs_latest --target localesModule_ES10 --target localesCommonJS_ES10 --target client_esmodule_ES10 --target client_commonjs_ES10 &
+client_pid=$!
 
 SOLID_JSX_RUNTIME=true NO_PRIVATE_TRANSPILATION=true HYDRATABLE=true SERVER=true parcel build --no-source-maps --target server_esmodule_latest --target server_commonjs_latest --target server_esmodule_ES10  --target server_commonjs_ES10 &
+server_pid=$!
 
 # Wait for both jobs to complete
-wait
+client_status=0
+server_status=0
+wait "$client_pid" || client_status=$?
+wait "$server_pid" || server_status=$?
+if [ "$client_status" -ne 0 ]; then
+  echo "ERROR: client/locales bundle build failed"
+  exit "$client_status"
+fi
+if [ "$server_status" -ne 0 ]; then
+  echo "ERROR: server bundle build failed"
+  exit "$server_status"
+fi
 
 
 node "$SCRIPT_DIR"/post_build.cjs
@@ -19,27 +33,43 @@ node "$SCRIPT_DIR"/post_build.cjs
 # There's a bug in parcel so when we selectively only build some targets, what we have to do to be able to build with different env vars for SSR, we can't build the types
 # To workaround that we make the package.json very simple to force parcel to just build the types
 
-package_json_contents="$(node "$SCRIPT_DIR"/pre_types_build.cjs)"
-if [ $? -ne 0 ]; then
+package_json_contents="$(node "$SCRIPT_DIR"/pre_types_build.cjs)" || {
   echo "ERROR: Couldn't read/write package.json, aborting"
+  exit 1
+}
+if [ -z "$package_json_contents" ]; then
+  echo "ERROR: pre_types_build.cjs produced no package.json contents, refusing to overwrite"
   exit 1
 fi
 
-SOLID_JSX_RUNTIME=true NO_PRIVATE_TRANSPILATION=true SERVER=false parcel build --no-source-maps
+types_status=0
+SOLID_JSX_RUNTIME=true NO_PRIVATE_TRANSPILATION=true SERVER=false parcel build --no-source-maps || types_status=$?
 
 echo "$package_json_contents" > "$SCRIPT_DIR"/../package.json
+if [ "$types_status" -ne 0 ]; then
+  echo "ERROR: types build failed"
+  exit "$types_status"
+fi
 
 
 # Build types for locales
-package_json_contents="$(node "$SCRIPT_DIR"/pre_types_build.cjs locales)"
-if [ $? -ne 0 ]; then
+package_json_contents="$(node "$SCRIPT_DIR"/pre_types_build.cjs locales)" || {
   echo "ERROR: Couldn't read/write package.json, aborting"
+  exit 1
+}
+if [ -z "$package_json_contents" ]; then
+  echo "ERROR: pre_types_build.cjs produced no package.json contents, refusing to overwrite"
   exit 1
 fi
 
-SOLID_JSX_RUNTIME=true NO_PRIVATE_TRANSPILATION=true SERVER=false parcel build --no-source-maps
+types_status=0
+SOLID_JSX_RUNTIME=true NO_PRIVATE_TRANSPILATION=true SERVER=false parcel build --no-source-maps || types_status=$?
 
 echo "$package_json_contents" > "$SCRIPT_DIR"/../package.json
+if [ "$types_status" -ne 0 ]; then
+  echo "ERROR: locales types build failed"
+  exit "$types_status"
+fi
 
 node $SCRIPT_DIR/../../../build_scripts/organise_transpiled_package_exports.cjs ui true
 

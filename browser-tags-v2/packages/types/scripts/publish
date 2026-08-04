@@ -1,8 +1,8 @@
 #!/bin/bash
+set -e
 
 mv api api_symlink
+trap 'rm -rf api; mv api_symlink api' EXIT
 mkdir api
 cp -r api_symlink/* api/
-yarn npm publish $@
-rm -rf api
-mv api_symlink api
+yarn npm publish "$@"

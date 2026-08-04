@@ -2,7 +2,7 @@ FROM testcafe/testcafe:latest as init
 # yay, testcafe switches to "user", but that makes permissions after copy a nightmare
 USER root
 
-RUN apk add --update --no-cache bash zsh
+RUN apk add --update --no-cache bash
 RUN npm i -g corepack
 ENV NODE_VERSION 20.9.0
 # Download Node.js, install it, and clean up

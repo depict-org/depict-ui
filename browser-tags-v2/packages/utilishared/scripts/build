@@ -10,11 +10,24 @@ node $SCRIPT_DIR/pre_build.cjs
 
 ## Build server and client bundles in parallel
 NO_PRIVATE_TRANSPILATION=true HYDRATABLE=true SERVER=false parcel build --no-source-maps --target module_latest --target main_latest --target module_es10 --target main_es10 &
+client_pid=$!
 
 NO_PRIVATE_TRANSPILATION=true HYDRATABLE=true SERVER=true parcel build --no-source-maps --target module_latest_server --target main_latest_server --target module_es10_server --target main_es10_server --target types &
+server_pid=$!
 
 # Wait for both jobs to complete
-wait
+client_status=0
+server_status=0
+wait "$client_pid" || client_status=$?
+wait "$server_pid" || server_status=$?
+if [ "$client_status" -ne 0 ]; then
+  echo "ERROR: client bundle build failed"
+  exit "$client_status"
+fi
+if [ "$server_status" -ne 0 ]; then
+  echo "ERROR: server bundle build failed"
+  exit "$server_status"
+fi
 
 node $SCRIPT_DIR/post_build.cjs
 

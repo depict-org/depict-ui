@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 # https://stackoverflow.com/a/246128
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
@@ -9,9 +10,27 @@ node "$SCRIPT_DIR"/pre_build.cjs
 pushd "$SCRIPT_DIR"/../ || exit
 mkdir -p dist/client dist/server dist/styles
 SOLID_JSX_RUNTIME=true NO_PRIVATE_TRANSPILATION=true HYDRATABLE=true SERVER=true yarn parcel build --no-source-maps --dist-dir dist/server --target module_latest --target main_latest --target module_es10 --target main_es10 ./src-server/index.ts &
+server_pid=$!
 SOLID_JSX_RUNTIME=true NO_PRIVATE_TRANSPILATION=true HYDRATABLE=true SERVER=false yarn parcel build --no-source-maps --dist-dir dist/client &
-NO_PRIVATE_TRANSPILATION=true yarn parcel build --no-source-maps --target css
-wait
+client_pid=$!
+css_status=0
+NO_PRIVATE_TRANSPILATION=true yarn parcel build --no-source-maps --target css || css_status=$?
+server_status=0
+client_status=0
+wait "$server_pid" || server_status=$?
+wait "$client_pid" || client_status=$?
+if [ "$css_status" -ne 0 ]; then
+  echo "ERROR: css build failed"
+  exit "$css_status"
+fi
+if [ "$server_status" -ne 0 ]; then
+  echo "ERROR: server bundle build failed"
+  exit "$server_status"
+fi
+if [ "$client_status" -ne 0 ]; then
+  echo "ERROR: client bundle build failed"
+  exit "$client_status"
+fi
 popd || exit
 
 node build-scripts/post_build.cjs
@@ -19,15 +38,16 @@ node build-scripts/post_build.cjs
 node $SCRIPT_DIR/../../../build_scripts/organise_transpiled_package_exports.cjs react-ui
 
 # Find all .js and .cjs files and prepend "use client" to opt out of react server components
-find "$SCRIPT_DIR"/../server "$SCRIPT_DIR"/../latest "$SCRIPT_DIR"/../ES10 -type f \( -name "*.js" -o -name "*.cjs" \) -exec zsh -c '
+find "$SCRIPT_DIR"/../server "$SCRIPT_DIR"/../latest "$SCRIPT_DIR"/../ES10 -type f \( -name "*.js" -o -name "*.cjs" \) -exec bash -c '
+    set -e
     for file; do
         # Temporarily move the file
         mv "$file" "$file.tmp"
 
         # Prepend the string and append the original content
-        echo "\"use client\";\n$(cat "$file.tmp")" > "$file"
+        printf "\"use client\";\n%s\n" "$(cat "$file.tmp")" > "$file"
 
         # Remove the temporary file
         rm "$file.tmp"
     done
-' zsh {} +
+' bash {} +

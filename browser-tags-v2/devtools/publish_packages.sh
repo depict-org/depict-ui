@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 VERSION_STRATEGY=${1:-"patch"}
 TAG=${2:-"latest"}
