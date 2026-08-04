@@ -1,8 +1,11 @@
 #!/bin/bash
+set -e
 
 mv api api_symlink
 mkdir api
 cp -r api_symlink/* api/
-yarn npm publish $@
+publish_status=0
+yarn npm publish $@ || publish_status=$?
 rm -rf api
 mv api_symlink api
+exit "$publish_status"

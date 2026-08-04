@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 # https://stackoverflow.com/a/246128
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
@@ -9,9 +10,27 @@ node "$SCRIPT_DIR"/pre_build.cjs
 pushd "$SCRIPT_DIR"/../ || exit
 mkdir -p dist/client dist/server dist/styles
 SOLID_JSX_RUNTIME=true NO_PRIVATE_TRANSPILATION=true HYDRATABLE=true SERVER=true yarn parcel build --no-source-maps --dist-dir dist/server --target module_latest --target main_latest --target module_es10 --target main_es10 ./src-server/index.ts &
+server_pid=$!
 SOLID_JSX_RUNTIME=true NO_PRIVATE_TRANSPILATION=true HYDRATABLE=true SERVER=false yarn parcel build --no-source-maps --dist-dir dist/client &
-NO_PRIVATE_TRANSPILATION=true yarn parcel build --no-source-maps --target css
-wait
+client_pid=$!
+css_status=0
+NO_PRIVATE_TRANSPILATION=true yarn parcel build --no-source-maps --target css || css_status=$?
+server_status=0
+client_status=0
+wait "$server_pid" || server_status=$?
+wait "$client_pid" || client_status=$?
+if [ "$css_status" -ne 0 ]; then
+  echo "ERROR: css build failed"
+  exit "$css_status"
+fi
+if [ "$server_status" -ne 0 ]; then
+  echo "ERROR: server bundle build failed"
+  exit "$server_status"
+fi
+if [ "$client_status" -ne 0 ]; then
+  echo "ERROR: client bundle build failed"
+  exit "$client_status"
+fi
 popd || exit
 
 node build-scripts/post_build.cjs
