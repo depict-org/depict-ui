@@ -16,7 +16,9 @@ const BABEL_RUNTIME_VERSION = "7.29.7";
 const HELPERS = ["defineProperty", "classPrivateFieldGet", "classPrivateFieldSet"];
 const PACKAGES = [
   { name: "@depict-ai/utilishared", base: "1.0.51", next: "1.0.52", patchDeps: {} },
-  { name: "@depict-ai/dpc", base: "1.0.45", next: "1.0.46", patchDeps: { "@depict-ai/utilishared": "^1.0.52" } },
+  // exact pin: dpc@1.0/+esm inlines utilishared, so a caret here would leave one CDN-side
+  // range resolution in the graph - the moving part this whole exercise removes
+  { name: "@depict-ai/dpc", base: "1.0.45", next: "1.0.46", patchDeps: { "@depict-ai/utilishared": "1.0.52" } },
 ];
 
 const out_dir = path.resolve(process.argv[2] ?? "v1-republish-out");
@@ -29,9 +31,7 @@ async function fetch_json(url) {
 }
 
 async function download_and_extract(name, version) {
-  const meta = await fetch_json(`https://registry.npmjs.org/${name}`);
-  const version_meta = meta.versions[version];
-  if (!version_meta) throw new Error(`${name}@${version} not found in registry`);
+  const version_meta = await fetch_json(`https://registry.npmjs.org/${name}/${version}`);
   const { tarball, integrity } = version_meta.dist;
   const res = await fetch(tarball);
   if (!res.ok) throw new Error(`GET ${tarball} -> ${res.status}`);
@@ -49,19 +49,23 @@ async function download_and_extract(name, version) {
 }
 
 // The runtime's helper files reference each other with same-directory relative specifiers,
-// so copying the transitive closure preserves them verbatim.
+// so the transitive closure can be copied with only extension adjustments. The v1 manifests
+// carry "type": "module", so the CJS copies must land as .cjs (a vendored .js would be
+// parsed as ESM by Node) with their intra-directory requires re-pointed accordingly.
 function helper_closure(runtime_dir, flavor) {
   const helpers_dir = path.join(runtime_dir, "helpers", flavor === "esm" ? "esm" : ".");
+  const ext = flavor === "esm" ? ".js" : ".cjs";
   const closure = new Map();
   const queue = HELPERS.map(h => `${h}.js`);
   while (queue.length) {
     const file = queue.shift();
-    if (closure.has(file)) continue;
-    const source = fs.readFileSync(path.join(helpers_dir, file), "utf8");
-    closure.set(file, source);
+    if (closure.has(file.replace(/\.js$/, ext))) continue;
+    let source = fs.readFileSync(path.join(helpers_dir, file), "utf8");
     for (const match of source.matchAll(/(?:from\s*|require\()\s*"\.\/([^"]+)"/g)) {
       queue.push(match[1]);
     }
+    if (flavor === "cjs") source = source.replaceAll(/require\("\.\/([^"]+)\.js"\)/g, 'require("./$1.cjs")');
+    closure.set(file.replace(/\.js$/, ext), source);
   }
   return closure;
 }
@@ -87,7 +91,7 @@ function rewrite_specifiers(pkg_dir) {
     const rewritten = original.replaceAll(/"@babel\/runtime\/helpers\/([a-zA-Z0-9_]+)"/g, (whole, helper) => {
       if (!HELPERS.includes(helper)) throw new Error(`unexpected helper ${helper} in ${file}`);
       total++;
-      const target = path.join(pkg_dir, "babel-helpers", flavor, `${helper}.js`);
+      const target = path.join(pkg_dir, "babel-helpers", flavor, `${helper}${flavor === "esm" ? ".js" : ".cjs"}`);
       let rel = path.relative(path.dirname(file), target);
       if (!rel.startsWith(".")) rel = `./${rel}`;
       return `"${rel}"`;
@@ -146,7 +150,15 @@ for (const spec of PACKAGES) {
   patch_manifest(pkg_dir, spec);
   verify(pkg_dir, spec.name);
   execFileSync("npm", ["pack", pkg_dir, "--pack-destination", out_dir], { stdio: "inherit" });
-  console.log(`${spec.name}@${spec.next}: ${rewrites} specifiers rewritten\n`);
+  // the fix only ships if `npm pack` honoured manifest.files - assert against the artifact itself
+  const tarball = path.join(out_dir, `${spec.name.replace(/^@/, "").replace("/", "-")}-${spec.next}.tgz`);
+  const packed = execFileSync("tar", ["tzf", tarball], { encoding: "utf8" }).split("\n");
+  const staged = [...closures.esm.keys()].map(f => `package/babel-helpers/esm/${f}`)
+    .concat([...closures.cjs.keys()].map(f => `package/babel-helpers/cjs/${f}`));
+  for (const entry of staged) {
+    if (!packed.includes(entry)) throw new Error(`${entry} missing from ${tarball}`);
+  }
+  console.log(`${spec.name}@${spec.next}: ${rewrites} specifiers rewritten, ${staged.length} vendored helpers in tarball\n`);
 }
 
 console.log(`tarballs in ${out_dir}. To release (publish utilishared first):`);
@@ -155,4 +167,4 @@ for (const spec of PACKAGES) {
 }
 console.log(`then purge the range URLs so jsdelivr re-resolves @1.0 immediately:`);
 console.log(`  curl https://purge.jsdelivr.net/npm/@depict-ai/dpc@1.0/ES10/+esm`);
-console.log(`  curl https://purge.jsdelivr.net/npm/@depict-ai/utilishared@1.0.51/ES10/+esm`);
+console.log(`  curl https://purge.jsdelivr.net/npm/@depict-ai/utilishared@1.0/ES10/+esm`);
