@@ -121,10 +121,16 @@ function verify(pkg_dir, name) {
   )) {
     const source = fs.readFileSync(file, "utf8");
     if (/@babel\/runtime/.test(source)) throw new Error(`@babel/runtime specifier left behind in ${file}`);
+    const in_helpers = file.includes(`${path.sep}babel-helpers${path.sep}`);
+    // a vendored helper importing anything non-relative would reintroduce a CDN fetch
+    if (in_helpers) {
+      for (const match of source.matchAll(/(?:from\s*|import\(|require\()\s*"([^."][^"]*)"/g)) {
+        throw new Error(`bare specifier "${match[1]}" in vendored helper ${file}`);
+      }
+    }
     // pre-existing relative specifiers are shipped as-is; only the ones this script wrote
     // (babel-helpers paths, and the helpers' own intra-directory imports) must resolve
     for (const match of source.matchAll(/(?:from\s*|import\(|require\()\s*"(\.[^"]+)"/g)) {
-      const in_helpers = file.includes(`${path.sep}babel-helpers${path.sep}`);
       if (!in_helpers && !match[1].includes("babel-helpers/")) continue;
       const resolved = path.resolve(path.dirname(file), match[1]);
       if (!fs.existsSync(resolved)) throw new Error(`unresolved relative import ${match[1]} in ${file}`);
@@ -138,6 +144,7 @@ const closures = { esm: helper_closure(runtime_dir, "esm"), cjs: helper_closure(
 console.log(`helper closure: ${[...closures.esm.keys()].join(", ")}`);
 
 fs.mkdirSync(out_dir, { recursive: true });
+const tarballs = [];
 for (const spec of PACKAGES) {
   const pkg_dir = await download_and_extract(spec.name, spec.base);
   for (const [flavor, closure] of Object.entries(closures)) {
@@ -149,21 +156,34 @@ for (const spec of PACKAGES) {
   if (rewrites === 0) throw new Error(`no @babel/runtime/helpers specifiers found in ${spec.name} - wrong base version?`);
   patch_manifest(pkg_dir, spec);
   verify(pkg_dir, spec.name);
-  execFileSync("npm", ["pack", pkg_dir, "--pack-destination", out_dir], { stdio: "inherit" });
+  // both module formats must load standalone - a direct-path require/import bypasses the
+  // exports map and pulls the intra-directory closure, so this catches a helper-layout or
+  // "type" mismatch on every run, not just the run someone checked by hand
+  for (const helper of HELPERS) {
+    execFileSync(process.execPath, ["-e", `require(${JSON.stringify(path.join(pkg_dir, "babel-helpers", "cjs", `${helper}.cjs`))})`]);
+    execFileSync(process.execPath, ["--input-type=module", "-e", `await import(${JSON.stringify(path.join(pkg_dir, "babel-helpers", "esm", `${helper}.js`))})`]);
+  }
   // the fix only ships if `npm pack` honoured manifest.files - assert against the artifact itself
-  const tarball = path.join(out_dir, `${spec.name.replace(/^@/, "").replace("/", "-")}-${spec.next}.tgz`);
+  const pack_output = execFileSync("npm", ["pack", pkg_dir, "--pack-destination", out_dir], { encoding: "utf8" });
+  const tarball = path.join(out_dir, pack_output.trim().split("\n").at(-1));
   const packed = execFileSync("tar", ["tzf", tarball], { encoding: "utf8" }).split("\n");
   const staged = [...closures.esm.keys()].map(f => `package/babel-helpers/esm/${f}`)
     .concat([...closures.cjs.keys()].map(f => `package/babel-helpers/cjs/${f}`));
   for (const entry of staged) {
     if (!packed.includes(entry)) throw new Error(`${entry} missing from ${tarball}`);
   }
+  tarballs.push(tarball);
   console.log(`${spec.name}@${spec.next}: ${rewrites} specifiers rewritten, ${staged.length} vendored helpers in tarball\n`);
 }
 
-console.log(`tarballs in ${out_dir}. To release (publish utilishared first):`);
-for (const spec of PACKAGES) {
-  console.log(`  npm publish ${path.join(out_dir, `${spec.name.replace(/^@/, "").replace("/", "-")}-${spec.next}.tgz`)}`);
+console.log(`tarballs in ${out_dir} (record these hashes alongside the publish):`);
+for (const tarball of tarballs) {
+  const sha = createHash("sha256").update(fs.readFileSync(tarball)).digest("hex");
+  console.log(`  ${path.basename(tarball)} sha256=${sha}`);
+}
+console.log(`To release (publish utilishared first):`);
+for (const tarball of tarballs) {
+  console.log(`  npm publish ${tarball}`);
 }
 console.log(`then purge the range URLs so jsdelivr re-resolves @1.0 immediately:`);
 console.log(`  curl https://purge.jsdelivr.net/npm/@depict-ai/dpc@1.0/ES10/+esm`);
