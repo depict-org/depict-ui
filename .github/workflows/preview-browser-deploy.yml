@@ -29,9 +29,23 @@ jobs:
       - run: corepack enable
       - run: yarn install --immutable
       - run: yarn build
-      # The SPA build must land in .output/public (what wrangler.jsonc serves).
-      # Fail loudly here rather than deploying an empty assets directory.
-      - run: test -f .output/public/index.html
+      - name: Snapshot the SPA shell into the static output
+        # @solidjs/start 0.4.x with ssr:false renders the SPA shell at runtime
+        # instead of emitting index.html — boot the built server once, save its
+        # shell, and assert the result is a real self-contained SPA entrypoint
+        # (script tags present, no baked-in localhost URLs). This is what makes
+        # .output/public deployable as a static assets directory.
+        run: |
+          PORT=3000 node .output/server/index.mjs &
+          SERVER_PID=$!
+          for _ in $(seq 1 30); do
+            curl -fs http://localhost:3000/ -o .output/public/index.html && break
+            sleep 1
+          done
+          kill "$SERVER_PID"
+          test -s .output/public/index.html
+          grep -q "<script" .output/public/index.html
+          ! grep -q "localhost" .output/public/index.html
       - uses: actions/upload-artifact@v4
         with:
           name: preview-browser-dist
