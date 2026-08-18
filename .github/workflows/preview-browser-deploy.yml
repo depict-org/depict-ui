@@ -35,14 +35,16 @@ jobs:
         # shell, and assert the result is a real self-contained SPA entrypoint
         # (script tags present, no baked-in localhost URLs). This is what makes
         # .output/public deployable as a static assets directory.
+        # `yarn start`, not `node .output/server/index.mjs`: the repo uses yarn PnP,
+        # and the built server still resolves some deps (vinxi/pathe) through it.
         run: |
-          PORT=3000 node .output/server/index.mjs &
+          PORT=3000 yarn start &
           SERVER_PID=$!
           for _ in $(seq 1 30); do
             curl -fs http://localhost:3000/ -o .output/public/index.html && break
             sleep 1
           done
-          kill "$SERVER_PID"
+          kill "$SERVER_PID" || true
           test -s .output/public/index.html
           grep -q "<script" .output/public/index.html
           ! grep -q "localhost" .output/public/index.html
