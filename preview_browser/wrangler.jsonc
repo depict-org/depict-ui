@@ -1,0 +1,17 @@
+// Cloudflare Workers static-assets hosting for the preview browser (demo.depict.ai).
+// The app builds with ssr:false (pure SPA), so this is an assets-only Worker: no
+// script, just the vinxi client output with SPA fallback routing.
+//
+// No custom domain here on purpose: first deploys verify on the workers.dev URL;
+// attaching demo.depict.ai is a separate cutover step (DNS currently points at the
+// old hosting) — add `"routes": [{ "pattern": "demo.depict.ai", "custom_domain": true }]`
+// when that flip is scheduled.
+{
+  "name": "preview-browser",
+  "account_id": "8e0167cf14dc375fab09fdf61c0efed4",
+  "compatibility_date": "2026-08-01",
+  "assets": {
+    "directory": ".output/public",
+    "not_found_handling": "single-page-application"
+  }
+}

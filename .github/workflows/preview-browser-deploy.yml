@@ -1,0 +1,57 @@
+name: Preview Browser
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - preview_browser/**
+      - .github/workflows/preview-browser-deploy.yml
+  pull_request:
+    paths:
+      - preview_browser/**
+      - .github/workflows/preview-browser-deploy.yml
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: preview_browser
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          # Matches the node major the app was containerised with; corepack picks the
+          # yarn version from package.json's packageManager field.
+          node-version: 21
+      - run: corepack enable
+      - run: yarn install --immutable
+      - run: yarn build
+      # The SPA build must land in .output/public (what wrangler.jsonc serves).
+      # Fail loudly here rather than deploying an empty assets directory.
+      - run: test -f .output/public/index.html
+      - uses: actions/upload-artifact@v4
+        with:
+          name: preview-browser-dist
+          path: preview_browser/.output/public
+          retention-days: 7
+
+  deploy:
+    # Deploy only from main. Requires the CLOUDFLARE_API_TOKEN repo secret
+    # (Workers Scripts:Edit on the depict account) — NOT configured yet; until it is,
+    # this job fails at the wrangler step and that is expected.
+    if: github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: preview-browser-dist
+          path: preview_browser/.output/public
+      - uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          workingDirectory: preview_browser

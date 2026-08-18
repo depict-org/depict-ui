@@ -1,0 +1,55 @@
+name: SCSS Docs
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - browser-tags-v2/packages/plp-styling/**
+      - scss_docs/**
+      - .github/workflows/scss-docs-deploy.yml
+  pull_request:
+    paths:
+      - browser-tags-v2/packages/plp-styling/**
+      - scss_docs/**
+      - .github/workflows/scss-docs-deploy.yml
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: browser-tags-v2
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 21
+      - run: corepack enable
+      - run: yarn install --immutable
+      # -> packages/plp-styling/sassdoc/ (what scss_docs/wrangler.jsonc serves)
+      - run: yarn build_scss_docs
+      - run: test -f packages/plp-styling/sassdoc/index.html
+      - uses: actions/upload-artifact@v4
+        with:
+          name: scss-docs-dist
+          path: browser-tags-v2/packages/plp-styling/sassdoc
+          retention-days: 7
+
+  deploy:
+    # Deploy only from main. Requires the CLOUDFLARE_API_TOKEN repo secret — NOT
+    # configured yet; until it is, this job fails at the wrangler step, expected.
+    if: github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: scss-docs-dist
+          path: browser-tags-v2/packages/plp-styling/sassdoc
+      - uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          workingDirectory: scss_docs
