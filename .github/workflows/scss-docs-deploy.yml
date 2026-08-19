@@ -1,0 +1,73 @@
+name: SCSS Docs
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - browser-tags-v2/packages/plp-styling/**
+      - scss_docs/**
+      - .github/workflows/scss-docs-deploy.yml
+  pull_request:
+    paths:
+      - browser-tags-v2/packages/plp-styling/**
+      - scss_docs/**
+      - .github/workflows/scss-docs-deploy.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Same rationale as preview-browser-deploy.yml: queue, never cancel, a deploy.
+concurrency:
+  group: scss-docs-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: browser-tags-v2
+    steps:
+      - uses: actions/checkout@v4
+      # Node 24 + yarn cache: matches browser-tags-typecheck.yml, which builds
+      # this same workspace.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: yarn
+          cache-dependency-path: browser-tags-v2/yarn.lock
+      - run: corepack enable
+      - run: yarn install --immutable
+      # -> packages/plp-styling/sassdoc/ (what scss_docs/wrangler.jsonc serves)
+      - run: yarn build_scss_docs
+      - run: test -f packages/plp-styling/sassdoc/index.html
+      - uses: actions/upload-artifact@v4
+        with:
+          name: scss-docs-dist
+          path: browser-tags-v2/packages/plp-styling/sassdoc
+          retention-days: 7
+
+  deploy:
+    # Deploy only from main; split from build for the same clean-runner-for-the-
+    # secret reason as preview-browser-deploy.yml. Requires CLOUDFLARE_API_TOKEN.
+    if: github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: scss-docs-dist
+          path: browser-tags-v2/packages/plp-styling/sassdoc
+      # Re-assert at the point that matters: never deploy an empty assets dir.
+      - run: test -f browser-tags-v2/packages/plp-styling/sassdoc/index.html
+      - uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          workingDirectory: scss_docs
+          packageManager: npm
+          wranglerVersion: "4"
+          command: deploy

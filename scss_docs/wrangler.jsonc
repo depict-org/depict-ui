@@ -1,0 +1,16 @@
+// Cloudflare Workers static-assets hosting for the plp-styling sassdoc site
+// (scss-docs.depict.ai). Assets-only Worker over the sassdoc output that
+// `yarn build_scss_docs` (in browser-tags-v2) writes to
+// packages/plp-styling/sassdoc/.
+//
+// No custom domain here on purpose — same cutover note as
+// preview_browser/wrangler.jsonc: verify on workers.dev first, attach
+// scss-docs.depict.ai when the DNS flip is scheduled.
+{
+  "name": "scss-docs",
+  "account_id": "8e0167cf14dc375fab09fdf61c0efed4",
+  "compatibility_date": "2026-08-01",
+  "assets": {
+    "directory": "../browser-tags-v2/packages/plp-styling/sassdoc"
+  }
+}
