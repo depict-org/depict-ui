@@ -13,6 +13,19 @@ on:
       - .github/workflows/preview-browser-deploy.yml
   workflow_dispatch:
 
+# The build job runs dependency lifecycle scripts from PRs; nothing here needs
+# more than checkout.
+permissions:
+  contents: read
+
+# Order deploys instead of racing them: two quick merges to main must not let the
+# older wrangler upload finish last and win. cancel-in-progress stays FALSE on
+# purpose — a deploy run cancelled mid-flight has bitten this org before; queued
+# FIFO gives the same end state (newest deploys last) without killing uploads.
+concurrency:
+  group: preview-browser-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -23,20 +36,26 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          # Matches the node major the app was containerised with; corepack picks the
-          # yarn version from package.json's packageManager field.
+          # Deliberately 21, not current LTS: this app's pinned toolchain
+          # (vinxi 0.0.64 / @solidjs/start 0.4.2) last shipped from a node:21.5.0
+          # container and 21 is its only CI-proven build env; revisit when the
+          # toolchain is modernised. corepack picks the yarn version from
+          # package.json's packageManager field.
           node-version: 21
+          cache: yarn
+          cache-dependency-path: preview_browser/yarn.lock
       - run: corepack enable
       - run: yarn install --immutable
       - run: yarn build
       - name: Snapshot the SPA shell into the static output
-        # @solidjs/start 0.4.x with ssr:false renders the SPA shell at runtime
+        # @solidjs/start 0.4.x with ssr:false renders the shell at runtime
         # instead of emitting index.html — boot the built server once, save its
         # shell, and assert the result is a real self-contained SPA entrypoint
         # (script tags present, no baked-in localhost URLs). This is what makes
         # .output/public deployable as a static assets directory.
-        # `yarn start`, not `node .output/server/index.mjs`: the repo uses yarn PnP,
-        # and the built server still resolves some deps (vinxi/pathe) through it.
+        # `yarn start`, not `node .output/server/index.mjs`: the repo uses yarn
+        # PnP, and the built server still resolves some deps (vinxi/pathe)
+        # through it.
         run: |
           PORT=3000 yarn start &
           SERVER_PID=$!
@@ -48,6 +67,9 @@ jobs:
           test -s .output/public/index.html
           grep -q "<script" .output/public/index.html
           ! grep -q "localhost" .output/public/index.html
+      # upload-artifact@v4 default include-hidden-files:false is a conscious
+      # choice: the only dot-prefixed output is _build/.vite/manifest.json,
+      # which a served static SPA does not need.
       - uses: actions/upload-artifact@v4
         with:
           name: preview-browser-dist
@@ -55,19 +77,30 @@ jobs:
           retention-days: 7
 
   deploy:
-    # Deploy only from main. Requires the CLOUDFLARE_API_TOKEN repo secret
-    # (Workers Scripts:Edit on the depict account) — NOT configured yet; until it is,
-    # this job fails at the wrangler step and that is expected.
+    # Deploy only from main. Split from the build job on purpose: the build job
+    # executes arbitrary dependency lifecycle scripts, so the secret-bearing
+    # wrangler step runs in a clean runner that installed nothing from the
+    # project's dependency tree. Requires the CLOUDFLARE_API_TOKEN repo secret.
     if: github.ref == 'refs/heads/main'
     needs: build
     runs-on: ubuntu-latest
+    environment: production
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
           name: preview-browser-dist
           path: preview_browser/.output/public
+      # Re-assert at the point that matters: an empty/missing artifact must not
+      # let wrangler deploy an empty assets directory over a live site.
+      - run: test -s preview_browser/.output/public/index.html
       - uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           workingDirectory: preview_browser
+          # Pin the install path: without these the action auto-detects a
+          # package manager from the working directory, and this yarn-4 PnP
+          # project would make it try (and fail with) the runner's yarn 1.
+          packageManager: npm
+          wranglerVersion: "4"
+          command: deploy
