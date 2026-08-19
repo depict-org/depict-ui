@@ -9,7 +9,7 @@
     "link-all": "yarn link ../browser-tags-v2/packages/types/ && yarn link ../browser-tags-v2/packages/plp-styling/ && yarn link ../browser-tags-v2/packages/utilishared/ && yarn link ../browser-tags-v2/packages/performance-client/ && yarn link ../browser-tags-v2/packages/ui/ && yarn link ../browser-tags-v2/packages/js-ui/ && ln -fs ../../../browser-tags-v2/packages/plp-styling src/styling/plp-styling && LANG=C LC_CTYPE=C find ./src -type f ! -name '.DS_Store' -exec sed -i '' 's/@depict-ai\\/plp-styling/\\~\\/styling\\/plp-styling/g' {} +",
     "unlink-all": "yarn unlink ../browser-tags-v2/packages/js-ui/ && yarn unlink ../browser-tags-v2/packages/ui/ && yarn unlink ../browser-tags-v2/packages/performance-client/ && yarn unlink ../browser-tags-v2/packages/utilishared/ && yarn unlink ../browser-tags-v2/packages/plp-styling/ && yarn unlink ../browser-tags-v2/packages/types/ && rm src/styling/plp-styling && LANG=C LC_CTYPE=C find ./src -type f ! -name '.DS_Store' -exec sed -i '' 's/\\~\\/styling\\/plp-styling/@depict-ai\\/plp-styling/g' {} +"
   },
-  "packageManager": "yarn@4.5.3",
+  "packageManager": "yarn@4.14.1+sha224.88b7a7244bbd9040380c417f7eb556d85c67640b651f113cb4c72113",
   "type": "module",
   "devDependencies": {
     "@depict-ai/types": "^5.6.1",
@@ -32,14 +32,18 @@
     "seroval-plugins": "^1.0.4",
     "solid-js": "^1.9.3",
     "vinxi": "0.0.64",
-    "vite": "4.5.2"
+    "vite": "4.5.14"
   },
   "resolutions": {
+    "tar": "7.5.22",
     "vinxi": "0.0.64",
     "@vinxi/plugin-directives": "0.0.60",
     "mlly@npm:^1.2.0": "patch:mlly@npm%3A1.5.0#~/.yarn/patches/mlly-npm-1.5.0-dc7923db5f.patch",
     "mlly@npm:^1.4.2": "patch:mlly@npm%3A1.5.0#~/.yarn/patches/mlly-npm-1.5.0-dc7923db5f.patch",
-    "vite": "4.5.2"
+    "vite": "4.5.14",
+    "h3@npm:1.9.0": "npm:1.15.11",
+    "seroval@npm:~1.3.0": "npm:1.5.5",
+    "seroval-plugins@npm:~1.3.0": "npm:1.5.5"
   },
   "engines": {
     "node": ">=19"
