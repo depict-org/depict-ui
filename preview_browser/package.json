@@ -9,7 +9,7 @@
     "link-all": "yarn link ../browser-tags-v2/packages/types/ && yarn link ../browser-tags-v2/packages/plp-styling/ && yarn link ../browser-tags-v2/packages/utilishared/ && yarn link ../browser-tags-v2/packages/performance-client/ && yarn link ../browser-tags-v2/packages/ui/ && yarn link ../browser-tags-v2/packages/js-ui/ && ln -fs ../../../browser-tags-v2/packages/plp-styling src/styling/plp-styling && LANG=C LC_CTYPE=C find ./src -type f ! -name '.DS_Store' -exec sed -i '' 's/@depict-ai\\/plp-styling/\\~\\/styling\\/plp-styling/g' {} +",
     "unlink-all": "yarn unlink ../browser-tags-v2/packages/js-ui/ && yarn unlink ../browser-tags-v2/packages/ui/ && yarn unlink ../browser-tags-v2/packages/performance-client/ && yarn unlink ../browser-tags-v2/packages/utilishared/ && yarn unlink ../browser-tags-v2/packages/plp-styling/ && yarn unlink ../browser-tags-v2/packages/types/ && rm src/styling/plp-styling && LANG=C LC_CTYPE=C find ./src -type f ! -name '.DS_Store' -exec sed -i '' 's/\\~\\/styling\\/plp-styling/@depict-ai\\/plp-styling/g' {} +"
   },
-  "packageManager": "yarn@4.14.1",
+  "packageManager": "yarn@4.14.1+sha224.88b7a7244bbd9040380c417f7eb556d85c67640b651f113cb4c72113",
   "type": "module",
   "devDependencies": {
     "@depict-ai/types": "^5.6.1",
