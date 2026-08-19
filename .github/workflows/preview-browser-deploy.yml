@@ -6,10 +6,12 @@ on:
       - main
     paths:
       - preview_browser/**
+      - preview_browser_deploy/**
       - .github/workflows/preview-browser-deploy.yml
   pull_request:
     paths:
       - preview_browser/**
+      - preview_browser_deploy/**
       - .github/workflows/preview-browser-deploy.yml
   workflow_dispatch:
 
@@ -97,10 +99,11 @@ jobs:
       - uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          workingDirectory: preview_browser
-          # Pin the install path: without these the action auto-detects a
-          # package manager from the working directory, and this yarn-4 PnP
-          # project would make it try (and fail with) the runner's yarn 1.
+          # package.json-free deploy dir (mirrors scss_docs/): the action runs
+          # `npm i wrangler` INSIDE workingDirectory, and inside preview_browser/
+          # that parses the app's package.json and dies on its yarn `patch:`
+          # protocol entries (EUNSUPPORTEDPROTOCOL, first main deploy).
+          workingDirectory: preview_browser_deploy
           packageManager: npm
           wranglerVersion: "4"
           command: deploy
