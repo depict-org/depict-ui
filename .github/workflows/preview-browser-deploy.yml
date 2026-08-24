@@ -30,7 +30,7 @@ concurrency:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: depot-ubuntu-24.04-4
     defaults:
       run:
         working-directory: preview_browser
@@ -85,7 +85,7 @@ jobs:
     # project's dependency tree. Requires the CLOUDFLARE_API_TOKEN repo secret.
     if: github.ref == 'refs/heads/main'
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: depot-ubuntu-24.04
     environment: production
     steps:
       - uses: actions/checkout@v4
