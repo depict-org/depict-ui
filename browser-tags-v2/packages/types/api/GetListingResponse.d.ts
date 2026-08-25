@@ -24,10 +24,10 @@ export type ContentTextPosition =
   | "bottom-left"
   | "bottom-center"
   | "bottom-right";
+export type Text = string | null;
 export type Type = "video";
 export type Url = string;
 export type Link = string | null;
-export type Text = string | null;
 
 export interface GetListingResponse {
   /**
@@ -107,18 +107,18 @@ export interface ContentBlock {
   [k: string]: unknown;
 }
 export interface ImageContent {
+  text?: string;
+  text_position?: ContentTextPosition & string;
   type?: "image";
   url: string;
   link: string;
-  text?: string;
-  text_position?: ContentTextPosition & string;
   [k: string]: unknown;
 }
 export interface VideoContent {
+  text?: Text;
+  text_position?: ContentTextPosition & string;
   type?: Type;
   url: Url;
   link: Link;
-  text?: Text;
-  text_position?: ContentTextPosition & string;
   [k: string]: unknown;
 }

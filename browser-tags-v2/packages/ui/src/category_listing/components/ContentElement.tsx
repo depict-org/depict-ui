@@ -8,6 +8,7 @@ import { ImageResizer, ModernResponsiveImage } from "../../shared/components/Mod
 import { makeSizeAccessors } from "../../shared/components/shopify/makeSizeAccessors";
 import { ImagePlaceholder } from "../../shared/components/Placeholders/ImagePlaceholder";
 import { loadHlsPolyfill } from "../helpers/loadHlsPolyfill";
+import { ContentTextPosition } from "@depict-ai/types/api/GetListingResponse";
 
 export function ContentElement({
   link_,
@@ -28,7 +29,7 @@ export function ContentElement({
   aspectRatioWhenAloneInRow_: Accessor<number | undefined>;
   imageResizer_?: ImageResizer;
   text_?: string | null;
-  textPosition_?: string;
+  textPosition_?: ContentTextPosition | null;
 }) {
   let wroteAspectRatioToContainer = false; // Only write this once so we don't get into a aspect ratio changed -> size changed -> image source changed -> aspect ratio slightly changed infinite loop
   const [wrapperSize, setWrapperSize] = createSignal<[Accessor<number>, Accessor<number>] | undefined>();

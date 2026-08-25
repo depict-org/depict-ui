@@ -28,7 +28,6 @@
       display: flex;
     }
     .d-standard-content-wrapper {
-      position: relative;
       flex-grow: 1;
       flex-basis: 100%;
       .depict-placeholder {
@@ -41,6 +40,7 @@
       inset: 0;
       padding: 0.75rem;
       display: flex;
+      overflow: hidden;
       align-items: flex-end;
       justify-content: center;
       text-align: center;
