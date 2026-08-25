@@ -14,9 +14,6 @@ export type CollectionType =
   | "brand"
   | "look";
 export type ContentPosition = "left" | "right" | "center";
-export type Type = "video";
-export type Url = string;
-export type Link = string | null;
 export type ContentTextPosition =
   | "top-left"
   | "top-center"
@@ -27,6 +24,10 @@ export type ContentTextPosition =
   | "bottom-left"
   | "bottom-center"
   | "bottom-right";
+export type Type = "video";
+export type Url = string;
+export type Link = string | null;
+export type Text = string | null;
 
 export interface GetListingResponse {
   /**
@@ -109,15 +110,15 @@ export interface ImageContent {
   type?: "image";
   url: string;
   link: string;
-  text?: string | null;
-  text_position?: ContentTextPosition;
+  text?: string;
+  text_position?: ContentTextPosition & string;
   [k: string]: unknown;
 }
 export interface VideoContent {
   type?: Type;
   url: Url;
   link: Link;
-  text?: string | null;
-  text_position?: ContentTextPosition;
+  text?: Text;
+  text_position?: ContentTextPosition & string;
   [k: string]: unknown;
 }
