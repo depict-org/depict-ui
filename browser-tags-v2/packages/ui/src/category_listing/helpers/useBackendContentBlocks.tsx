@@ -47,12 +47,14 @@ export function useBackendContentBlocks(
 
     blocksFromHistory.forEach(row => {
       const {
-        content: { link, type, url },
+        content: { link, type, url, text, text_position },
       } = row;
-      // Key the "content"-component by the link, type and url, so we can reuse the component (and later downstream the block elements) if it's the same
+      // Key the "content"-component by its rendered inputs, so we can reuse the component (and later downstream the block elements) if it's the same
       // This makes the block not flicker when going backwards/forwards if the content is the same on both pages
       // Also it lets us rewrite the blocks state in the history based on the block aspect ratio without infinite looping
-      const componentCacheKey = JSON.stringify([link, type, url]);
+      const componentCacheKey = JSON.stringify([link, type, url, text ?? null, text_position ?? null]);
+      // The aspect ratio depends only on the media, so its history key must stay the pre-text 3-element shape — widening it would orphan every ratio already persisted in history.state
+      const mediaCacheKey = JSON.stringify([link, type, url]);
       let component = contentComponents.get(componentCacheKey);
       if (!component) {
         component = () => (
@@ -61,15 +63,17 @@ export function useBackendContentBlocks(
             type_={type}
             mediaUrl_={url}
             router_={router_}
-            aspectRatioWhenAloneInRow_={() => historyContentBlocks().aspectRatios[componentCacheKey]}
+            aspectRatioWhenAloneInRow_={() => historyContentBlocks().aspectRatios[mediaCacheKey]}
             // Save aspect ratio in history for when one goes back to a page on mobile where a content block takes the whole page width. Otherwise it would have a height of 0 while it's loading.
             setAspectRatioWas_={aspectRatio =>
               setHistoryContentBlocks(prev => ({
                 ...prev,
-                aspectRatios: { ...prev.aspectRatios, [componentCacheKey]: Math.round(aspectRatio * 100) / 100 },
+                aspectRatios: { ...prev.aspectRatios, [mediaCacheKey]: Math.round(aspectRatio * 100) / 100 },
               }))
             }
             imageResizer_={imageResizer_}
+            text_={text}
+            textPosition_={text_position}
           />
         );
         contentComponents.set(componentCacheKey, component);

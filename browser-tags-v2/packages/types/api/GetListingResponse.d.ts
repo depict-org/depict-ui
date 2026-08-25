@@ -14,6 +14,17 @@ export type CollectionType =
   | "brand"
   | "look";
 export type ContentPosition = "left" | "right" | "center";
+export type ContentTextPosition =
+  | "top-left"
+  | "top-center"
+  | "top-right"
+  | "middle-left"
+  | "middle-center"
+  | "middle-right"
+  | "bottom-left"
+  | "bottom-center"
+  | "bottom-right";
+export type Text = string | null;
 export type Type = "video";
 export type Url = string;
 export type Link = string | null;
@@ -96,12 +107,16 @@ export interface ContentBlock {
   [k: string]: unknown;
 }
 export interface ImageContent {
+  text?: string;
+  text_position?: ContentTextPosition & string;
   type?: "image";
   url: string;
   link: string;
   [k: string]: unknown;
 }
 export interface VideoContent {
+  text?: Text;
+  text_position?: ContentTextPosition & string;
   type?: Type;
   url: Url;
   link: Link;

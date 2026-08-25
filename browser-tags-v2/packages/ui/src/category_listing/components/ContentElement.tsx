@@ -8,6 +8,7 @@ import { ImageResizer, ModernResponsiveImage } from "../../shared/components/Mod
 import { makeSizeAccessors } from "../../shared/components/shopify/makeSizeAccessors";
 import { ImagePlaceholder } from "../../shared/components/Placeholders/ImagePlaceholder";
 import { loadHlsPolyfill } from "../helpers/loadHlsPolyfill";
+import { ContentTextPosition } from "@depict-ai/types/api/GetListingResponse";
 
 export function ContentElement({
   link_,
@@ -17,6 +18,8 @@ export function ContentElement({
   mediaUrl_,
   aspectRatioWhenAloneInRow_,
   imageResizer_,
+  text_,
+  textPosition_,
 }: {
   link_: null | string;
   type_: "image" | "video" | undefined;
@@ -25,6 +28,8 @@ export function ContentElement({
   setAspectRatioWas_: (aspectRatio: number) => void;
   aspectRatioWhenAloneInRow_: Accessor<number | undefined>;
   imageResizer_?: ImageResizer;
+  text_?: string | null;
+  textPosition_?: ContentTextPosition | null;
 }) {
   let wroteAspectRatioToContainer = false; // Only write this once so we don't get into a aspect ratio changed -> size changed -> image source changed -> aspect ratio slightly changed infinite loop
   const [wrapperSize, setWrapperSize] = createSignal<[Accessor<number>, Accessor<number>] | undefined>();
@@ -128,6 +133,11 @@ export function ContentElement({
           />
         </Match>
       </Switch>
+      <Show when={text_}>
+        <span class="d-standard-content-text" data-position={textPosition_ || "bottom-center"}>
+          {text_}
+        </span>
+      </Show>
     </Dynamic>
   );
 }
