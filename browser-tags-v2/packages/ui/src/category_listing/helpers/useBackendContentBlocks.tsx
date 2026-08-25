@@ -47,12 +47,12 @@ export function useBackendContentBlocks(
 
     blocksFromHistory.forEach(row => {
       const {
-        content: { link, type, url },
+        content: { link, type, url, text, text_position },
       } = row;
-      // Key the "content"-component by the link, type and url, so we can reuse the component (and later downstream the block elements) if it's the same
+      // Key the "content"-component by its rendered inputs, so we can reuse the component (and later downstream the block elements) if it's the same
       // This makes the block not flicker when going backwards/forwards if the content is the same on both pages
       // Also it lets us rewrite the blocks state in the history based on the block aspect ratio without infinite looping
-      const componentCacheKey = JSON.stringify([link, type, url]);
+      const componentCacheKey = JSON.stringify([link, type, url, text ?? null, text_position ?? null]);
       let component = contentComponents.get(componentCacheKey);
       if (!component) {
         component = () => (
@@ -70,6 +70,8 @@ export function useBackendContentBlocks(
               }))
             }
             imageResizer_={imageResizer_}
+            text_={text}
+            textPosition_={text_position}
           />
         );
         contentComponents.set(componentCacheKey, component);
