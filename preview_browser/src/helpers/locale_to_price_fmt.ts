@@ -2,6 +2,13 @@ const nbsp = String.fromCharCode(160);
 
 // kudos to chatGPT
 export const locale_to_price_fmt = {
+  "ar": {
+    pre_: "",
+    post_: nbsp + "SAR",
+    decimal_places_delimiter_: ".",
+    thousands_delimiter_: ",",
+    places_after_comma_: 2,
+  },
   "cz": {
     pre_: "",
     post_: nbsp + "Kč",
