@@ -109,6 +109,7 @@ export interface ContentBlock {
 export interface ImageContent {
   text?: string;
   text_position?: ContentTextPosition & string;
+  cta?: string | null;
   type?: "image";
   url: string;
   link: string;
@@ -117,6 +118,7 @@ export interface ImageContent {
 export interface VideoContent {
   text?: Text;
   text_position?: ContentTextPosition & string;
+  cta?: string | null;
   type?: Type;
   url: Url;
   link: Link;

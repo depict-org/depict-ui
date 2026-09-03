@@ -66,6 +66,54 @@
       }
     }
 
+    // When a CTA line accompanies the text, both are stacked inside this group, which takes over the
+    // overlay positioning from .d-standard-content-text (which then flows statically inside it)
+    .d-standard-content-text-group {
+      position: absolute;
+      inset: 0;
+      padding: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      justify-content: flex-end;
+      align-items: center;
+      text-align: center;
+      pointer-events: none;
+
+      &[data-position^="top-"] {
+        justify-content: flex-start;
+      }
+      &[data-position^="middle-"] {
+        justify-content: center;
+      }
+      &[data-position$="-left"] {
+        align-items: flex-start;
+        text-align: left;
+      }
+      &[data-position$="-right"] {
+        align-items: flex-end;
+        text-align: right;
+      }
+
+      .d-standard-content-text {
+        position: static;
+        inset: auto;
+        padding: 0;
+      }
+    }
+
+    .d-standard-content-cta {
+      color: #fff;
+      font-weight: 500;
+      font-size: 0.6875em;
+      text-decoration: underline;
+      text-underline-offset: 0.2em;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+      overflow-wrap: anywhere;
+      pointer-events: none;
+      margin-top: 0.375rem;
+    }
+
     &.spans-whole-row {
       .d-standard-content-wrapper {
         // Set aspect ratio of the container to the aspect ratio of the media. This is because we store the media aspect ratio in history.state, so when going back to a page we can hold the aspect ratio already before the image has loaded, therefore making scroll restoration work

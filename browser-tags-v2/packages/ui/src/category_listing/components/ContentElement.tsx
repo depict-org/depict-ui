@@ -20,6 +20,7 @@ export function ContentElement({
   imageResizer_,
   text_,
   textPosition_,
+  cta_,
 }: {
   link_: null | string;
   type_: "image" | "video" | undefined;
@@ -30,6 +31,7 @@ export function ContentElement({
   imageResizer_?: ImageResizer;
   text_?: string | null;
   textPosition_?: ContentTextPosition | null;
+  cta_?: string | null;
 }) {
   let wroteAspectRatioToContainer = false; // Only write this once so we don't get into a aspect ratio changed -> size changed -> image source changed -> aspect ratio slightly changed infinite loop
   const [wrapperSize, setWrapperSize] = createSignal<[Accessor<number>, Accessor<number>] | undefined>();
@@ -134,9 +136,23 @@ export function ContentElement({
         </Match>
       </Switch>
       <Show when={text_}>
-        <span class="d-standard-content-text" data-position={textPosition_ || "bottom-center"}>
-          {text_}
-        </span>
+        <Show
+          when={cta_}
+          fallback={
+            <span class="d-standard-content-text" data-position={textPosition_ || "bottom-center"}>
+              {text_}
+            </span>
+          }
+        >
+          <div class="d-standard-content-text-group" data-position={textPosition_ || "bottom-center"}>
+            <span class="d-standard-content-text" data-position={textPosition_ || "bottom-center"}>
+              {text_}
+            </span>
+            <span class="d-standard-content-cta" data-position={textPosition_ || "bottom-center"}>
+              {cta_}
+            </span>
+          </div>
+        </Show>
       </Show>
     </Dynamic>
   );

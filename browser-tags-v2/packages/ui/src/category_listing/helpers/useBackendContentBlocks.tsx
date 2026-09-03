@@ -8,13 +8,21 @@ import { ImageResizer } from "../../shared/components/ModernResponsiveContainedI
 
 export type ContentBlockHistoryState = { blocks: BackendContentBlock[]; aspectRatios: Record<string, number> };
 
+// Key the "content"-component by its rendered inputs, so we can reuse the component (and later downstream the block elements) if it's the same
+// This makes the block not flicker when going backwards/forwards if the content is the same on both pages
+// Also it lets us rewrite the blocks state in the history based on the block aspect ratio without infinite looping
+export const makeComponentCacheKey = (content: BackendContentBlock["content"]) => {
+  const { link, type, url, text, text_position, cta } = content;
+  return JSON.stringify([link, type, url, text ?? null, text_position ?? null, cta ?? null]);
+};
+
 export function useBackendContentBlocks(
   history_content_blocks_: Signal<ContentBlockHistoryState>,
   plp_meta: Resource<(GetListingResponseAfterDisplayTransformer & { failed?: true | undefined }) | undefined>,
   content_blocks_by_row_: Accessor<ContentBlocksByRow | undefined>,
   router_: PseudoRouter,
   products_request_loading_: Accessor<boolean>,
-  imageResizer_?: ImageResizer,
+  imageResizer_?: ImageResizer
 ) {
   let hasSeenContentBlock = false;
   const [historyContentBlocks, setHistoryContentBlocks] = history_content_blocks_;
@@ -47,12 +55,9 @@ export function useBackendContentBlocks(
 
     blocksFromHistory.forEach(row => {
       const {
-        content: { link, type, url, text, text_position },
+        content: { link, type, url, text, text_position, cta },
       } = row;
-      // Key the "content"-component by its rendered inputs, so we can reuse the component (and later downstream the block elements) if it's the same
-      // This makes the block not flicker when going backwards/forwards if the content is the same on both pages
-      // Also it lets us rewrite the blocks state in the history based on the block aspect ratio without infinite looping
-      const componentCacheKey = JSON.stringify([link, type, url, text ?? null, text_position ?? null]);
+      const componentCacheKey = makeComponentCacheKey(row.content);
       // The aspect ratio depends only on the media, so its history key must stay the pre-text 3-element shape — widening it would orphan every ratio already persisted in history.state
       const mediaCacheKey = JSON.stringify([link, type, url]);
       let component = contentComponents.get(componentCacheKey);
@@ -74,6 +79,7 @@ export function useBackendContentBlocks(
             imageResizer_={imageResizer_}
             text_={text}
             textPosition_={text_position}
+            cta_={cta}
           />
         );
         contentComponents.set(componentCacheKey, component);
