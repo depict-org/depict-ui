@@ -1,5 +1,9 @@
 {
   "preset": "ts-jest",
   "testEnvironment": "jsdom",
-  "setupFiles": ["./jest.setup.js"]
+  "setupFiles": ["./jest.setup.js"],
+  "transform": {
+    "^.+\\.tsx$": ["babel-jest", { "rootMode": "upward" }],
+    "^.+\\.ts$": ["ts-jest", {}]
+  }
 }
