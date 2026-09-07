@@ -60,7 +60,7 @@ export interface SearchRequest {
    */
   filters?: SearchFilter[];
   /**
-   * Specifies the sorting method. By default, the results are ordered by relevance. To find the possible values for this field, look at the `sorts` field in the SearchResponse.
+   * Specifies the sorting method. By default, the results are ordered by relevance. To find the possible values for this field, look at the `sorts` field in the SearchResponse. Sending the default sort explicitly (`{"field": "_relevance", "order": "desc"}`) is equivalent to omitting `sort`.
    */
   sort?: SortModel;
   /**
@@ -141,6 +141,12 @@ export interface SortMeta {
   names?: string[];
 }
 ```
+
+#### Sorting behavior
+
+- The `sorts` list in the response advertises every sort the merchant configuration supports, for example `_relevance`, `sale_price`, and `product_timestamp`. Send the `field` values back **verbatim** — they are contract values, not display strings (use `meta.title`/`meta.names` for the UI).
+- Omitting `sort` and sending `{"field": "_relevance", "order": "desc"}` are equivalent: both are treated as the default relevance ordering by the API. A frontend that echoes the advertised default sort from a previous response gets identical results to one that sends no `sort` at all.
+- Any non-relevance sort orders the **full result set** by that field — it is a re-ordering of everything matching the query, not a re-ranking of the relevance-ordered results.
 
 ### Filters
 
