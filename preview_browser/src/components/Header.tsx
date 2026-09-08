@@ -26,10 +26,12 @@ import { Cart } from "~/components/Cart";
 import { createStore, reconcile } from "solid-js/store";
 import { HeadersModalElements } from "~/components/HeadersModalElements";
 import {
+  ALLOWED_BASE_URL_HOST_SUFFIXES,
   base_url_param_name,
   cart_param_name,
   collections_category_listing_id_param_name,
   headers_param_name,
+  is_allowed_base_url,
   product_id_source_param_name,
   recommendation_rows_param_name,
 } from "~/helpers/query_params";
@@ -41,7 +43,26 @@ import { useTopLevelContext } from "~/helpers/useTopLevelContext";
 import { darkmodeBlocked, osDark } from "~/helpers/darkmodeBlocked";
 
 export const default_base_url = "https://api.depict.ai";
-let replacement_base_url: string | undefined | null = new URLSearchParams(location.search)?.get(base_url_param_name);
+const [get_rejected_base_url, set_rejected_base_url] = createSignal<string | undefined>();
+
+/**
+ * Gate for every BASE_URL override, wherever it comes from: the query string on load, or a later
+ * navigation. A value outside the allowlist is dropped (we fall back to default_base_url) and
+ * remembered so the header can say out loud that it was ignored — silently using a different API
+ * than the URL asks for would be worse than either accepting or refusing outright.
+ */
+function accept_base_url(candidate: string | undefined | null) {
+  if (candidate && !is_allowed_base_url(candidate)) {
+    set_rejected_base_url(candidate);
+    return undefined;
+  }
+  set_rejected_base_url(undefined);
+  return candidate || undefined;
+}
+
+let replacement_base_url: string | undefined = accept_base_url(
+  new URLSearchParams(location.search)?.get(base_url_param_name)
+);
 
 export const get_base_url = () => replacement_base_url || default_base_url;
 
@@ -101,7 +122,7 @@ export function Header() {
   general_modal_abstraction(HeadersModalElements, { headers_store }).then(
     ({ open_modal_ }) => (open_headers_modal = open_modal_)
   );
-  createComputed(() => (replacement_base_url = current_base_url()));
+  createComputed(() => (replacement_base_url = accept_base_url(current_base_url())));
   createComputed(() => wide() && set_header_expanded(true));
 
   return (
@@ -117,6 +138,12 @@ export function Header() {
         onCleanup(() => ro.disconnect());
       }}
     >
+      <Show when={get_rejected_base_url()}>
+        <div class="depict plp base_url_rejected">
+          Ignored the {base_url_param_name} override {get_rejected_base_url()} — only{" "}
+          {ALLOWED_BASE_URL_HOST_SUFFIXES.join(" and ")} are allowed, so requests go to {default_base_url}.
+        </div>
+      </Show>
       <Show when={!wide()}>
         <a
           href="javascript:void(0)"
@@ -173,6 +200,11 @@ export function Header() {
             if (!value.startsWith("http://") && !value.startsWith("https://") && value !== "") {
               base_url_input.value = current_base_url();
               alert("BASE_URL must start with http:// or https://");
+              return;
+            }
+            if (value !== "" && !is_allowed_base_url(value)) {
+              base_url_input.value = current_base_url();
+              alert(`BASE_URL must be on ${ALLOWED_BASE_URL_HOST_SUFFIXES.join(" or ")}`);
               return;
             }
             if (value) {

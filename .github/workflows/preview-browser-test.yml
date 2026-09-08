@@ -1,0 +1,40 @@
+name: Preview Browser Unit Tests
+
+# Mirrors preview-browser-deploy.yml's trigger shape: pull_request is what gates a change before it
+# lands, and push is narrowed to main so a branch with an open PR does not run the suite twice.
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - preview_browser/**
+      - .github/workflows/preview-browser-test.yml
+  pull_request:
+    paths:
+      - preview_browser/**
+      - .github/workflows/preview-browser-test.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: depot-ubuntu-24.04
+    defaults:
+      run:
+        working-directory: preview_browser
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          # Node 24, not the 21 the build job pins: this runs the .ts sources directly on the
+          # built-in test runner via type stripping, which needs >=22.6. It is safe to diverge
+          # because nothing here builds the app — see the no-install note below.
+          node-version: 24
+      # Deliberately no yarn install, and node rather than the yarn script: the unit tests only cover
+      # dependency-free helper modules, so the suite runs from a bare checkout and yarn 4 would refuse
+      # to run a script without an installed project. If a test ever needs a dependency, add the
+      # install here (node 21 + corepack, mirroring preview-browser-deploy.yml) rather than widening
+      # this job. The yarn test script exists for humans and runs the identical command.
+      - run: node --test 'src/**/*.test.ts'
