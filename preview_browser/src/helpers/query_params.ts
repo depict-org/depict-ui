@@ -27,3 +27,40 @@ export const base_url_param_name = "BASE_URL";
  * Override headers to set
  */
 export const headers_param_name = "headers";
+
+/**
+ * Hosts the BASE_URL override (see {@link base_url_param_name}) is allowed to point at.
+ *
+ * An entry starting with a dot is a domain suffix: it matches that domain and any subdomain of it.
+ * An entry without a leading dot must match the hostname exactly — otherwise "localhost" would also
+ * allow hosts like "notlocalhost", which is precisely what this list exists to prevent.
+ *
+ * Ports are not part of a hostname, so every entry is port-tolerant and the http://localhost:9100
+ * suggestion the header ships keeps working.
+ */
+export const ALLOWED_BASE_URL_HOST_SUFFIXES = [".depict.ai", "localhost"];
+
+/**
+ * Whether the BASE_URL override may be sent requests. The override arrives from the query string, so
+ * anyone who can get a customer to open a demo.depict.ai link can otherwise choose which API that
+ * page talks to — and the doors reflect the origin back in CORS, so the browser would let it through.
+ *
+ * Only absolute http(s) URLs on {@link ALLOWED_BASE_URL_HOST_SUFFIXES} are accepted. Parsing with URL
+ * rather than matching the string is deliberate: it is what makes "https://api.depict.ai@evil.com"
+ * and "https://api.depict.ai.evil.com" resolve to the host actually contacted.
+ */
+export function is_allowed_base_url(value: string | null | undefined) {
+  if (!value) return false;
+  let parsed: URL;
+  try {
+    parsed = new URL(value);
+  } catch {
+    return false; // not an absolute URL, so we cannot know which host it would reach
+  }
+  if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return false;
+  // URL already lowercases hostname for us, so there is nothing to normalise here.
+  const { hostname } = parsed;
+  return ALLOWED_BASE_URL_HOST_SUFFIXES.some(entry =>
+    entry.startsWith(".") ? hostname === entry.slice(1) || hostname.endsWith(entry) : hostname === entry
+  );
+}

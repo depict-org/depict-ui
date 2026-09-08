@@ -21,6 +21,15 @@
   .expand_collapse {
     align-self: center;
   }
+  // Its own row in the wrapping flex header, and legible on both the light and the dark root.
+  .base_url_rejected {
+    flex-basis: 100%;
+    align-self: center;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background: #b00020;
+    color: #fff;
+  }
   & > .search {
     flex-grow: 1;
     @if customised-plp-styling.$search-modal-layout == "classic" {
