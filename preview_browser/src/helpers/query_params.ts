@@ -37,6 +37,19 @@ export const headers_param_name = "headers";
  *
  * Ports are not part of a hostname, so every entry is port-tolerant and the http://localhost:9100
  * suggestion the header ships keeps working.
+ *
+ * Two things this list deliberately does not do:
+ *
+ * "localhost" is kept even though a crafted link can then aim a visitor's browser at a service on
+ * their own machine. Removing it breaks the datalist suggestion the header already ships, and the
+ * alternatives are worse: honouring it only when typed is impossible (the input navigates, so the
+ * value always arrives back through the query string), and gating it on the page's own origin would
+ * break running the deployed preview browser against a local API. The residual risk is small —
+ * cross-origin reads still need the local service to opt in via CORS — so it is accepted, not missed.
+ *
+ * Loopback literals (127.0.0.1, [::1]) and trailing-dot forms ("api.depict.ai.") are absent, so they
+ * fail closed. Adding the loopback literals would widen exactly the surface described above for no
+ * workflow anyone has asked for; the trailing dot is a form nobody writes by hand.
  */
 export const ALLOWED_BASE_URL_HOST_SUFFIXES = [".depict.ai", "localhost"];
 
