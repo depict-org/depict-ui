@@ -68,21 +68,17 @@ export function ProductCard({
           }
         : { title: JSON.stringify(display, null, 2) })}
     >
-      <Show
-        when={!display || image_url}
-        fallback={
-          <>
-            Insufficient display data.
-            <br />
-            <code style={{ "white-space": "pre", overflow: "auto" }}>{JSON.stringify(display, null, 2)}</code>
-          </>
-        }
-      >
-        {!display ? (
+      <>
+        {!display || !image_url ? (
           <ImagePlaceholder aspectRatio={img_aspect_ratio} />
         ) : (
           <ModernResponsiveContainedImage src={image_url} aspectRatio={img_aspect_ratio} autoAdjustAspectRatio={true} />
         )}
+        <Show when={display && !image_url}>
+          <div class="missing_image_notice" title={JSON.stringify(display, null, 2)}>
+            No image in display data
+          </div>
+        </Show>
         <Show when={color_hex_map && Object.keys(color_hex_map).length > 1}>
           <div class="color_container">
             {Object.entries(color_hex_map).map(([color, hex]) => (
@@ -163,7 +159,7 @@ export function ProductCard({
             </button>
           </div>
         </div>
-      </Show>
+      </>
     </A>,
   ];
 }
