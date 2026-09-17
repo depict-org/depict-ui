@@ -14,6 +14,11 @@
   $border-radius: variables.get-merged(variables.$search-field-defaults, variables.$search-field, "border-radius");
   $field-max-width: variables.get-merged(variables.$search-field-defaults, variables.$search-field, "max-width");
   $back-button-width: 20px;
+  $background: if(
+    $search-field-background == null,
+    null,
+    var(--depict-search-field-background, #{$search-field-background})
+  );
 
   .search-field {
     input,
@@ -37,7 +42,7 @@
       font-size: initial;
       flex-grow: 1;
       color: variables.get-text-icon-color("neutral", "default");
-      background-color: $search-field-background;
+      background-color: $background;
       border: none;
 
       @if variables.$search-modal-layout == "classic" {
@@ -90,7 +95,7 @@
       flex-grow: 1;
       display: flex;
       @if variables.$search-modal-layout == "v2" {
-        background-color: $search-field-background;
+        background-color: $background;
         width: 100%;
         max-width: $field-max-width;
         border-radius: $border-radius;
@@ -141,7 +146,7 @@
       @if variables.$search-modal-layout == "classic" {
         border-bottom-left-radius: $border-radius;
         border-top-left-radius: $border-radius;
-        background-color: $search-field-background;
+        background-color: $background;
         padding-left: 10px;
         padding-top: 14px;
         padding-bottom: 14px;
@@ -196,7 +201,7 @@
     .clear {
       position: absolute;
       top: 50%;
-      background-color: $search-field-background;
+      background-color: transparent;
       border: none;
       padding: 0;
 
@@ -235,9 +240,8 @@
         @if variables.$search-modal-layout == "classic" {
           filter: map.get(Buttons.get-secondary-button-properties(), "focus-visible-filter");
         } @else if variables.$search-modal-layout == "v2" {
-          box-shadow:
-            0 0 0 3.75px $search-field-background,
-            0 0 0 5.75px variables.get-border-color("base", "default");
+          outline: 2px solid variables.get-border-color("base", "default");
+          outline-offset: 3.75px;
         }
 
         svg path {

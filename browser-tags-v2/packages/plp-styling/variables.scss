@@ -227,7 +227,7 @@ $floating-buttons-defaults: (
 );
 
 /// Configuration for the search field, that is inside the search modal or on the search page.
-/// @prop {Color} search-field.background [map.get(get-merged($background-colors-defaults, $background-colors, "base"), "default")] - The background color of the input field, clear button and back button
+/// @prop {Color} search-field.background [map.get(get-merged($background-colors-defaults, $background-colors, "base"), "default")] - The background color of the input field and back button. Can also be overridden at runtime by setting the `--depict-search-field-background` custom property on any ancestor, e.g. `:root { --depict-search-field-background: transparent; }` (the search modal is appended to `<body>`, so `:root` reaches both the modal and the on-page field).
 /// @prop {Number with size unit} search-modal.max-width [600px] - The max width of the input field, only used when v2 search modal is used
 /// @prop {Number with size unit} search-field.border-radius [variables.$border-radius * 2.5] - Border radius of the outer edges of the whole SearchField
 $search-field: () !default;
