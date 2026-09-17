@@ -37,7 +37,7 @@ export function SDKSearchField(props: SearchFieldParams) {
       <SearchField
         class_={() => props.class}
         BackIcon_={shared_properties.BackIcon_}
-        search_field_value_={shared_properties.state_.field_value}
+        search_field_value_={shared_properties.search_field_value_}
         submit_query_={shared_properties.configured_submit_query_}
         clear_filters_={shared_properties.clear_filters_on_next_submit_}
         i18n_={shared_properties.i18n_}
@@ -69,7 +69,7 @@ export function SDKSearchField(props: SearchFieldParams) {
                   (
                     <SearchField
                       BackIcon_={shared_properties.BackIcon_}
-                      search_field_value_={shared_properties.state_.field_value}
+                      search_field_value_={shared_properties.search_field_value_}
                       submit_query_={shared_properties.configured_submit_query_}
                       clear_filters_={shared_properties.clear_filters_on_next_submit_}
                       i18n_={shared_properties.i18n_}

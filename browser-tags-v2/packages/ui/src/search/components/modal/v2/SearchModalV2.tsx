@@ -35,13 +35,17 @@ import { set_max_height_based_on_bottom_distance } from "../../../helper_functio
 import { JsxStyle } from "../../../../shared/components/JsxStyle/JsxStyle";
 import { DEPICT_ID } from "../../../../shared/ids";
 import { request_suggestions } from "./request_suggestions";
-import { ImageResizer, ModernResponsiveContainedImage } from "../../../../shared/components/ModernResponsiveContainedImage";
+import {
+  ImageResizer,
+  ModernResponsiveContainedImage,
+} from "../../../../shared/components/ModernResponsiveContainedImage";
 import { backIconSymbol, modalVersionSymbol } from "../../../helper_functions/modalVersionSymbol";
 import { BackIconV2 } from "../../../../shared/components/icons/BackIconV2";
 import { autocomplete_keyboard_navigation } from "../../../helper_functions/autocomplete_keyboard_navigation";
 import { instant_goto_content_results_functionality } from "../../../helper_functions/instant_goto_content_results_functionality";
 import { useItemOrder } from "./useItemOrder";
 import { close_modal_when_navigating_away } from "../../../helper_functions/close_modal_when_navigating_away";
+import { modal_search_field_value } from "../../../helper_functions/modal_search_field_value";
 import { unwrap_solid_jsx_element } from "../../../../shared/helper_functions/unwrap_solid_jsx_element";
 import { ModalAlignmentSignals } from "../../../helper_functions/align_field";
 
@@ -54,6 +58,8 @@ function RawSearchModalV2<InputDisplay extends Display, OutputDisplay extends Mo
   search_query_url_param_name_,
   previous_searches_,
   close_modal_,
+  set_focus_target_after_close_,
+  get_search_page_input_element_,
   alignmentSignals_,
   depict_api_,
   merchant_,
@@ -84,12 +90,14 @@ function RawSearchModalV2<InputDisplay extends Display, OutputDisplay extends Mo
   search_query_url_param_name_: string;
   previous_searches_: Signal<string[]>;
   close_modal_: VoidFunction;
+  set_focus_target_after_close_: (get_target: (() => HTMLElement | undefined) | undefined) => void;
+  get_search_page_input_element_: () => HTMLInputElement | undefined;
   alignmentSignals_?: ModalAlignmentSignals;
   depict_api_: DepictAPI<InputDisplay, OutputDisplay>;
   clear_filters_: (user_triggered: boolean) => void;
   merchant_: Accessor<string>;
   market_: Accessor<string>;
-  submit_query_: (new_query?: string) => void;
+  submit_query_: (new_query?: string, before_navigate_?: VoidFunction) => Promise<boolean>;
   class_list_?: Accessor<Record<string, boolean>>;
   url_transformer_?: (url_object: URL) => unknown;
   disable_scrolling_?: boolean;
@@ -122,18 +130,13 @@ function RawSearchModalV2<InputDisplay extends Display, OutputDisplay extends Mo
   // As per feedback from stronger we sometimes want a modal with the search field value disconnected from the one in the rest of the UI, see https://depictaiworkspace.slack.com/archives/C02J16R9XEH/p1679065878487709.
   // This is desired for when the modal is opened from a UI element that visually does not look connected with the search page or current query
   // Basically the UI signals that the button that opens the modal starts a new search.
-  const search_field_value_ = dont_sync_search_field_value_except_on_submit_
-    ? createSignal("")
-    : props_search_field_value;
-  const propagate_search_field_value_back = dont_sync_search_field_value_except_on_submit_
-    ? () => props_search_field_value[1](untrack(search_field_value_[0])) // Set actual search field value to the throwaway internal one before submitting
-    : undefined;
-  const submit_query_ = (...args: Parameters<typeof props_submit_query>) => {
-    // submit_query expects to read the current search field value which is why we have to write the current one to the signal before calling it
-    // It will write the old one back and then write the new one after submit
-    propagate_search_field_value_back?.();
-    return props_submit_query(...args);
-  };
+  const { search_field_value_, submit_query_ } = modal_search_field_value({
+    props_search_field_value_: props_search_field_value,
+    props_submit_query_: props_submit_query,
+    dont_sync_search_field_value_except_on_submit_,
+    set_focus_target_after_close_,
+    get_search_page_input_element_,
+  });
 
   const [input_field, set_input_field] = createSignal<HTMLInputElement>();
   const [searching_for_value_, set_searching_for_value_] = createSignal<undefined | string>();

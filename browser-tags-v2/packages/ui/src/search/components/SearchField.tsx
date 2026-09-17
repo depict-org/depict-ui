@@ -19,6 +19,31 @@ import { modalVersionSymbol } from "../helper_functions/modalVersionSymbol";
 import { make_accurate_width_accessor } from "../../shared/helper_functions/make_accurate_width_accessor";
 import { MagnifyingGlassIcon } from "../../shared/components/icons/MagnifyingGlassIcon";
 
+const keys_not_opening_modal = new Set([
+  "Tab",
+  "Shift",
+  "Control",
+  "Alt",
+  "AltGraph",
+  "Meta",
+  "CapsLock",
+  "Escape",
+  "ArrowUp",
+  "ArrowDown",
+  "ArrowLeft",
+  "ArrowRight",
+  "PageUp",
+  "PageDown",
+  "Home",
+  "End",
+  "Insert",
+  "ContextMenu",
+  "NumLock",
+  "ScrollLock",
+  "Pause",
+  "PrintScreen",
+]);
+
 export function SearchField({
   search_field_value_: [searchFieldValue, setSearchFieldValue],
   input_field_ref_,
@@ -175,7 +200,7 @@ export function SearchField({
           value={searchFieldValue()}
           onKeyDown={catchify((e: KeyboardEvent) => {
             if (disabled_) {
-              if (e.key !== "Tab" && e.key !== "Shift") {
+              if (!keys_not_opening_modal.has(e.key) && !/^F\d{1,2}$/.test(e.key)) {
                 // alow tab-selecting the input field and then open the modal when the user start writing but also to move past the field with tab
                 input_element.click();
               }

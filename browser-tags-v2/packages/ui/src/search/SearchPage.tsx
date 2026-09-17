@@ -104,6 +104,8 @@ type SearchPageOptions<T extends Display> = {
   include_input_field_?: Accessor<boolean | undefined | { on_open_?: VoidFunction; on_close_?: VoidFunction }>;
   /** Only applicable if include_input_field is not false or undefined */
   modalAlignmentSignalsRef_?: (modal_body_style: ModalAlignmentSignals) => void;
+  /** Only applicable if include_input_field is not false or undefined */
+  inputFieldRef_?: (input_element: HTMLInputElement | undefined) => void;
   content_blocks_by_row_: Accessor<ContentBlocksByRow | undefined>;
   filterModalParent_?: HTMLElement | ShadowRoot; // Needed by style editor in shopify plugin
   class_?: Accessor<string | undefined>;
@@ -141,6 +143,7 @@ export function SearchPage<T extends Display>({
   scroll_restoration_data_,
   product_card_template_,
   modalAlignmentSignalsRef_,
+  inputFieldRef_,
   router_,
   content_results_rows_,
   content_layout_options_,
@@ -339,6 +342,8 @@ export function SearchPage<T extends Display>({
       if (!search_field) break add_input_field;
       setModalBodyStyle({});
       modalAlignmentSignalsRef_?.(alignmentSignals_);
+      inputFieldRef_?.(input_element!);
+      onCleanup(() => inputFieldRef_?.(undefined));
 
       const [pollAlignment, setPollAlignment_] = createSignal(false);
       const align_position = catchify(align_field)(
