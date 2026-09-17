@@ -23,6 +23,7 @@ import { filter_clearing_helper_factory } from "../search/helper_functions/filte
 import { modal_opener } from "../search/helper_functions/modal_opener";
 import { make_previous_searches_signal } from "../search/helper_functions/previous_searches_signal";
 import { submit_query_handler } from "../search/helper_functions/submit_query";
+import { make_search_field_value } from "../search/helper_functions/search_field_value";
 import { search_i18n, solid_search_i18n } from "../locales/i18n_types";
 import { SearchModalV2 } from "../search/components/modal/v2/SearchModalV2";
 import { SearchPage } from "../search/SearchPage";
@@ -103,8 +104,10 @@ type PrivateProperties = {
   url_transformer_: undefined | ((url_object: URL) => unknown);
   enable_category_suggestions_: boolean;
   search_page_aligned_modal_alignment_signals_?: ModalAlignmentSignals;
+  search_page_input_element_?: HTMLInputElement;
+  search_field_value_: Signal<string>;
   clear_filters_on_next_submit_: (user_triggered: boolean) => void;
-  configured_submit_query_: VoidFunction;
+  configured_submit_query_: (new_query?: string, before_navigate_?: VoidFunction) => Promise<boolean>;
   get_search_query_: Accessor<string>;
   search_query_updating_blocked_: Signal<boolean>;
   i18n_: solid_search_i18n;
@@ -242,15 +245,17 @@ export class DepictSearch<
         set_search_content_results_rows(content_results_start_rows);
       }; // do this every time after we have submitted a new query - otherwise there might already be a saved number of rows in the state
       const on_submit_with_unchanged_value_ = () => (this.modal_open = false);
-      const [get_search_field_value_, set_search_field_value_] = state_.field_value;
-      const configured_submit_query_ = (new_query?: string) =>
+      const search_field_value_ = make_search_field_value(state_.field_value, get_search_query_);
+      const [get_search_field_value_] = search_field_value_.value_;
+      const configured_submit_query_ = (new_query?: string, before_navigate_?: VoidFunction) =>
         submit_query_handler({
           on_submit_with_unchanged_value_,
-          set_search_field_value_,
+          search_field_value_,
           get_search_query_,
           search_param_name_: search_query_url_param_name_,
           after_submit_,
-          get_new_query: () => new_query || untrack(get_search_field_value_),
+          before_navigate_,
+          get_new_query: () => new_query ?? untrack(get_search_field_value_),
           url_transformer_: url_transformer,
           router_: this.#router,
         });
@@ -271,6 +276,7 @@ export class DepictSearch<
         search_query_url_param_name_,
         reset_history_state_,
         state_,
+        search_field_value_: search_field_value_.value_,
         router_: this.#router,
         url_transformer_: url_transformer,
         depict_api_,
@@ -295,7 +301,8 @@ export class DepictSearch<
             return searchModalComponent(...args);
           },
           {
-            search_field_value_: state_.field_value,
+            search_field_value_: search_field_value_.value_,
+            get_search_page_input_element_: () => privately_shared_properties.get(this)?.search_page_input_element_,
             get_search_query_,
             search_query_url_param_name_,
             previous_searches_: previous_searches,
@@ -503,6 +510,7 @@ export function SDKSearchPageComponent<
 
   return run_in_root_or_auto_cleanup(() => {
     const { state_ } = shared_properties;
+    let registered_input_element: HTMLInputElement | undefined;
     const grid_spacing_override = createMemo(() => {
       const { grid_spacing } = props; // can be reactive
       return typeof grid_spacing === "string"
@@ -528,7 +536,7 @@ export function SDKSearchPageComponent<
       min_products_to_fetch_,
       local_filter_cache_: state_.local_filter_cache,
       content_search_enabled_: () => depict_search.enable_content_search ?? content_search_default,
-      search_field_value_: state_.field_value,
+      search_field_value_: shared_properties.search_field_value_,
       get_search_query_: shared_properties.get_search_query_,
       clear_filters_on_next_submit_: shared_properties.clear_filters_on_next_submit_,
       open_modal_: (...args) => (depict_search.modal_open = args),
@@ -536,6 +544,20 @@ export function SDKSearchPageComponent<
       modalVersionUsed_: shared_properties.modalVersionUsed_,
       showSliderArrow_: () => props.showSliderArrow_,
       i18n_: shared_properties.i18n_,
+      inputFieldRef_: input_element => {
+        const shared_info_right_now = privately_shared_properties.get(depict_search);
+        if (!shared_info_right_now) return;
+        if (
+          input_element === undefined &&
+          shared_info_right_now.search_page_input_element_ !== registered_input_element
+        )
+          return;
+        registered_input_element = input_element;
+        privately_shared_properties.set(depict_search, {
+          ...shared_info_right_now,
+          search_page_input_element_: input_element,
+        });
+      },
       modalAlignmentSignalsRef_: style => {
         const shared_info_right_now = privately_shared_properties.get(depict_search);
         if (!shared_info_right_now) return;

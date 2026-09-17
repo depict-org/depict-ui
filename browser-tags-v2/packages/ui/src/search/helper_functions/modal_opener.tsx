@@ -19,6 +19,7 @@ export async function modal_opener<
         close_modal_: VoidFunction;
         open_modal_: (extra_options_for_modal?: ExtraOptionsProvidedOnOpen, on_dispose?: VoidFunction) => void;
         register_closing_animation_: (animation: () => Promise<any>) => void;
+        set_focus_target_after_close_: (get_target: (() => HTMLElement | undefined) | undefined) => void;
       }
   ) => Node_Array,
   modal_fn_opts: StaticOptions,
@@ -61,6 +62,7 @@ export async function modal_opener<
       const modal_els = createRoot(dispose => {
         let closing_animation: () => Promise<void> | undefined;
         let animation_started: number | undefined;
+        let focus_target_after_close: (() => HTMLElement | undefined) | undefined;
         dispose_and_remove = () => {
           const actually_close = () => {
             dispose();
@@ -83,11 +85,24 @@ export async function modal_opener<
               }
               el.remove();
             });
-            if (should_restore_focus && element_focused_before_open?.isConnected) {
+            const requested_focus_target = focus_target_after_close?.();
+            if (
+              should_restore_focus &&
+              (requested_focus_target?.isConnected || element_focused_before_open?.isConnected)
+            ) {
               restoring_focus = true;
               try {
                 // preventScroll so this can't re-introduce the safari page-jump the blur() above works around
-                element_focused_before_open.focus({ preventScroll: true });
+                let focused = false;
+                if (requested_focus_target?.isConnected) {
+                  requested_focus_target.focus({ preventScroll: true });
+                  focused =
+                    (requested_focus_target.getRootNode() as Document | ShadowRoot).activeElement ===
+                    requested_focus_target;
+                }
+                if (!focused && element_focused_before_open?.isConnected) {
+                  element_focused_before_open.focus({ preventScroll: true });
+                }
               } finally {
                 // Cleared on a task instead of synchronously in case a browser delivers the focus event async
                 setTimeout(() => (restoring_focus = false), 0);
@@ -110,6 +125,7 @@ export async function modal_opener<
           close_modal_,
           open_modal_,
           register_closing_animation_: animation => (closing_animation = animation),
+          set_focus_target_after_close_: get_target => (focus_target_after_close = get_target),
         });
       });
       body.append(...modal_els);

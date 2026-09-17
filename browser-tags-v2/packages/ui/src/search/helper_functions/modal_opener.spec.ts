@@ -19,10 +19,12 @@ describe("modal_opener focus restore", () => {
   const setup = async () => {
     let inside_button!: HTMLButtonElement;
     let register_closing_animation: ((animation: () => Promise<any>) => void) | undefined;
+    let set_focus_target_after_close: ((get_target: (() => HTMLElement | undefined) | undefined) => void) | undefined;
     let modals_created = 0;
     const { open_modal_, close_modal_ } = await modal_opener(options => {
       modals_created++;
       register_closing_animation = options.register_closing_animation_;
+      set_focus_target_after_close = options.set_focus_target_after_close_;
       const wrapper = document.createElement("div");
       wrapper.className = "fake-modal";
       inside_button = document.createElement("button");
@@ -34,6 +36,7 @@ describe("modal_opener focus restore", () => {
       close_modal_,
       get_inside_button_: () => inside_button,
       get_register_closing_animation_: () => register_closing_animation!,
+      get_set_focus_target_after_close_: () => set_focus_target_after_close!,
       get_modals_created_: () => modals_created,
     };
   };
@@ -59,6 +62,48 @@ describe("modal_opener focus restore", () => {
     close_modal_();
     // Nothing else may grab focus either — it should rest on body, as before this feature
     expect(document.activeElement).toBe(document.body);
+    await flush_tasks();
+  });
+
+  it("focuses the requested target instead of the trigger when one is connected at close", async () => {
+    const { open_modal_, close_modal_, get_inside_button_, get_set_focus_target_after_close_ } = await setup();
+    const page_field = document.createElement("input");
+    document.body.append(page_field);
+    trigger.focus();
+    await open_modal_();
+    await flush_tasks();
+    get_inside_button_().focus();
+    get_set_focus_target_after_close_()(() => page_field);
+    close_modal_();
+    expect(document.activeElement).toBe(page_field);
+    await flush_tasks();
+  });
+
+  it("falls back to the trigger when the requested focus target is connected but cannot take focus", async () => {
+    const { open_modal_, close_modal_, get_inside_button_, get_set_focus_target_after_close_ } = await setup();
+    const page_field = document.createElement("input");
+    page_field.disabled = true;
+    document.body.append(page_field);
+    trigger.focus();
+    await open_modal_();
+    await flush_tasks();
+    get_inside_button_().focus();
+    get_set_focus_target_after_close_()(() => page_field);
+    close_modal_();
+    expect(document.activeElement).toBe(trigger);
+    await flush_tasks();
+  });
+
+  it("falls back to the trigger when the requested focus target is not connected at close", async () => {
+    const { open_modal_, close_modal_, get_inside_button_, get_set_focus_target_after_close_ } = await setup();
+    const page_field = document.createElement("input");
+    trigger.focus();
+    await open_modal_();
+    await flush_tasks();
+    get_inside_button_().focus();
+    get_set_focus_target_after_close_()(() => page_field);
+    close_modal_();
+    expect(document.activeElement).toBe(trigger);
     await flush_tasks();
   });
 
