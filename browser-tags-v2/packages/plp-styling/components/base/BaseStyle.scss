@@ -15,6 +15,10 @@ $base-style-was-included: false;
       button {
         border: none; // Disable default button border
       }
+      @at-root :where(.depict) button,
+        :where(.depict) input {
+        font-family: inherit;
+      }
       div:empty {
         // Undo default shopify styling which makes our images not load
         display: block;
