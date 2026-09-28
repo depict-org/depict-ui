@@ -1,4 +1,5 @@
 import { createRoot } from "solid-js";
+import { restore_focus_to } from "./restore_focus_to";
 import { catchify, Node_Array, observer } from "@depict-ai/utilishared";
 
 /**
@@ -101,7 +102,11 @@ export async function modal_opener<
                     requested_focus_target;
                 }
                 if (!focused && element_focused_before_open?.isConnected) {
-                  element_focused_before_open.focus({ preventScroll: true });
+                  // restore_focus_to rather than a bare focus(): the remembered trigger can be
+                  // connected but no longer rendered (a responsive-duplicate header whose other
+                  // half is showing now), and focus() on an unrendered element silently does
+                  // nothing, leaving the keyboard user at the top of the page.
+                  restore_focus_to(element_focused_before_open);
                 }
               } finally {
                 // Cleared on a task instead of synchronously in case a browser delivers the focus event async
