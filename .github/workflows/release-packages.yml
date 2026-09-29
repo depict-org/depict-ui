@@ -89,10 +89,11 @@ jobs:
             echo "No version bumps to commit."
             exit 0
           fi
-          # Only version bumps may be proposed. A build that died mid-way can
+          # Only version bumps may be proposed (`yarn version` leaves yarn.lock
+          # untouched, so a lockfile change is unexpected too). A build that died mid-way can
           # leave a package.json rewritten (utilishared's build rewrites its
           # entry points), and that must reach a person, not main.
-          unexpected=$(git diff --name-only :/ | grep -vE '^browser-tags-v2/(packages/[^/]+/package\.json|yarn\.lock)$' || true)
+          unexpected=$(git diff --name-only :/ | grep -vE '^browser-tags-v2/packages/[^/]+/package\.json$' || true)
           non_version=$(git diff -U0 -- 'packages/*/package.json' | grep -E '^[+-][^+-]' | grep -vE '^[+-][[:space:]]*"version":[[:space:]]*"[^"]*",?$' || true)
           if [ -n "${unexpected}${non_version}" ]; then
             echo "::error::The working tree holds changes other than version bumps; not proposing them."
@@ -108,7 +109,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git switch -c "${branch}"
-          git add -- 'packages/*/package.json' yarn.lock
+          git add -- 'packages/*/package.json'
           git commit -m "chore(release): ${label} (${DIST_TAG})"
           # The branch is the bot's own: a re-run for the same tag replaces it,
           # and updates the open pull request rather than opening a second one.
