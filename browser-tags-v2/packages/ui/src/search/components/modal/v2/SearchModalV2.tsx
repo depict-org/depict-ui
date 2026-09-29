@@ -270,7 +270,7 @@ function RawSearchModalV2<InputDisplay extends Display, OutputDisplay extends Mo
     disable_scrolling();
   }
 
-  close_modal_when_navigating_away(close_modal_, search_query_url_param_name_);
+  close_modal_when_navigating_away(close_modal_, search_query_url_param_name_, router_);
   addEventListener("keydown", close_on_escape_handler);
   onCleanup(() => removeEventListener("keydown", close_on_escape_handler));
 

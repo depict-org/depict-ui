@@ -22,6 +22,10 @@ export class PseudoRouter {
    * We store listing_id in history.state and do operate on this both here and in js-ui, this is the key to be used which js-ui provides
    */
   listing_query_state_key: string | undefined;
+  /**
+   * Called when a go_to_ didn't change location.href, for example when following a link to the page one is already on. href_change_ipns stays silent then, so whoever waits for a href change to react to a navigation has to listen here too
+   */
+  navigation_to_same_href_listeners_ = new Set<VoidFunction>();
   #throwing_on_navigation(...args: Parameters<Exclude<OnNavigation, "hard_navigation">>) {
     const { on_navigation_ } = this;
     if (typeof on_navigation_ !== "function") {
@@ -103,7 +107,15 @@ export class PseudoRouter {
           return;
         }
         event_?.preventDefault();
+        const href_before = location.href;
         const promise = this.#get_navigation_happened_promise(true);
+        // Some routers don't touch history at all when asked to go to the current page, so don't wait forever for them
+        Promise.race([promise, new Promise(resolve => setTimeout(resolve, 500))]).then(
+          catchify(() => {
+            if (location.href !== href_before) return;
+            this.navigation_to_same_href_listeners_.forEach(listener => catchify(listener)());
+          })
+        );
 
         if (force_spa_navigation_ && wants_hard_navigation) {
           // Don't allow hard navigation if we're forcing SPA navigation, which we do for things where PageReplacer can be used for performance
