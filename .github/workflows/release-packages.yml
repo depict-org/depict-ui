@@ -99,9 +99,15 @@ jobs:
           # Tracked files only (package.json and yarn.lock), never build output.
           git add -u :/
           git commit -m "chore(release): ${label} (${DIST_TAG})"
-          git push origin "${branch}"
+          # The branch is the bot's own: a re-run for the same tag replaces it,
+          # and updates the open pull request rather than opening a second one.
+          git push --force origin "${branch}"
           versions=$(for p in packages/*/package.json; do node -p "const j=require('./$p'); j.name + ' ' + j.version"; done)
-          gh pr create --base main --head "${branch}" \
-            --title "chore(release): ${label}" \
-            --body "$(printf 'Version bumps left by the release workflow run %s/%s/actions/runs/%s (dist-tag %s, publish step: %s).\n\n```\n%s\n```\n' \
-              "${GITHUB_SERVER_URL}" "${GITHUB_REPOSITORY}" "${GITHUB_RUN_ID}" "${DIST_TAG}" "${PUBLISH_OUTCOME}" "${versions}")"
+          fence='```'
+          body=$(printf 'Version bumps left by the release workflow run %s/%s/actions/runs/%s (dist-tag %s, publish step: %s).\n\n%s\n%s\n%s\n' \
+            "${GITHUB_SERVER_URL}" "${GITHUB_REPOSITORY}" "${GITHUB_RUN_ID}" "${DIST_TAG}" "${PUBLISH_OUTCOME}" "${fence}" "${versions}" "${fence}")
+          if gh pr view "${branch}" --json state -q .state 2>/dev/null | grep -qx OPEN; then
+            gh pr edit "${branch}" --body "${body}"
+          else
+            gh pr create --base main --head "${branch}" --title "chore(release): ${label}" --body "${body}"
+          fi
