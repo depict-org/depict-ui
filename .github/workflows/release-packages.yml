@@ -89,15 +89,18 @@ jobs:
             echo "No version bumps to commit."
             exit 0
           fi
-          # Only version bumps may be proposed (`yarn version` leaves yarn.lock
-          # untouched, so a lockfile change is unexpected too). A build that died mid-way can
-          # leave a package.json rewritten (utilishared's build rewrites its
-          # entry points), and that must reach a person, not main.
-          unexpected=$(git diff --name-only :/ | grep -vE '^browser-tags-v2/packages/[^/]+/package\.json$' || true)
+          # Only version bumps may be proposed: the package.json version lines
+          # `yarn version` writes, and the src/version.ts the builds stamp from
+          # them (scripts/pre_build.cjs). `yarn version` leaves yarn.lock
+          # untouched, so a lockfile change is unexpected too. A build that died
+          # mid-way can leave a package.json rewritten (pre_build.cjs also strips
+          # its entry points), and that must reach a person, not main.
+          unexpected=$(git diff --name-only :/ | grep -vE '^browser-tags-v2/packages/[^/]+/(package\.json|src/version\.ts)$' || true)
           non_version=$(git diff -U0 -- 'packages/*/package.json' | grep -E '^[+-][^+-]' | grep -vE '^[+-][[:space:]]*"version":[[:space:]]*"[^"]*",?$' || true)
-          if [ -n "${unexpected}${non_version}" ]; then
+          non_version_ts=$(git diff -U0 -- 'packages/*/src/version.ts' | grep -E '^[+-][^+-]' | grep -vE '^[+-]export const version = "[^"]*";$' || true)
+          if [ -n "${unexpected}${non_version}${non_version_ts}" ]; then
             echo "::error::The working tree holds changes other than version bumps; not proposing them."
-            printf '%s\n' "${unexpected}" "${non_version}"
+            printf '%s\n' "${unexpected}" "${non_version}" "${non_version_ts}"
             exit 1
           fi
           if [ "${GITHUB_EVENT_NAME}" = "push" ]; then
@@ -109,7 +112,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git switch -c "${branch}"
-          git add -- 'packages/*/package.json'
+          git add -- 'packages/*/package.json' 'packages/*/src/version.ts'
           git commit -m "chore(release): ${label} (${DIST_TAG})"
           # The branch is the bot's own: a re-run for the same tag replaces it,
           # and updates the open pull request rather than opening a second one.
