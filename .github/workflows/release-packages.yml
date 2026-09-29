@@ -1,0 +1,107 @@
+name: Release browser-tags-v2 packages
+
+# Publishes the eight browser-tags-v2 packages with the repo's own release
+# script (devtools/publish_packages.sh): it bumps each package one patch,
+# builds it and runs `yarn npm publish`. The version bumps it leaves are then
+# committed to release/<tag> and proposed to main as a pull request.
+#
+# The npm credential is the NPM_PUBLISH_TOKEN repository secret and reaches
+# yarn only as YARN_NPM_AUTH_TOKEN (yarn berry's env form of npmAuthToken). It
+# is never written to disk or printed.
+#
+# Note: packages/performance-client publishes as @depict-ai/dpc.
+
+on:
+  push:
+    tags:
+      - "release-v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "npm dist-tag to publish under"
+        type: choice
+        options:
+          - latest
+          - dev
+        default: latest
+
+permissions:
+  contents: write
+  pull-requests: write
+  # For the later swap to npm Trusted Publishing (OIDC).
+  id-token: write
+
+concurrency:
+  group: release-packages
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: depot-ubuntu-24.04-4
+    defaults:
+      run:
+        working-directory: browser-tags-v2
+    env:
+      DIST_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || 'latest' }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "yarn"
+          cache-dependency-path: browser-tags-v2/yarn.lock
+
+      - name: Install dependencies
+        id: install
+        run: yarn install --immutable
+
+      # Guard: fail before anything is bumped if the token does not
+      # authenticate against the publish registry (.yarnrc.yml
+      # npmPublishRegistry, https://registry.npmjs.org).
+      - name: Check the npm credential
+        env:
+          YARN_NPM_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
+        run: yarn npm whoami --publish
+
+      - name: Bump, build and publish
+        id: publish
+        env:
+          YARN_NPM_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
+        run: yarn "publish-packages-${DIST_TAG}"
+
+      # Runs after a partial failure too: a package already published must
+      # have its version bump recorded, or the next release collides with it.
+      - name: Propose the version bumps to main
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PUBLISH_OUTCOME: ${{ steps.publish.outcome }}
+        run: |
+          set -euo pipefail
+          if git diff --quiet :/; then
+            echo "No version bumps to commit."
+            exit 0
+          fi
+          if [ "${GITHUB_EVENT_NAME}" = "push" ]; then
+            label="${GITHUB_REF_NAME}"
+          else
+            label="dispatch-${DIST_TAG}-${GITHUB_RUN_ID}"
+          fi
+          branch="release/${label}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "${branch}"
+          # Tracked files only (package.json and yarn.lock), never build output.
+          git add -u :/
+          git commit -m "chore(release): ${label} (${DIST_TAG})"
+          git push origin "${branch}"
+          versions=$(for p in packages/*/package.json; do node -p "const j=require('./$p'); j.name + ' ' + j.version"; done)
+          gh pr create --base main --head "${branch}" \
+            --title "chore(release): ${label}" \
+            --body "$(printf 'Version bumps left by the release workflow run %s/%s/actions/runs/%s (dist-tag %s, publish step: %s).\n\n```\n%s\n```\n' \
+              "${GITHUB_SERVER_URL}" "${GITHUB_REPOSITORY}" "${GITHUB_RUN_ID}" "${DIST_TAG}" "${PUBLISH_OUTCOME}" "${versions}")"
