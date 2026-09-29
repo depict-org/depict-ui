@@ -69,13 +69,58 @@ describe("closing the search modal after following a link inside it", () => {
     expect(close_modal).toHaveBeenCalledTimes(1);
   });
 
-  it("closes when the storefront router ignores a navigation to the current page", async () => {
+  it("closes when the storefront router ignores a navigation to the exact page the shopper is on", async () => {
     const router_ = open_modal_with_router(() => {});
-    router_.navigate_.go_to_({ new_url_: card_href, is_replace_: false });
+    router_.navigate_.go_to_({ new_url_: product_page, is_replace_: false });
     await advance_time(499);
     expect(close_modal).not.toHaveBeenCalled();
     await advance_time(1);
     expect(close_modal).toHaveBeenCalledTimes(1);
+    await advance_time(10_000);
+    expect(close_modal).toHaveBeenCalledTimes(1);
+  });
+
+  it("leaves the modal open while a slow navigation to another page hasn't touched history yet", async () => {
+    let land_navigation!: VoidFunction;
+    const router_ = open_modal_with_router(() => {
+      land_navigation = () => {
+        history.pushState(null, "", "/sv-se/another-product");
+        fire_history_change("pushState");
+        fire_history_change("replaceState");
+      };
+    });
+    router_.navigate_.go_to_({ new_url_: "/another-product", is_replace_: false });
+    await advance_time(3000);
+    expect(close_modal).not.toHaveBeenCalled();
+    land_navigation();
+    await advance_time(500);
+    expect(location.pathname).toBe("/sv-se/another-product");
+    expect(close_modal).not.toHaveBeenCalled();
+  });
+
+  it("leaves the modal open when the storefront's navigation function throws", async () => {
+    const router_ = open_modal_with_router(() => {
+      throw new Error("navigation failed");
+    });
+    const rethrown_errors: unknown[] = [];
+    const real_queue_microtask = globalThis.queueMicrotask;
+    globalThis.queueMicrotask = callback => {
+      try {
+        callback();
+      } catch (e) {
+        rethrown_errors.push(e);
+      }
+    };
+    try {
+      router_.navigate_.go_to_({ new_url_: product_page, is_replace_: false });
+      await advance_time(500);
+      fire_history_change("replaceState");
+      await advance_time(0);
+    } finally {
+      globalThis.queueMicrotask = real_queue_microtask;
+    }
+    expect(rethrown_errors).toHaveLength(1);
+    expect(close_modal).not.toHaveBeenCalled();
   });
 
   it("leaves closing to the href change when the navigation lands on another page", async () => {

@@ -26,15 +26,16 @@ export class PseudoRouter {
    * Called when a go_to_ didn't change location.href, for example when following a link to the page one is already on. href_change_ipns stays silent then, so whoever waits for a href change to react to a navigation has to listen here too
    */
   navigation_to_same_href_listeners_ = new Set<VoidFunction>();
-  #throwing_on_navigation(...args: Parameters<Exclude<OnNavigation, "hard_navigation">>) {
+  #throwing_on_navigation(options: Parameters<Exclude<OnNavigation, "hard_navigation">>[0], on_throw_?: VoidFunction) {
     const { on_navigation_ } = this;
     if (typeof on_navigation_ !== "function") {
       throw new Error("on_navigation_ is not a function");
     }
     // make sure that we don't accidentally catchify if the SDK consumer has fucked up
     try {
-      return on_navigation_(...args);
+      return on_navigation_(options);
     } catch (e) {
+      on_throw_?.();
       queueMicrotask(() => {
         throw e;
       });
@@ -54,6 +55,29 @@ export class PseudoRouter {
       };
       instant_exec_on_suspect_history_change.add(handler);
     });
+  }
+  /**
+   * Calls navigation_to_same_href_listeners_ if the navigation we're about to request ends on the href we're already on
+   * @returns function to stop watching, call it when the navigation failed
+   */
+  #watch_for_navigation_to_same_href(target_url: URL) {
+    const href_before = location.href;
+    const stop_watching = () => {
+      instant_exec_on_suspect_history_change.delete(on_history_change);
+      clearTimeout(timeout);
+    };
+    const notify_if_href_unchanged = catchify(() => {
+      stop_watching();
+      if (location.href !== href_before) return;
+      this.navigation_to_same_href_listeners_.forEach(listener => catchify(listener)());
+    });
+    // The router has acted once it touches history, if the href is still the same then it took us to the page we're on
+    const on_history_change = () => notify_if_href_unchanged();
+    // A router asked to go to the exact href we're on might not touch history at all, so don't wait longer than 500ms for it. For any other target we can't tell a slow navigation from one that goes nowhere, so only stop listening after a while
+    const timeout =
+      target_url.href === href_before ? setTimeout(notify_if_href_unchanged, 500) : setTimeout(stop_watching, 10_000);
+    instant_exec_on_suspect_history_change.add(on_history_change);
+    return stop_watching;
   }
   navigate_ = {
     /**
@@ -107,15 +131,8 @@ export class PseudoRouter {
           return;
         }
         event_?.preventDefault();
-        const href_before = location.href;
         const promise = this.#get_navigation_happened_promise(true);
-        // Some routers don't touch history at all when asked to go to the current page, so don't wait forever for them
-        Promise.race([promise, new Promise(resolve => setTimeout(resolve, 500))]).then(
-          catchify(() => {
-            if (location.href !== href_before) return;
-            this.navigation_to_same_href_listeners_.forEach(listener => catchify(listener)());
-          })
-        );
+        const stop_watching_for_same_href = this.#watch_for_navigation_to_same_href(new_url_);
 
         if (force_spa_navigation_ && wants_hard_navigation) {
           // Don't allow hard navigation if we're forcing SPA navigation, which we do for things where PageReplacer can be used for performance
@@ -127,11 +144,15 @@ export class PseudoRouter {
           }
           history[is_replace_ ? "replaceState" : "pushState"](new_state, "", new_url_);
         } else {
-          this.#throwing_on_navigation.call(this, {
-            is_replace: is_replace_,
-            new_url: new_url_ instanceof URL ? new_url_ : new URL(new_url_, location.href),
-            scroll,
-          });
+          this.#throwing_on_navigation.call(
+            this,
+            {
+              is_replace: is_replace_,
+              new_url: new_url_ instanceof URL ? new_url_ : new URL(new_url_, location.href),
+              scroll,
+            },
+            stop_watching_for_same_href
+          );
         }
 
         await promise;
