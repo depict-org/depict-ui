@@ -97,10 +97,10 @@ jobs:
           # its entry points), and that must reach a person, not main.
           unexpected=$(git diff --name-only :/ | grep -vE '^browser-tags-v2/packages/[^/]+/(package\.json|src/version\.ts)$' || true)
           non_version=$(git diff -U0 -- 'packages/*/package.json' | grep -E '^[+-][^+-]' | grep -vE '^[+-][[:space:]]*"version":[[:space:]]*"[^"]*",?$' || true)
-          non_version="${non_version}$(git diff -U0 -- 'packages/*/src/version.ts' | grep -E '^[+-][^+-]' | grep -vE '^[+-]export const version = "[^"]*";$' || true)"
-          if [ -n "${unexpected}${non_version}" ]; then
+          non_version_ts=$(git diff -U0 -- 'packages/*/src/version.ts' | grep -E '^[+-][^+-]' | grep -vE '^[+-]export const version = "[^"]*";$' || true)
+          if [ -n "${unexpected}${non_version}${non_version_ts}" ]; then
             echo "::error::The working tree holds changes other than version bumps; not proposing them."
-            printf '%s\n' "${unexpected}" "${non_version}"
+            printf '%s\n' "${unexpected}" "${non_version}" "${non_version_ts}"
             exit 1
           fi
           if [ "${GITHUB_EVENT_NAME}" = "push" ]; then
