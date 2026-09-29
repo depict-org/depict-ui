@@ -93,7 +93,7 @@ jobs:
           # leave a package.json rewritten (utilishared's build rewrites its
           # entry points), and that must reach a person, not main.
           unexpected=$(git diff --name-only :/ | grep -vE '^browser-tags-v2/(packages/[^/]+/package\.json|yarn\.lock)$' || true)
-          non_version=$(git diff -U0 -- 'packages/*/package.json' | grep -E '^[+-][^+-]' | grep -v '"version":' || true)
+          non_version=$(git diff -U0 -- 'packages/*/package.json' | grep -E '^[+-][^+-]' | grep -vE '^[+-][[:space:]]*"version":[[:space:]]*"[^"]*",?$' || true)
           if [ -n "${unexpected}${non_version}" ]; then
             echo "::error::The working tree holds changes other than version bumps; not proposing them."
             printf '%s\n' "${unexpected}" "${non_version}"
