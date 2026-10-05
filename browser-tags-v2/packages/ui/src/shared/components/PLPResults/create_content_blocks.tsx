@@ -97,7 +97,11 @@ export function create_content_blocks({
 
   return Object.assign(content_blocks_by_index_, {
     trailing_: (product_count: number) =>
-      trailing_content_blocks({ ...remapped_(), n_cols_currently_showing_: n_cols_currently_showing_(), product_count }),
+      trailing_content_blocks({
+        ...remapped_(),
+        n_cols_currently_showing_: n_cols_currently_showing_(),
+        product_count,
+      }),
   });
 }
 
@@ -124,14 +128,14 @@ export function remap_blocks_to_index<T = () => solid_JSX.Element | Promise<soli
 }) {
   // This computation should be quite cheap since it just moves around things into an array
   const content_blocks_by_index_: (Awaited<T> | Awaited<T[]>)[] = [];
-  const row_by_index_: number[] = []; // the row of the (first) block at each index of content_blocks_by_index_
+  const rows_by_index_: number[][] = []; // the row of each block at each index of content_blocks_by_index_, in the same order
   const constructed_block_arrays = new WeakSet<Awaited<T>[]>();
   // Need to keep track of products displaced by blocks above when mapping rows to indexes in the actual grid
   const displaced_products_: ((undefined | true)[] | number)[] = []; // undefined = is product, true = is content block if number instead of tuple number indicates content blocks in that row. Index in first array is row, index in second array is column
 
   if (!n_cols_currently_showing_) {
     // Nope out of here if we don't know how many columns are showing
-    return { content_blocks_by_index_, row_by_index_, displaced_products_ };
+    return { content_blocks_by_index_, rows_by_index_, displaced_products_ };
   }
 
   for (let i = 0; i < wrapped_blocks_.length; i++) {
@@ -193,8 +197,8 @@ export function remap_blocks_to_index<T = () => solid_JSX.Element | Promise<soli
       }
     } else {
       content_blocks_by_index_[final_target_index] = block_content;
-      row_by_index_[final_target_index] = i;
     }
+    (rows_by_index_[final_target_index] ||= []).push(i);
 
     // Update displacement
     for (let j = 0; j < span_rows; j++) {
@@ -205,7 +209,7 @@ export function remap_blocks_to_index<T = () => solid_JSX.Element | Promise<soli
     }
   }
 
-  return { content_blocks_by_index_, row_by_index_, displaced_products_ } as const;
+  return { content_blocks_by_index_, rows_by_index_, displaced_products_ } as const;
 }
 
 /**
@@ -216,18 +220,18 @@ export function remap_blocks_to_index<T = () => solid_JSX.Element | Promise<soli
  */
 export function trailing_content_blocks<T>({
   content_blocks_by_index_,
-  row_by_index_,
+  rows_by_index_,
   displaced_products_,
   n_cols_currently_showing_,
   product_count,
 }: {
-  content_blocks_by_index_: readonly (T | undefined)[];
-  row_by_index_: readonly number[];
+  content_blocks_by_index_: readonly (T | T[] | undefined)[];
+  rows_by_index_: readonly (readonly number[] | undefined)[];
   displaced_products_: readonly ((undefined | true)[] | number)[];
   n_cols_currently_showing_: number | null;
   product_count: number;
 }) {
-  const trailing: T[] = [];
+  const trailing: (T | T[])[] = [];
   if (!n_cols_currently_showing_ || product_count <= 0) return trailing;
 
   // Find the row the last product lands in: each row has room for the columns that blocks don't take up
@@ -237,13 +241,21 @@ export function trailing_content_blocks<T>({
     const taken_by_blocks = typeof row === "number" ? row : row ? row.filter(item => item).length : 0;
     seen_products += Math.max(0, n_cols_currently_showing_ - taken_by_blocks);
     if (seen_products >= product_count) break;
-    if (last_product_row > product_count) break; // every row is fully taken by blocks, can't happen with sane input but don't loop forever
+    // Rows past the ones blocks take up all have room for products, so we're done by then at the latest
+    if (last_product_row >= displaced_products_.length + product_count) break;
   }
 
   for (let i = product_count; i < content_blocks_by_index_.length; i++) {
     const block = content_blocks_by_index_[i];
     if (block === undefined) continue;
-    if (row_by_index_[i] > last_product_row) continue; // a row below the last product's row: keep it hidden
+    const rows = rows_by_index_[i] || [];
+    if (Array.isArray(block) && rows.length > 1) {
+      // Several blocks share this index (e.g. the end of one row and the start of the next): keep the ones in the last product's row
+      const in_last_row = block.filter((_, j) => rows[j] <= last_product_row);
+      if (in_last_row.length) trailing.push(in_last_row);
+      continue;
+    }
+    if ((rows[0] ?? Infinity) > last_product_row) continue; // a row below the last product's row: keep it hidden
     trailing.push(block);
   }
   return trailing;
