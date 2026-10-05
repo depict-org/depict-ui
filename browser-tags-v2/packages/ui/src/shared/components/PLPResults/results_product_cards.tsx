@@ -19,7 +19,8 @@ import { key_displays } from "../../helper_functions/card_rendering/render_displ
 import { BaseQueryAccessor, ProductCardTemplate } from "../../types";
 import { SearchResponseAfterDisplayTransformer } from "../../../search/types";
 import { renderDisplaysWithIntersectionObserver } from "../../helper_functions/card_rendering/renderDisplaysWithIntersectionObserver";
-import { trailing_content_blocks } from "./create_content_blocks";
+
+type ContentBlocksByIndex = ((() => solid_JSX.Element) | (() => solid_JSX.Element)[])[];
 
 export function ResultsProductCards<T extends Display>({
   plp_results_,
@@ -45,7 +46,11 @@ export function ResultsProductCards<T extends Display>({
   depict_api_: DepictAPI<T>;
   is_loading_: Accessor<boolean>;
   setCurrentlyLoadedDisplays_: Setter<number>;
-  content_blocks_?: Accessor<Accessor<((() => solid_JSX.Element) | (() => solid_JSX.Element)[])[]>>;
+  content_blocks_?: Accessor<
+    Accessor<ContentBlocksByIndex> & {
+      trailing_?: (product_count: number) => ContentBlocksByIndex;
+    }
+  >;
   isSliderLayout_: Accessor<boolean>;
 }) {
   // Although typing doesn't reflect it, plp_results is guaranteed to contain an array of at least one display at this point
@@ -89,10 +94,10 @@ export function ResultsProductCards<T extends Display>({
     setLastResultsInViewport(Math.max(...intersecting) + 1);
   });
 
-  // Content blocks placed after the last product have no product card to render in front of, so render them after the cards once there are no more products to load
+  // Content blocks placed after the last product (but still in its row) have no product card to render in front of, so render them after the cards once there are no more products to load
   const trailingContentBlocks_ = createMemo(() => {
     if (!all_products_loaded_[0]()) return [];
-    return trailing_content_blocks(content_blocks_?.()?.() || [], displays_by_key_().size);
+    return content_blocks_?.()?.trailing_?.(displays_by_key_().size) || [];
   });
 
   return [renderedDisplays_, trailingContentBlocks_ as unknown as solid_JSX.Element]; // Regarding the as unknown: https://github.com/solidjs/solid/releases/tag/v1.7.0
