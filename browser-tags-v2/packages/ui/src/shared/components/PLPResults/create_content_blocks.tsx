@@ -202,6 +202,20 @@ export function remap_blocks_to_index<T = () => solid_JSX.Element | Promise<soli
 }
 
 /**
+ * Returns the content blocks whose index is at or past `product_count`, in index order.
+ * The product <For> loop only renders the block at each product's own index, so a block placed after the last product (for example in the right slot of a last row that isn't full) would otherwise never be shown.
+ * Callers should only render these once all products have loaded, otherwise the blocks would jump around while loading more.
+ */
+export function trailing_content_blocks<T>(content_blocks_by_index: readonly (T | undefined)[], product_count: number) {
+  const trailing: T[] = [];
+  for (let i = product_count; i < content_blocks_by_index.length; i++) {
+    const block = content_blocks_by_index[i];
+    if (block !== undefined) trailing.push(block);
+  }
+  return trailing;
+}
+
+/**
  * Takes a store that contains an array from where index is number of row and value is the result of executing the content block rendering function.
  * Then renders the content and wraps it into a div with the correct styling.
  * Also caps span_columns to max available columns
@@ -237,6 +251,7 @@ function wrap_blocks_in_div(rendered_content_blocks: ContentBlocksByRow, max_spa
         content: () => {
           // Sneaky on-demand rendering, so we don't render more blocks than we can show: we have the rendered value here and don't return a function that renders because if our block would be moved around we'd be guaranteed to re-render
           // However, no need to count products to know if we should render: the <For> loops in Placeholders and render_displays will only call this function if there's actually a product here that wants to display this block
+          // (or, once all products have loaded, ResultsProductCards renders the blocks placed after the last product)
           set_rendering_delayed_(false);
           return content;
         },
