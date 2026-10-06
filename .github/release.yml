@@ -1,0 +1,27 @@
+# How GitHub groups the generated notes of a GitHub Release. The release
+# workflow (.github/workflows/release-packages.yml) creates one for every
+# release-v* tag, and Dependabot shows its notes in merchants' bump PRs.
+# The labels come from the PR title check (.github/workflows/pr-title.yml).
+changelog:
+  exclude:
+    labels:
+      - "changelog: skip"
+    authors:
+      # The release workflow's own version bump PRs, and dependency bumps
+      - github-actions
+      - github-actions[bot]
+      - dependabot
+      - dependabot[bot]
+  categories:
+    - title: New features
+      labels:
+        - "changelog: feature"
+    - title: Fixes
+      labels:
+        - "changelog: fix"
+    - title: Performance
+      labels:
+        - "changelog: performance"
+    - title: Other changes
+      labels:
+        - "*"

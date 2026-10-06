@@ -1,0 +1,86 @@
+name: PR title
+
+# Squash merges make the PR title the commit on main, and the release workflow
+# builds each GitHub Release's notes from the titles of the PRs merged since
+# the previous release (see .github/release.yml). Dependabot shows those notes
+# to merchants in its version bump PRs, so the title is the release note.
+#
+# This checks the title is "type(area): description" and labels the PR so the
+# notes can group it, or leave it out:
+#   feat                                       -> changelog: feature
+#   fix, revert                                -> changelog: fix
+#   perf                                       -> changelog: performance
+#   refactor, docs                             -> no label ("Other changes")
+#   chore, ci, build, test, style              -> changelog: skip
+#
+# pull_request_target so the label can be written on PRs from forks too. It is
+# safe because nothing from the PR is checked out or run: the title is only
+# read, through an environment variable.
+
+on:
+  pull_request_target:
+    types: [opened, edited, reopened, synchronize]
+
+permissions:
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: pr-title-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      PR: ${{ github.event.pull_request.number }}
+      TITLE: ${{ github.event.pull_request.title }}
+    steps:
+      - name: Check the title format
+        id: type
+        run: |
+          set -euo pipefail
+          pattern='^(feat|fix|perf|refactor|revert|docs|style|test|build|ci|chore)(\([^()]+\))?!?: [^ ].*$'
+          if [[ ! "${TITLE}" =~ ${pattern} ]]; then
+            # The title stays out of the annotation line so it can't inject workflow commands
+            echo '::error title=PR title::The PR title must be "type(area): description".'
+            {
+              printf 'Title: %s\n' "${TITLE}"
+              echo "Types: feat, fix, perf, refactor, revert, docs, style, test, build, ci, chore."
+              echo "Example: fix(plp): render content cards in the free slots of the last row"
+              echo "The title becomes the line merchants read in the release notes, so describe the change for them."
+            } >&2
+            exit 1
+          fi
+          echo "type=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
+
+      - name: Label the PR for the release notes
+        env:
+          TYPE: ${{ steps.type.outputs.type }}
+        run: |
+          set -euo pipefail
+          case "${TYPE}" in
+            feat) label="changelog: feature" ;;
+            fix | revert) label="changelog: fix" ;;
+            perf) label="changelog: performance" ;;
+            refactor | docs) label="" ;;
+            *) label="changelog: skip" ;;
+          esac
+
+          # Create the labels on first use (--force only updates colour and description)
+          gh label create "changelog: feature" --color 0E8A16 --description "Release notes: New features" --force >/dev/null
+          gh label create "changelog: fix" --color D93F0B --description "Release notes: Fixes" --force >/dev/null
+          gh label create "changelog: performance" --color 1D76DB --description "Release notes: Performance" --force >/dev/null
+          gh label create "changelog: skip" --color CCCCCC --description "Left out of the release notes" --force >/dev/null
+
+          # Drop the labels this workflow manages that no longer match, e.g. after the title's type was edited
+          for managed in "changelog: feature" "changelog: fix" "changelog: performance" "changelog: skip"; do
+            if [ "${managed}" != "${label}" ]; then
+              gh pr edit "${PR}" --remove-label "${managed}" >/dev/null 2>&1 || true
+            fi
+          done
+          if [ -n "${label}" ]; then
+            gh pr edit "${PR}" --add-label "${label}"
+          fi
