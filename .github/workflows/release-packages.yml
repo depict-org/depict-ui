@@ -5,9 +5,12 @@ name: Release browser-tags-v2 packages
 # builds it and runs `yarn npm publish`. The version bumps it leaves are then
 # committed to release/<tag> and proposed to main as a pull request.
 #
-# A release from a release-v* tag also gets a GitHub Release, with notes
-# generated from the PRs merged since the previous release-v* tag (grouped by
-# .github/release.yml). Dependabot shows those notes in merchants' bump PRs.
+# A release from a release-v* tag that published fully also gets GitHub
+# Releases, so Dependabot can show merchants what changed in its bump PRs:
+# one per package, tagged "<npm name>@<version>" (Dependabot only picks a
+# monorepo package's releases by that prefix, and the packages' versions
+# differ), plus a release-v* summary. The notes come from the commit subjects
+# since the previous release (.github/scripts/release-notes.sh).
 #
 # The npm credential is the NPM_PUBLISH_TOKEN repository secret and reaches
 # yarn only as YARN_NPM_AUTH_TOKEN (yarn berry's env form of npmAuthToken). It
@@ -81,29 +84,73 @@ jobs:
         run: yarn "publish-packages-${DIST_TAG}"
 
       # Only for a release-v* tag that published fully: a dispatch has no tag to
-      # attach the release to, and a partial publish needs a person first.
-      - name: Create the GitHub Release
+      # attach releases to, and a partial publish needs a person first. Its
+      # changes are then picked up by the next tag's notes (see "previous").
+      - name: Create the GitHub Releases
         if: ${{ github.event_name == 'push' && steps.publish.outcome == 'success' }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           tag="${GITHUB_REF_NAME}"
+          sha=$(git rev-parse "${tag}^{commit}")
+
+          # Notes start at the newest release-v* tag below this one that got a
+          # GitHub Release, so a partial publish in between (no Release) doesn't
+          # leave its changes out. Falls back to the newest lower tag.
+          previous=""
+          fallback=""
+          while IFS= read -r candidate; do
+            [ "${candidate}" != "${tag}" ] || continue
+            lowest=$(printf '%s\n%s\n' "${candidate}" "${tag}" | sort -V | head -n 1)
+            [ "${lowest}" = "${candidate}" ] || continue # above this tag
+            [ -n "${fallback}" ] || fallback="${candidate}"
+            if gh release view "${candidate}" >/dev/null 2>&1; then
+              previous="${candidate}"
+              break
+            fi
+          done < <(git tag --list 'release-v*' --sort=-v:refname)
+          previous="${previous:-${fallback}}"
+
+          changes=$(mktemp)
+          if [ -n "${previous}" ]; then
+            "${GITHUB_WORKSPACE}/.github/scripts/release-notes.sh" "${previous}" "${tag}" > "${changes}"
+            echo "Notes cover ${previous}..${tag}"
+          else
+            printf 'First release with release notes.\n\n' > "${changes}"
+          fi
+          tag_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/releases/tag/${tag}"
+
+          # One release per published package, at the commit the tag points to
+          versions=""
+          for p in packages/*/package.json; do
+            read -r name version private < <(node -p "const j=require('./$p'); [j.name, j.version, Boolean(j.private)].join(' ')")
+            [ "${private}" = "false" ] || continue
+            versions+="- \`${name}\` ${version}"$'\n'
+            package_tag="${name}@${version}"
+            if gh release view "${package_tag}" >/dev/null 2>&1; then
+              echo "GitHub Release ${package_tag} already exists."
+              continue
+            fi
+            notes=$(mktemp)
+            {
+              printf '`%s` %s, published with [%s](%s).\n\n' "${name}" "${version}" "${tag}" "${tag_url}"
+              cat "${changes}"
+            } > "${notes}"
+            gh release create "${package_tag}" --target "${sha}" --title "${package_tag}" --notes-file "${notes}" --latest=false
+          done
+
+          # The summary release, last so it is the repo's latest release
           if gh release view "${tag}" >/dev/null 2>&1; then
             echo "GitHub Release ${tag} already exists."
-            exit 0
+          else
+            notes=$(mktemp)
+            {
+              printf 'Published to npm under the `latest` dist-tag:\n\n%s\n' "${versions}"
+              cat "${changes}"
+            } > "${notes}"
+            gh release create "${tag}" --verify-tag --title "${tag}" --notes-file "${notes}" --latest
           fi
-          # The notes cover the PRs merged since the previous release-v* tag. Without
-          # a start tag GitHub would start from the previous GitHub Release, and
-          # there were none before this step existed.
-          previous=$(git tag --list 'release-v*' --sort=-v:refname | grep -vxF "${tag}" | head -n 1 || true)
-          versions=$(for p in packages/*/package.json; do node -p "const j=require('./$p'); '- \`' + j.name + '\` ' + j.version"; done)
-          notes=$(printf 'Published to npm under the `latest` dist-tag:\n\n%s\n' "${versions}")
-          args=(--verify-tag --title "${tag}" --generate-notes --notes "${notes}")
-          if [ -n "${previous}" ]; then
-            args+=(--notes-start-tag "${previous}")
-          fi
-          gh release create "${tag}" "${args[@]}"
 
       # Runs after a partial failure too: a package already published must
       # have its version bump recorded, or the next release collides with it.
@@ -150,18 +197,8 @@ jobs:
           fence='```'
           body=$(printf 'Version bumps left by the release workflow run %s/%s/actions/runs/%s (dist-tag %s, publish step: %s).\n\n%s\n%s\n%s\n' \
             "${GITHUB_SERVER_URL}" "${GITHUB_REPOSITORY}" "${GITHUB_RUN_ID}" "${DIST_TAG}" "${PUBLISH_OUTCOME}" "${fence}" "${versions}" "${fence}")
-          # Keep the bump out of the next release's notes. PRs this token opens don't
-          # trigger the PR title workflow, so label it here. Best effort: a label
-          # problem must never stop the bumps from being proposed.
-          edit_label=(--add-label "changelog: skip")
-          create_label=(--label "changelog: skip")
-          if ! gh label create "changelog: skip" --color CCCCCC --description "Left out of the release notes" --force >/dev/null; then
-            echo "::warning::Couldn't create the changelog: skip label; proposing the bumps without it."
-            edit_label=()
-            create_label=()
-          fi
           if gh pr view "${branch}" --json state -q .state 2>/dev/null | grep -qx OPEN; then
-            gh pr edit "${branch}" --body "${body}" ${edit_label[@]+"${edit_label[@]}"}
+            gh pr edit "${branch}" --body "${body}"
           else
-            gh pr create --base main --head "${branch}" --title "chore(release): ${label}" --body "${body}" ${create_label[@]+"${create_label[@]}"}
+            gh pr create --base main --head "${branch}" --title "chore(release): ${label}" --body "${body}"
           fi
