@@ -4,10 +4,12 @@
 #
 # Usage: .github/scripts/release-notes.sh <from-ref> <to-ref>
 #
-# Squash merges make every PR one commit on main whose subject is the PR title
-# as it was when merged (with " (#123)" appended), so the notes read like the
-# PR list but can't be changed by retitling a PR afterwards. The PR title check
-# (.github/workflows/pr-title.yml) keeps the subjects in "type(area): text" form.
+# Squash merges make every PR one commit on main, with " (#123)" appended to
+# its subject. The notes use those subjects, so retitling a PR after the merge
+# can't change them. The subject is the PR title (checked by
+# .github/workflows/pr-title.yml) when the repo's "default squash commit title"
+# setting is "pull request title"; with "commit or pull request title" a
+# single-commit PR uses its commit headline instead.
 #
 #   feat                                   -> New features
 #   fix, revert                            -> Fixes

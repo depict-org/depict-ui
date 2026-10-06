@@ -1,9 +1,9 @@
 name: PR title
 
-# Squash merges make the PR title the commit subject on main, and each GitHub
-# Release's notes are built from those subjects, grouped by type
-# (.github/scripts/release-notes.sh). Dependabot shows the notes to merchants
-# in its version bump PRs, so the title is the line merchants read.
+# Each GitHub Release's notes are built from the commit subjects on main,
+# grouped by type (.github/scripts/release-notes.sh), and Dependabot shows them
+# to merchants in its version bump PRs. With the repo's default squash commit
+# title set to the pull request title, the title is the line merchants read.
 #
 # Checks the title is "type(area): description":
 #   feat                                -> New features
