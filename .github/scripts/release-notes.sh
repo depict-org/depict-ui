@@ -28,6 +28,9 @@ other=()
 
 # --no-merges below: a merge-commit merge only wraps the PR's own commits, which are listed themselves
 pattern='^(feat|fix|perf|refactor|revert|docs|style|test|build|ci|chore)(\([^()]+\))?(!)?: (.+)$'
+# Read the log up front so a failing git log (bad range, missing tag) aborts
+# instead of looking like a release with no changes
+subjects=$(git log --no-merges --format=%s "${from}..${to}")
 while IFS= read -r subject; do
   [ -n "${subject}" ] || continue
   type=""
@@ -48,7 +51,7 @@ while IFS= read -r subject; do
     chore | ci | test) ;;
     *) other+=("${line}") ;;
   esac
-done < <(git log --no-merges --format=%s "${from}..${to}")
+done <<< "${subjects}"
 
 section() {
   local title="$1"

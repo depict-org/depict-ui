@@ -95,6 +95,20 @@ jobs:
           tag="${GITHUB_REF_NAME}"
           sha=$(git rev-parse "${tag}^{commit}")
 
+          # 0 = the release exists, 1 = it doesn't. Any other error (auth,
+          # network, rate limit) stops the step instead of reading as "missing".
+          release_exists() {
+            local out
+            if out=$(gh release view "$1" --json tagName 2>&1); then
+              return 0
+            fi
+            if [ "${out}" = "release not found" ]; then
+              return 1
+            fi
+            echo "::error::Couldn't check the GitHub Release $1: ${out}"
+            exit 1
+          }
+
           # Notes start at the newest release-v* tag below this one that got a
           # GitHub Release, so a partial publish in between (no Release) doesn't
           # leave its changes out. Falls back to the newest lower tag.
@@ -105,7 +119,7 @@ jobs:
             lowest=$(printf '%s\n%s\n' "${candidate}" "${tag}" | sort -V | head -n 1)
             [ "${lowest}" = "${candidate}" ] || continue # above this tag
             [ -n "${fallback}" ] || fallback="${candidate}"
-            if gh release view "${candidate}" >/dev/null 2>&1; then
+            if release_exists "${candidate}"; then
               previous="${candidate}"
               break
             fi
@@ -128,7 +142,7 @@ jobs:
             [ "${private}" = "false" ] || continue
             versions+="- \`${name}\` ${version}"$'\n'
             package_tag="${name}@${version}"
-            if gh release view "${package_tag}" >/dev/null 2>&1; then
+            if release_exists "${package_tag}"; then
               echo "GitHub Release ${package_tag} already exists."
               continue
             fi
@@ -141,7 +155,7 @@ jobs:
           done
 
           # The summary release, last so it is the repo's latest release
-          if gh release view "${tag}" >/dev/null 2>&1; then
+          if release_exists "${tag}"; then
             echo "GitHub Release ${tag} already exists."
           else
             notes=$(mktemp)
