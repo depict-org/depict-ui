@@ -1,5 +1,10 @@
 {
   "name": "@depict-ai/plp-styling",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/depict-org/depict-ui.git",
+    "directory": "browser-tags-v2/packages/plp-styling"
+  },
   "packageManager": "yarn@3.2.2",
   "scripts": {
     "publish": "yarn npm publish"

@@ -1,5 +1,10 @@
 {
   "name": "@depict-ai/js-ui",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/depict-org/depict-ui.git",
+    "directory": "browser-tags-v2/packages/js-ui"
+  },
   "version": "4.10.20",
   "packageManager": "yarn@3.2.2",
   "source": "src/index.ts",

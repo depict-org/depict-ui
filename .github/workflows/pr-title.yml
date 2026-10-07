@@ -1,0 +1,51 @@
+name: PR title
+
+# Each GitHub Release's notes are built from the commit subjects on main,
+# grouped by type (.github/scripts/release-notes.sh), and Dependabot shows them
+# to merchants in its version bump PRs. With the repo's default squash commit
+# title set to the pull request title, the title is the line merchants read.
+#
+# Checks the title is "type(area): description":
+#   feat                                -> New features
+#   fix, revert                         -> Fixes
+#   perf                                -> Performance
+#   refactor, docs, style, build        -> Other changes
+#   chore, ci, test                     -> left out of the notes
+#
+# Read-only: the title is only read, through an environment variable.
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-title-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check the title format
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          set -euo pipefail
+          pattern='^(feat|fix|perf|refactor|revert|docs|style|test|build|ci|chore)(\([^()]+\))?!?: [^ ].*$'
+          if [[ "${TITLE}" =~ ${pattern} ]]; then
+            echo "PR title ok (${BASH_REMATCH[1]})."
+            exit 0
+          fi
+          # The title stays out of the annotation line so it can't inject workflow commands
+          echo '::error title=PR title::The PR title must be "type(area): description".'
+          {
+            printf 'Title: %s\n' "${TITLE}"
+            echo "Types: feat, fix, perf, refactor, revert, docs, style, test, build, ci, chore."
+            echo "Example: fix(plp): render content cards in the free slots of the last row"
+            echo "The title becomes the line merchants read in the release notes, so describe the change for them."
+            echo "chore, ci and test are left out of the release notes."
+          } >&2
+          exit 1
