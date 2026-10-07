@@ -1,0 +1,26 @@
+## Staying up to date
+
+We release fixes and improvements to the Depict UI packages regularly. Every release has release notes on [GitHub](https://github.com/depict-org/depict-ui/releases), one per package and version (for example `@depict-ai/react-ui@4.10.23`).
+
+The easiest way to keep up is to let [Dependabot](https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuring-dependabot-version-updates) open a pull request in your repository whenever a new version is published. The pull request includes the release notes, so you can see what changed before you merge it. To set it up, add this to `.github/dependabot.yml`:
+
+```yaml .github/dependabot.yml
+version: 2
+updates:
+  - package-ecosystem: "npm" # also covers pnpm and Yarn lockfiles
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    allow:
+      - dependency-name: "@depict-ai/*"
+    groups:
+      depict:
+        patterns:
+          - "@depict-ai/*"
+```
+
+The group puts all `@depict-ai` packages in one pull request, so packages you install side by side (for example `@depict-ai/react-ui` and `@depict-ai/ui`) are always updated together.
+
+<Tip>
+If you already have a `dependabot.yml`, add the entry to its `updates` list. To have Dependabot update your other dependencies too, remove the `allow` section.
+</Tip>
