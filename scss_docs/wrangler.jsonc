@@ -10,6 +10,7 @@
   "name": "scss-docs",
   "account_id": "8e0167cf14dc375fab09fdf61c0efed4",
   "compatibility_date": "2026-08-01",
+  "observability": { "issues": { "enabled": true } },
   "assets": {
     "directory": "../browser-tags-v2/packages/plp-styling/sassdoc"
   }

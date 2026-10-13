@@ -15,6 +15,7 @@
   "name": "preview-browser",
   "account_id": "8e0167cf14dc375fab09fdf61c0efed4",
   "compatibility_date": "2026-08-01",
+  "observability": { "issues": { "enabled": true } },
   "assets": {
     "directory": "../preview_browser/.output/public",
     "not_found_handling": "single-page-application"
