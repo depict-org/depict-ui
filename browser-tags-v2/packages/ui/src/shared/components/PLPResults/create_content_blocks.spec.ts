@@ -1,5 +1,5 @@
 import { describe, expect, test } from "@jest/globals";
-import { remap_blocks_to_index, trailing_content_blocks } from "./create_content_blocks";
+import { get_final_content_block_spans, remap_blocks_to_index, trailing_content_blocks } from "./create_content_blocks";
 
 type Block = { span_columns: number; span_rows: number; position: "left" | "center" | "right"; content: string };
 
@@ -41,8 +41,41 @@ describe("trailing_content_blocks", () => {
   test("keeps blocks in rows below the last product hidden, e.g. on a filtered listing", () => {
     // A 40 product category with cards at rows 2 and 5, filtered down to 3 products
     expect(trailing({ 2: block("a"), 5: block("b") }, 4, 3)).toEqual([]);
-    // A card at the start of the row after a full last row has no product beside it either
-    expect(trailing({ 1: block("a") }, 4, 4)).toEqual([]);
+  });
+
+  test("renders a card in the first row after a full last product row", () => {
+    // Luca Faloni, Oxford Cotton Shirts: four products fill row 0; the row 1 card must follow them.
+    expect(trailing({ 1: block("card") }, 4, 4)).toEqual(["card"]);
+    // A row 2 card is still beyond the short listing and stays hidden.
+    expect(trailing({ 2: block("later") }, 4, 4)).toEqual([]);
+  });
+
+  test("does not pull a card forward when the last product row is partial", () => {
+    // Five products leave three product slots open in row 1, so a row 2 card must stay hidden.
+    expect(trailing({ 2: block("card") }, 4, 5)).toEqual([]);
+  });
+
+  test("caps full-width blocks to one row and keeps partial-width row spans", () => {
+    expect(get_final_content_block_spans({ span_columns: 4, span_rows: 2 }, 4)).toEqual({
+      span_columns: 4,
+      span_rows: 1,
+      spans_whole_row: true,
+    });
+    expect(get_final_content_block_spans({ span_columns: 2, span_rows: 2 }, 4)).toEqual({
+      span_columns: 2,
+      span_rows: 2,
+      spans_whole_row: false,
+    });
+    expect(get_final_content_block_spans({ span_columns: 2, span_rows: 1 }, 4)).toEqual({
+      span_columns: 2,
+      span_rows: 1,
+      spans_whole_row: false,
+    });
+    expect(get_final_content_block_spans({ span_columns: 6, span_rows: 3 }, 4)).toEqual({
+      span_columns: 4,
+      span_rows: 1,
+      spans_whole_row: true,
+    });
   });
 
   test("returns nothing without products or columns", () => {
@@ -58,15 +91,14 @@ describe("trailing_content_blocks", () => {
     ).toEqual([]);
   });
 
-  test("keeps only the blocks in the last product's row when two blocks share an index", () => {
-    // Row 2 right and row 3 left both land in front of product 11. With 11 products the last product is in row 2, so
-    // only the row 2 card is trailing; the row 3 card would sit in a row without products
-    expect(trailing({ 2: block("a", "right"), 3: block("b") }, 4, 11)).toEqual([["a"]]);
+  test("keeps blocks in the last product row and its next row when they share an index", () => {
+    // Row 2 right and row 3 left both land in front of product 11. The row 2 block and the immediately following row are trailing.
+    expect(trailing({ 2: block("a", "right"), 3: block("b") }, 4, 11)).toEqual([["a", "b"]]);
   });
 
   test("finds the last product's row below a stack of full-width banners", () => {
     // Banners fill rows 0-2, so a single product lands in row 3 and the card in that row's right slot is trailing.
-    // Full-width blocks are one row tall (wrap_blocks_in_div caps them before remapping)
+    // These banners are configured as one row tall before remapping.
     const banner = (content: string): Block => ({ ...block(content), span_columns: 4, span_rows: 1 });
     expect(trailing({ 0: banner("b0"), 1: banner("b1"), 2: banner("b2"), 3: block("card", "right") }, 4, 1)).toEqual([
       "card",
