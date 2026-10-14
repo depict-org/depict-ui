@@ -115,8 +115,8 @@
     }
 
     &.spans-whole-row {
+      // Set aspect ratio for full-row media so it has stable height before it loads. This also supports scroll restoration.
       .d-standard-content-wrapper {
-        // Set aspect ratio of the container to the aspect ratio of the media. This is because we store the media aspect ratio in history.state, so when going back to a page we can hold the aspect ratio already before the image has loaded, therefore making scroll restoration work
         aspect-ratio: var(--media-aspect-ratio);
       }
     }

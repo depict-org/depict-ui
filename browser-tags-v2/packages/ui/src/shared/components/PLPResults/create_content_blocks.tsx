@@ -213,9 +213,9 @@ export function remap_blocks_to_index<T = () => solid_JSX.Element | Promise<soli
 }
 
 /**
- * Returns the content blocks placed after the last product that still sit in the last product's row, in index order.
+ * Returns the content blocks placed after the last product or in the next row, in index order.
  * The product <For> loop only renders the block at each product's own index, so a block placed after the last product (for example in the right slot of a last row that isn't full) would otherwise never be shown.
- * Blocks in rows below the last product stay hidden, like before: a filtered or short listing shouldn't stack up cards meant for rows further down.
+ * A block in the next row is shown only when the last product row is full; later blocks stay hidden after filtering.
  * Callers should only render these once all products have loaded, otherwise the blocks would jump around while loading more.
  */
 export function trailing_content_blocks<T>({
@@ -236,11 +236,16 @@ export function trailing_content_blocks<T>({
 
   // Find the row the last product lands in: each row has room for the columns that blocks don't take up
   let last_product_row = 0;
+  let last_product_row_is_full = false;
   for (let seen_products = 0; ; last_product_row++) {
     const row = displaced_products_[last_product_row];
     const taken_by_blocks = typeof row === "number" ? row : row ? row.filter(item => item).length : 0;
-    seen_products += Math.max(0, n_cols_currently_showing_ - taken_by_blocks);
-    if (seen_products >= product_count) break;
+    const product_slots_in_row = Math.max(0, n_cols_currently_showing_ - taken_by_blocks);
+    if (seen_products + product_slots_in_row >= product_count) {
+      last_product_row_is_full = seen_products + product_slots_in_row === product_count;
+      break;
+    }
+    seen_products += product_slots_in_row;
     // Rows past the ones blocks take up all have room for products, so we're done by then at the latest
     if (last_product_row >= displaced_products_.length + product_count) break;
   }
@@ -249,13 +254,14 @@ export function trailing_content_blocks<T>({
     const block = content_blocks_by_index_[i];
     if (block === undefined) continue;
     const rows = rows_by_index_[i] || [];
+    const last_allowed_row = last_product_row + (last_product_row_is_full ? 1 : 0);
     if (Array.isArray(block) && rows.length > 1) {
-      // Several blocks share this index (e.g. the end of one row and the start of the next): keep the ones in the last product's row
-      const in_last_row = block.filter((_, j) => rows[j] <= last_product_row);
-      if (in_last_row.length) trailing.push(in_last_row);
+      // Several blocks can share this index. Keep only blocks in allowed trailing rows.
+      const in_trailing_rows = block.filter((_, j) => rows[j] <= last_allowed_row);
+      if (in_trailing_rows.length) trailing.push(in_trailing_rows);
       continue;
     }
-    if ((rows[0] ?? Infinity) > last_product_row) continue; // a row below the last product's row: keep it hidden
+    if ((rows[0] ?? Infinity) > last_allowed_row) continue; // Keep cards meant for later rows hidden after filtering.
     trailing.push(block);
   }
   return trailing;
@@ -266,21 +272,34 @@ export function trailing_content_blocks<T>({
  * Then renders the content and wraps it into a div with the correct styling.
  * Also caps span_columns to max available columns
  */
+export function get_final_content_block_spans(
+  block: Pick<ContentBlock, "span_columns" | "span_rows">,
+  max_span_columns: number | null
+) {
+  const span_columns = Math.min(block.span_columns, max_span_columns ?? Infinity);
+  const spans_whole_row = span_columns === max_span_columns;
+  return {
+    span_columns,
+    span_rows: spans_whole_row ? 1 : block.span_rows,
+    spans_whole_row,
+  };
+}
+
 function wrap_blocks_in_div(rendered_content_blocks: ContentBlocksByRow, max_span_columns: Accessor<number | null>) {
   const get_wrapped_blocks = mapArray(
     () => rendered_content_blocks,
     block => {
       if (!block) return;
-      const final_span_columns = createMemo(() => Math.min(block.span_columns, max_span_columns() ?? Infinity));
-      // If the item spans an entire row, limit the height to 1 row since there's no concept of "rows" if there are no products beside the block
-      const final_span_rows = createMemo(() => (final_span_columns() === max_span_columns() ? 1 : block.span_rows));
+      const final_spans = createMemo(() => get_final_content_block_spans(block, max_span_columns()));
+      const final_span_columns = createMemo(() => final_spans().span_columns);
+      const final_span_rows = createMemo(() => final_spans().span_rows);
       const [rendering_delayed, set_rendering_delayed_] = createSignal(true);
 
       const content = (
         <Show when={!rendering_delayed()}>
           <div
             class="content-block-wrapper"
-            classList={{ "spans-whole-row": final_span_columns() === max_span_columns() }}
+            classList={{ "spans-whole-row": final_spans().spans_whole_row }}
             style={{
               "grid-column": `span ${final_span_columns()}`,
               "grid-row": `span ${final_span_rows()}`,
