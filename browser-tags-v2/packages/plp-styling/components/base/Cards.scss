@@ -9,6 +9,11 @@
     flex-grow: 1;
     align-content: flex-start;
     overflow: hidden;
+
+    // Keep empty implicit rows at the height of their sibling rows when a card spans them.
+    &:has(.content-block-wrapper.spans-multiple-rows) {
+      grid-auto-rows: 1fr;
+    }
   }
   .load-more-container,
   .load-less-container {
