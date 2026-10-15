@@ -282,6 +282,7 @@ export function get_final_content_block_spans(
     span_columns,
     span_rows: spans_whole_row ? 1 : block.span_rows,
     spans_whole_row,
+    spans_multiple_rows: !spans_whole_row && block.span_rows > 1,
   };
 }
 
@@ -299,7 +300,10 @@ function wrap_blocks_in_div(rendered_content_blocks: ContentBlocksByRow, max_spa
         <Show when={!rendering_delayed()}>
           <div
             class="content-block-wrapper"
-            classList={{ "spans-whole-row": final_spans().spans_whole_row }}
+            classList={{
+              "spans-whole-row": final_spans().spans_whole_row,
+              "spans-multiple-rows": final_spans().spans_multiple_rows,
+            }}
             style={{
               "grid-column": `span ${final_span_columns()}`,
               "grid-row": `span ${final_span_rows()}`,

@@ -23,6 +23,25 @@ describe("trailing_content_blocks", () => {
     expect(trailing({ 1: block("a"), 3: block("b") }, 4, 40)).toEqual([]);
   });
 
+  test.each([
+    { row: 1, product_count: 5, expected_index: 4 },
+    { row: 3, product_count: 13, expected_index: 12 },
+  ])("keeps a left 2x2 card at index $expected_index for row $row", ({ row, product_count, expected_index }) => {
+    const wrapped_blocks_: (Block | undefined)[] = [];
+    wrapped_blocks_[row] = block("card", "left", 2);
+    const remapped = remap_blocks_to_index({ wrapped_blocks_, n_cols_currently_showing_: 4 });
+
+    expect(remapped.content_blocks_by_index_[expected_index]).toBe("card");
+    expect(remapped.content_blocks_by_index_).toHaveLength(expected_index + 1);
+    expect(
+      trailing_content_blocks({
+        ...remapped,
+        n_cols_currently_showing_: 4,
+        product_count,
+      })
+    ).toEqual([]);
+  });
+
   test("returns the block in the right slot of a last row that isn't full (FOUND-206)", () => {
     // Luca Faloni, Brushed Cotton Shirts: 15 products in 4 columns, so the 4th row holds products 13-15 and the card
     // saved at row 3, right has no product after it
@@ -60,21 +79,25 @@ describe("trailing_content_blocks", () => {
       span_columns: 4,
       span_rows: 1,
       spans_whole_row: true,
+      spans_multiple_rows: false,
     });
     expect(get_final_content_block_spans({ span_columns: 2, span_rows: 2 }, 4)).toEqual({
       span_columns: 2,
       span_rows: 2,
       spans_whole_row: false,
+      spans_multiple_rows: true,
     });
     expect(get_final_content_block_spans({ span_columns: 2, span_rows: 1 }, 4)).toEqual({
       span_columns: 2,
       span_rows: 1,
       spans_whole_row: false,
+      spans_multiple_rows: false,
     });
     expect(get_final_content_block_spans({ span_columns: 6, span_rows: 3 }, 4)).toEqual({
       span_columns: 4,
       span_rows: 1,
       spans_whole_row: true,
+      spans_multiple_rows: false,
     });
   });
 
