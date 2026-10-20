@@ -1,5 +1,13 @@
-import { describe, expect, test } from "@jest/globals";
-import { get_final_content_block_spans, remap_blocks_to_index, trailing_content_blocks } from "./create_content_blocks";
+import { createRoot } from "solid-js";
+import { describe, expect, jest, test } from "@jest/globals";
+import { ColsAtSize } from "@depict-ai/utilishared";
+import { get_cols_currently_showing } from "../../helper_functions/get_cols_currently_showing";
+import {
+  get_content_block_row_styles,
+  get_final_content_block_spans,
+  remap_blocks_to_index,
+  trailing_content_blocks,
+} from "./create_content_blocks";
 
 type Block = { span_columns: number; span_rows: number; position: "left" | "center" | "right"; content: string };
 
@@ -21,6 +29,110 @@ const trailing = (blocks_by_row: Record<number, Block>, cols: number, product_co
 describe("trailing_content_blocks", () => {
   test("returns nothing when every block sits in front of a product", () => {
     expect(trailing({ 1: block("a"), 3: block("b") }, 4, 40)).toEqual([]);
+  });
+
+  test.each([
+    { row: 1, product_count: 5, expected_index: 4 },
+    { row: 3, product_count: 13, expected_index: 12 },
+  ])("keeps a left 2x2 card at index $expected_index for row $row", ({ row, product_count, expected_index }) => {
+    const wrapped_blocks_: (Block | undefined)[] = [];
+    wrapped_blocks_[row] = block("card", "left", 2);
+    const remapped = remap_blocks_to_index({ wrapped_blocks_, n_cols_currently_showing_: 4 });
+
+    expect(remapped.content_blocks_by_index_[expected_index]).toBe("card");
+    expect(remapped.content_blocks_by_index_).toHaveLength(expected_index + 1);
+    expect(
+      trailing_content_blocks({
+        ...remapped,
+        n_cols_currently_showing_: 4,
+        product_count,
+      })
+    ).toEqual([]);
+  });
+
+  test("keeps the card inline when the product count grows from four to five", () => {
+    const blocks: (Block | undefined)[] = [];
+    blocks[1] = block("card", "left", 2);
+    const remapped = remap_blocks_to_index({ wrapped_blocks_: blocks, n_cols_currently_showing_: 4 });
+
+    expect(trailing_content_blocks({ ...remapped, n_cols_currently_showing_: 4, product_count: 4 })).toEqual(["card"]);
+    expect(trailing_content_blocks({ ...remapped, n_cols_currently_showing_: 4, product_count: 5 })).toEqual([]);
+    expect(remapped.content_blocks_by_index_[4]).toBe("card");
+  });
+
+  test("puts the API's centered 2x2 card after five products at four columns", () => {
+    const blocks: (Block | undefined)[] = [];
+    blocks[1] = block("card", "center", 2);
+    const remapped = remap_blocks_to_index({ wrapped_blocks_: blocks, n_cols_currently_showing_: 4 });
+    expect(remapped.content_blocks_by_index_[5]).toBe("card");
+    expect(trailing_content_blocks({ ...remapped, n_cols_currently_showing_: 4, product_count: 5 })).toEqual(["card"]);
+  });
+
+  test("does not move a 2x2 card to the trailing list when its span extends past five products", () => {
+    const blocks: (Block | undefined)[] = [];
+    blocks[1] = block("card", "left", 2);
+    const remapped = remap_blocks_to_index({ wrapped_blocks_: blocks, n_cols_currently_showing_: 4 });
+    const card_index = remapped.content_blocks_by_index_.indexOf("card");
+
+    expect(card_index + 2 * 4).toBeGreaterThan(5);
+    expect(card_index).toBe(4);
+    expect(trailing_content_blocks({ ...remapped, n_cols_currently_showing_: 4, product_count: 5 })).toEqual([]);
+  });
+
+  test("uses the active grid breakpoint count when it remaps a card", () => {
+    const original_match_media = window.matchMedia;
+    const original_inner_width = window.innerWidth;
+    const match_media = jest.fn((query: string) => {
+      const min_width = Number(query.match(/min-width:\s*(\d+)px/)?.[1] || 0);
+      const max_width = Number(query.match(/max-width:\s*(\d+)px/)?.[1] || Infinity);
+      const matches = window.innerWidth >= min_width && window.innerWidth <= max_width;
+      return {
+        matches,
+        media: query,
+        onchange: null,
+        addListener: jest.fn(),
+        removeListener: jest.fn(),
+        addEventListener: jest.fn(),
+        removeEventListener: jest.fn(),
+        dispatchEvent: jest.fn(() => true),
+      } as unknown as MediaQueryList;
+    });
+    Object.defineProperty(window, "matchMedia", { configurable: true, value: match_media });
+
+    try {
+      const cols_at_size: ColsAtSize = [
+        [2, "0px", "901px"],
+        [3, "902px", "1024px"],
+        [4, "1025px", ""],
+      ];
+      for (const [width, expected_cols, expected_index] of [
+        [900, 2, 2],
+        [1000, 3, 3],
+        [1728, 4, 4],
+      ]) {
+        window.innerWidth = width;
+        createRoot(dispose => {
+          const active_cols = get_cols_currently_showing(() => cols_at_size)();
+          const blocks: (Block | undefined)[] = [];
+          blocks[1] = block("card", "left", 2);
+          const remapped = remap_blocks_to_index({
+            wrapped_blocks_: blocks,
+            n_cols_currently_showing_: active_cols,
+          });
+
+          expect(active_cols).toBe(expected_cols);
+          expect(remapped.content_blocks_by_index_[expected_index]).toBe("card");
+          expect(remapped.content_blocks_by_index_[5]).toBeUndefined();
+          expect(
+            trailing_content_blocks({ ...remapped, n_cols_currently_showing_: active_cols, product_count: 5 })
+          ).toEqual([]);
+          dispose();
+        });
+      }
+    } finally {
+      window.innerWidth = original_inner_width;
+      Object.defineProperty(window, "matchMedia", { configurable: true, value: original_match_media });
+    }
   });
 
   test("returns the block in the right slot of a last row that isn't full (FOUND-206)", () => {
@@ -60,21 +172,25 @@ describe("trailing_content_blocks", () => {
       span_columns: 4,
       span_rows: 1,
       spans_whole_row: true,
+      spans_multiple_rows: false,
     });
     expect(get_final_content_block_spans({ span_columns: 2, span_rows: 2 }, 4)).toEqual({
       span_columns: 2,
       span_rows: 2,
       spans_whole_row: false,
+      spans_multiple_rows: true,
     });
     expect(get_final_content_block_spans({ span_columns: 2, span_rows: 1 }, 4)).toEqual({
       span_columns: 2,
       span_rows: 1,
       spans_whole_row: false,
+      spans_multiple_rows: false,
     });
     expect(get_final_content_block_spans({ span_columns: 6, span_rows: 3 }, 4)).toEqual({
       span_columns: 4,
       span_rows: 1,
       spans_whole_row: true,
+      spans_multiple_rows: false,
     });
   });
 
@@ -103,5 +219,27 @@ describe("trailing_content_blocks", () => {
     expect(trailing({ 0: banner("b0"), 1: banner("b1"), 2: banner("b2"), 3: block("card", "right") }, 4, 1)).toEqual([
       "card",
     ]);
+  });
+});
+
+describe("content block row heights", () => {
+  test("sizes rows through each multi-row card and gives full-width banners their own height", () => {
+    const blocks = [
+      { span_columns: 4, span_rows: 1 },
+      undefined,
+      { span_columns: 2, span_rows: 2 },
+      undefined,
+      { span_columns: 2, span_rows: 2 },
+    ];
+    expect(get_content_block_row_styles(blocks, 4)).toEqual([
+      { row: 2, template: "auto 1fr 1fr 1fr" },
+      { row: 4, template: "auto 1fr 1fr 1fr 1fr 1fr" },
+    ]);
+  });
+
+  test("leaves single-row and full-width cards at their existing height", () => {
+    expect(get_content_block_row_styles([{ span_columns: 2, span_rows: 1 }], 4)).toEqual([]);
+    expect(get_content_block_row_styles([{ span_columns: 2, span_rows: 2 }], 2)).toEqual([]);
+    expect(get_content_block_row_styles([{ span_columns: 2, span_rows: 2 }], null)).toEqual([]);
   });
 });

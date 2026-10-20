@@ -1,0 +1,61 @@
+name: Content card regression
+
+on:
+  pull_request:
+    paths:
+      - "browser-tags-v2/packages/ui/**"
+      - "browser-tags-v2/packages/utilishared/**"
+      - "browser-tags-v2/packages/plp-styling/**"
+      - "browser-tags-v2/testcafe/content-cards/**"
+      - "browser-tags-v2/package.json"
+      - "browser-tags-v2/yarn.lock"
+      - ".github/workflows/content-card-regression.yml"
+  push:
+    branches: [main]
+    paths:
+      - "browser-tags-v2/packages/ui/**"
+      - "browser-tags-v2/packages/utilishared/**"
+      - "browser-tags-v2/packages/plp-styling/**"
+      - "browser-tags-v2/testcafe/content-cards/**"
+      - "browser-tags-v2/package.json"
+      - "browser-tags-v2/yarn.lock"
+      - ".github/workflows/content-card-regression.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  content-cards:
+    runs-on: depot-ubuntu-24.04-4
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: browser-tags-v2
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: yarn
+          cache-dependency-path: browser-tags-v2/yarn.lock
+      - run: yarn install --immutable
+      - run: yarn workspace @depict-ai/utilishared build
+      - name: Test content card calculations
+        run: yarn jest --config packages/ui/jest.config.json --runTestsByPath packages/ui/src/shared/components/PLPResults/create_content_blocks.spec.ts --runInBand
+      - name: Build the browser fixture
+        run: yarn node testcafe/content-cards/build.mjs
+      - uses: browser-actions/setup-chrome@v1
+        id: chrome
+        with:
+          chrome-version: stable
+          install-dependencies: true
+      - name: Test card placement, row height, image fit, and pagination
+        run: yarn node testcafe/content-cards/run.mjs
+        env:
+          CHROME_PATH: ${{ steps.chrome.outputs.chrome-path }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: content-card-visuals
+          path: browser-tags-v2/test-results/content-cards

@@ -96,6 +96,7 @@ export function create_content_blocks({
   const content_blocks_by_index_ = createMemo(() => remapped_().content_blocks_by_index_);
 
   return Object.assign(content_blocks_by_index_, {
+    row_styles_: createMemo(() => get_content_block_row_styles(get_wrapped_blocks_(), n_cols_currently_showing_())),
     trailing_: (product_count: number) =>
       trailing_content_blocks({
         ...remapped_(),
@@ -103,6 +104,25 @@ export function create_content_blocks({
         product_count,
       }),
   });
+}
+
+export function get_content_block_row_styles(
+  blocks: readonly (Pick<ContentBlock, "span_columns" | "span_rows"> | undefined)[],
+  n_cols: number | null
+) {
+  const styles: { row: number; template: string }[] = [];
+  if (!n_cols) return styles;
+  let last_row = 0;
+  blocks.forEach((block, row) => {
+    if (!block || block.span_rows <= 1 || block.span_columns >= n_cols) return;
+    last_row = Math.max(last_row, row + block.span_rows);
+    // Give product rows equal heights. Full-width cards keep their own height.
+    const tracks = Array.from({ length: last_row }, (_, index) =>
+      blocks[index]?.span_columns === n_cols ? "auto" : "1fr"
+    );
+    styles.push({ row, template: tracks.join(" ") });
+  });
+  return styles;
 }
 
 /**
@@ -282,13 +302,14 @@ export function get_final_content_block_spans(
     span_columns,
     span_rows: spans_whole_row ? 1 : block.span_rows,
     spans_whole_row,
+    spans_multiple_rows: !spans_whole_row && block.span_rows > 1,
   };
 }
 
 function wrap_blocks_in_div(rendered_content_blocks: ContentBlocksByRow, max_span_columns: Accessor<number | null>) {
   const get_wrapped_blocks = mapArray(
     () => rendered_content_blocks,
-    block => {
+    (block, row) => {
       if (!block) return;
       const final_spans = createMemo(() => get_final_content_block_spans(block, max_span_columns()));
       const final_span_columns = createMemo(() => final_spans().span_columns);
@@ -299,7 +320,11 @@ function wrap_blocks_in_div(rendered_content_blocks: ContentBlocksByRow, max_spa
         <Show when={!rendering_delayed()}>
           <div
             class="content-block-wrapper"
-            classList={{ "spans-whole-row": final_spans().spans_whole_row }}
+            data-content-block-row={row()}
+            classList={{
+              "spans-whole-row": final_spans().spans_whole_row,
+              "spans-multiple-rows": final_spans().spans_multiple_rows,
+            }}
             style={{
               "grid-column": `span ${final_span_columns()}`,
               "grid-row": `span ${final_span_rows()}`,

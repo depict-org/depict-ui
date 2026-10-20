@@ -27,3 +27,5 @@ src/*/temp-[0-9]*.tsx
 **/*.tsbuildinfo
 
 .vscode
+.content-card-visual/
+test-results/
