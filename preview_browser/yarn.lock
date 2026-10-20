@@ -586,34 +586,34 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@depict-ai/dpc@npm:^2.6.17":
-  version: 2.6.17
-  resolution: "@depict-ai/dpc@npm:2.6.17"
+"@depict-ai/dpc@npm:^2.6.18":
+  version: 2.6.18
+  resolution: "@depict-ai/dpc@npm:2.6.18"
   dependencies:
     "@babel/plugin-transform-typescript": "npm:^7.22.9"
     "@babel/runtime": "npm:^7.22.6"
     "@babel/runtime-corejs3": "npm:^7.22.6"
-    "@depict-ai/types": "npm:^5.6.13"
-    "@depict-ai/utilishared": "npm:^2.6.13"
-  checksum: 10/d898f1605c4fcba0cf2639b20ea7000bf8e62d3b716d3ba1361fc1c3ba80aa43152905c6f51884dc7f50a79e364ed54f59fc810f1b88f563dd778ba3568588aa
+    "@depict-ai/types": "npm:^5.6.14"
+    "@depict-ai/utilishared": "npm:^2.6.14"
+  checksum: 10/e0da62940ab07d16f98926b5e5cbc3bcb7978de7335242370ec2794f3be99cc2db5bbbdba2fecb8508b3c5e20e455f6581e225dc1037882f828f706842b7835c
   languageName: node
   linkType: hard
 
-"@depict-ai/js-ui@npm:^4.10.21":
-  version: 4.10.21
-  resolution: "@depict-ai/js-ui@npm:4.10.21"
+"@depict-ai/js-ui@npm:^4.10.22":
+  version: 4.10.22
+  resolution: "@depict-ai/js-ui@npm:4.10.22"
   dependencies:
     "@babel/plugin-transform-typescript": "npm:^7.22.9"
     "@babel/runtime": "npm:^7.22.6"
     "@babel/runtime-corejs3": "npm:^7.22.6"
-    "@depict-ai/dpc": "npm:^2.6.17"
-    "@depict-ai/plp-styling": "npm:^4.6.15"
-    "@depict-ai/ui": "npm:^4.10.24"
-    "@depict-ai/utilishared": "npm:^2.6.13"
+    "@depict-ai/dpc": "npm:^2.6.18"
+    "@depict-ai/plp-styling": "npm:^4.6.16"
+    "@depict-ai/ui": "npm:^4.10.25"
+    "@depict-ai/utilishared": "npm:^2.6.14"
     solid-js: "npm:^1.9.10"
   peerDependencies:
     sass: ">= 1.54.6"
-  checksum: 10/101bf2576de38a748c1fd57a045c4c6439eb759351e200cc02852b631f10713360cac07f029673dcc7420bcb91cefd454154f9e0c7377865d2d28a3b122300a9
+  checksum: 10/6294f156eb553d8309e27ca486a023a9cbe8bb30995945ea007a7bfb192693996256dc422108b7c08efe39ef20f26b566528722b25ecc7760f1fd261cc81ab27
   languageName: node
   linkType: hard
 
@@ -626,12 +626,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@depict-ai/plp-styling@npm:^4.6.15":
-  version: 4.6.15
-  resolution: "@depict-ai/plp-styling@npm:4.6.15"
+"@depict-ai/plp-styling@npm:^4.6.16":
+  version: 4.6.16
+  resolution: "@depict-ai/plp-styling@npm:4.6.16"
   peerDependencies:
     sass: ">= 1.54.6"
-  checksum: 10/0a5018cbdfeed63fb333e76eb45ea9adfcf3c22ef7fec7523bed2789edb32875147b6f8d1c6918913b1eb2a44f16b44e342c2e0d0c8db90a5c0a606843f5f329
+  checksum: 10/f578135c9e851f7aaf8eec925ac08e28ff6640193b84f20a8c0c34adacb400d3fbb0913e5c9d56b10862a00e14e2fe1457221c0a528d9599d11e7dbb706328d5
   languageName: node
   linkType: hard
 
@@ -642,25 +642,25 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@depict-ai/types@npm:^5.6.13":
-  version: 5.6.13
-  resolution: "@depict-ai/types@npm:5.6.13"
-  checksum: 10/d7e3a4f20b938bc8eabd7f448a81c44b9b44c597ded615f55933613eb6391464f78fd27a0b40562c4674313cbd8d2c0d18cf067906568af8b979d92cea254d95
+"@depict-ai/types@npm:^5.6.14":
+  version: 5.6.14
+  resolution: "@depict-ai/types@npm:5.6.14"
+  checksum: 10/7b4961695b753f54415aa27b40ddaeb9aa3f13054069e5d257e036557e400cbf5bc6ff24a88791752caab240f3a7b8e793477a2eaf273f3034bc6e27efc16760
   languageName: node
   linkType: hard
 
-"@depict-ai/ui@npm:^4.10.24":
-  version: 4.10.24
-  resolution: "@depict-ai/ui@npm:4.10.24"
+"@depict-ai/ui@npm:^4.10.25":
+  version: 4.10.25
+  resolution: "@depict-ai/ui@npm:4.10.25"
   dependencies:
     "@babel/plugin-transform-typescript": "npm:^7.22.9"
     "@babel/runtime": "npm:^7.22.6"
     "@babel/runtime-corejs3": "npm:^7.22.6"
-    "@depict-ai/plp-styling": "npm:^4.6.15"
-    "@depict-ai/types": "npm:^5.6.13"
-    "@depict-ai/utilishared": "npm:^2.6.13"
+    "@depict-ai/plp-styling": "npm:^4.6.16"
+    "@depict-ai/types": "npm:^5.6.14"
+    "@depict-ai/utilishared": "npm:^2.6.14"
     solid-js: "npm:^1.9.10"
-  checksum: 10/1cc322cfa680d48ea0a13ab17265ec5ae81edb2e79e7019134c4ac571af91e64152e15a045761c8ae09e9b53ed885aa137d8576a0fc7fe3a797faaba162f8952
+  checksum: 10/af0b5bfd45eb706a275b683a709fcf9ab7eb8ae75b248eccf1b3c85a452d7aeb1f3cf3b6c7993e31fa708e9ac90daf775b1f27a259a3a4872f717aabf1128f37
   languageName: node
   linkType: hard
 
@@ -677,16 +677,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@depict-ai/utilishared@npm:^2.6.13":
-  version: 2.6.13
-  resolution: "@depict-ai/utilishared@npm:2.6.13"
+"@depict-ai/utilishared@npm:^2.6.14":
+  version: 2.6.14
+  resolution: "@depict-ai/utilishared@npm:2.6.14"
   dependencies:
     "@babel/plugin-transform-typescript": "npm:^7.22.9"
     "@babel/runtime": "npm:^7.22.6"
     "@babel/runtime-corejs3": "npm:^7.22.6"
     "@sentry/browser": "npm:^7.75.1"
     solid-js: "npm:^1.9.10"
-  checksum: 10/3903b1d71ecdbf59094e284f2ddb118a4263ac9a9cdaf1456a7df7a405c44e6fe2a28a1e817516b6872f1b42b68848ff8b258bd47e45810edf2ca570402de136
+  checksum: 10/bcec3ba4dc30add32ad4b616c26cf395f77b8cd13aa08058bbc4d501f68a5ae0ad1421daf1f2f8fcca7ad185c359da3e6671ea68d459cf1bd55892d0bb7335fc
   languageName: node
   linkType: hard
 
@@ -5391,10 +5391,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "preview_browser@workspace:."
   dependencies:
-    "@depict-ai/js-ui": "npm:^4.10.21"
+    "@depict-ai/js-ui": "npm:^4.10.22"
     "@depict-ai/plp-styling": "npm:^4.6.12"
     "@depict-ai/types": "npm:^5.6.10"
-    "@depict-ai/ui": "npm:^4.10.24"
+    "@depict-ai/ui": "npm:^4.10.25"
     "@depict-ai/utilishared": "npm:^2.6.10"
     "@solidjs/meta": "npm:^0.29.2"
     "@solidjs/router": "npm:^0.10.5"
