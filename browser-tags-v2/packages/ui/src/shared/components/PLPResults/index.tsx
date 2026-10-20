@@ -146,6 +146,10 @@ export function PLPResults<T extends Display>({
                     set_top_row_shortened_by_,
                   })
             );
+            const content_block_row_styles = createMemo(() => {
+              const blocks = content_blocks_();
+              return "row_styles_" in blocks ? blocks.row_styles_() : [];
+            });
             const rendered_placeholders = createMemo(() => {
               if (get_should_have_placeholders_rendered()) {
                 return Placeholders({
@@ -247,6 +251,7 @@ export function PLPResults<T extends Display>({
                       grid_spacing={layout_options_().grid_spacing}
                       element_attributes={{ class: "cards css-grid" }}
                       top_row_shortened_by_={top_row_shortened_by_}
+                      content_block_row_styles={content_block_row_styles()}
                     >
                       {listing_contents}
                     </CSSGridLayout>

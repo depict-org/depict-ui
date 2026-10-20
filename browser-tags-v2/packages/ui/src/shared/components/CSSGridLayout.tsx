@@ -15,6 +15,7 @@ export type CSSGridLayoutOptions = {
   children: solid_JSX.Element;
   element_attributes: Omit<solid_JSX.HTMLAttributes<HTMLDivElement>, "classList">;
   top_row_shortened_by_: Accessor<number>;
+  content_block_row_styles?: { row: number; template: string }[];
 };
 
 export const spans_columns_variable_name = "--spans-columns";
@@ -68,7 +69,17 @@ export function CSSGridLayoutWithProvidedElement(
   const base_styling = createMemo(() => {
     return `${container_selector}{display:grid;}`;
   });
-  const get_styling = createMemo(() => base_styling() + col_styling());
+  const get_styling = createMemo(
+    () =>
+      base_styling() +
+      col_styling() +
+      (props.content_block_row_styles || [])
+        .map(
+          ({ row, template }) =>
+            `${container_selector}:has(>.content-block-wrapper.spans-multiple-rows[data-content-block-row="${row}"]){grid-template-rows:${template};}`
+        )
+        .join("")
+  );
 
   const style_element = <style type="text/css">{get_styling as unknown as solid_JSX.Element}</style>; // need to create this after set_styling has been called or else there will be no styling in the SSR'd output
 

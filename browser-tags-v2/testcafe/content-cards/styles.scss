@@ -1,0 +1,27 @@
+@use "../../packages/plp-styling/components/base/Cards.scss" as cards;
+
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 16px;
+  font:
+    16px Arial,
+    sans-serif;
+}
+img {
+  display: block;
+}
+.depict {
+  @include cards.Cards();
+}
+.fixture-product {
+  min-height: 160px;
+  background: #ddd;
+  padding: 8px;
+}
+.fixture-footer {
+  grid-column: 1 / -1;
+  height: 400px;
+  background: #ded;
+}

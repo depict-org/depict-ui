@@ -2,7 +2,12 @@ import { createRoot } from "solid-js";
 import { describe, expect, jest, test } from "@jest/globals";
 import { ColsAtSize } from "@depict-ai/utilishared";
 import { get_cols_currently_showing } from "../../helper_functions/get_cols_currently_showing";
-import { get_final_content_block_spans, remap_blocks_to_index, trailing_content_blocks } from "./create_content_blocks";
+import {
+  get_content_block_row_styles,
+  get_final_content_block_spans,
+  remap_blocks_to_index,
+  trailing_content_blocks,
+} from "./create_content_blocks";
 
 type Block = { span_columns: number; span_rows: number; position: "left" | "center" | "right"; content: string };
 
@@ -50,13 +55,17 @@ describe("trailing_content_blocks", () => {
     blocks[1] = block("card", "left", 2);
     const remapped = remap_blocks_to_index({ wrapped_blocks_: blocks, n_cols_currently_showing_: 4 });
 
-    expect(
-      trailing_content_blocks({ ...remapped, n_cols_currently_showing_: 4, product_count: 4 })
-    ).toEqual(["card"]);
-    expect(
-      trailing_content_blocks({ ...remapped, n_cols_currently_showing_: 4, product_count: 5 })
-    ).toEqual([]);
+    expect(trailing_content_blocks({ ...remapped, n_cols_currently_showing_: 4, product_count: 4 })).toEqual(["card"]);
+    expect(trailing_content_blocks({ ...remapped, n_cols_currently_showing_: 4, product_count: 5 })).toEqual([]);
     expect(remapped.content_blocks_by_index_[4]).toBe("card");
+  });
+
+  test("puts the API's centered 2x2 card after five products at four columns", () => {
+    const blocks: (Block | undefined)[] = [];
+    blocks[1] = block("card", "center", 2);
+    const remapped = remap_blocks_to_index({ wrapped_blocks_: blocks, n_cols_currently_showing_: 4 });
+    expect(remapped.content_blocks_by_index_[5]).toBe("card");
+    expect(trailing_content_blocks({ ...remapped, n_cols_currently_showing_: 4, product_count: 5 })).toEqual(["card"]);
   });
 
   test("does not move a 2x2 card to the trailing list when its span extends past five products", () => {
@@ -67,9 +76,7 @@ describe("trailing_content_blocks", () => {
 
     expect(card_index + 2 * 4).toBeGreaterThan(5);
     expect(card_index).toBe(4);
-    expect(
-      trailing_content_blocks({ ...remapped, n_cols_currently_showing_: 4, product_count: 5 })
-    ).toEqual([]);
+    expect(trailing_content_blocks({ ...remapped, n_cols_currently_showing_: 4, product_count: 5 })).toEqual([]);
   });
 
   test("uses the active grid breakpoint count when it remaps a card", () => {
@@ -212,5 +219,27 @@ describe("trailing_content_blocks", () => {
     expect(trailing({ 0: banner("b0"), 1: banner("b1"), 2: banner("b2"), 3: block("card", "right") }, 4, 1)).toEqual([
       "card",
     ]);
+  });
+});
+
+describe("content block row heights", () => {
+  test("sizes rows through each multi-row card and gives full-width banners their own height", () => {
+    const blocks = [
+      { span_columns: 4, span_rows: 1 },
+      undefined,
+      { span_columns: 2, span_rows: 2 },
+      undefined,
+      { span_columns: 2, span_rows: 2 },
+    ];
+    expect(get_content_block_row_styles(blocks, 4)).toEqual([
+      { row: 2, template: "auto 1fr 1fr 1fr" },
+      { row: 4, template: "auto 1fr 1fr 1fr 1fr 1fr" },
+    ]);
+  });
+
+  test("leaves single-row and full-width cards at their existing height", () => {
+    expect(get_content_block_row_styles([{ span_columns: 2, span_rows: 1 }], 4)).toEqual([]);
+    expect(get_content_block_row_styles([{ span_columns: 2, span_rows: 2 }], 2)).toEqual([]);
+    expect(get_content_block_row_styles([{ span_columns: 2, span_rows: 2 }], null)).toEqual([]);
   });
 });
