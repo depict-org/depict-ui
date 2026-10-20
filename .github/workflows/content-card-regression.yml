@@ -3,19 +3,21 @@ name: Content card regression
 on:
   pull_request:
     paths:
-      - "browser-tags-v2/packages/ui/src/shared/components/**"
-      - "browser-tags-v2/packages/ui/src/shared/helper_functions/card_rendering/**"
+      - "browser-tags-v2/packages/ui/**"
+      - "browser-tags-v2/packages/utilishared/**"
       - "browser-tags-v2/packages/plp-styling/**"
       - "browser-tags-v2/testcafe/content-cards/**"
+      - "browser-tags-v2/package.json"
       - "browser-tags-v2/yarn.lock"
       - ".github/workflows/content-card-regression.yml"
   push:
     branches: [main]
     paths:
-      - "browser-tags-v2/packages/ui/src/shared/components/**"
-      - "browser-tags-v2/packages/ui/src/shared/helper_functions/card_rendering/**"
+      - "browser-tags-v2/packages/ui/**"
+      - "browser-tags-v2/packages/utilishared/**"
       - "browser-tags-v2/packages/plp-styling/**"
       - "browser-tags-v2/testcafe/content-cards/**"
+      - "browser-tags-v2/package.json"
       - "browser-tags-v2/yarn.lock"
       - ".github/workflows/content-card-regression.yml"
   workflow_dispatch:
