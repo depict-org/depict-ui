@@ -9,7 +9,8 @@ name: Release browser-tags-v2 packages
 # Releases, so Dependabot can show merchants what changed in its bump PRs:
 # one per package, tagged "<npm name>@<version>" (Dependabot only picks a
 # monorepo package's releases by that prefix, and the packages' versions
-# differ), plus a release-v* summary. The notes come from the commit subjects
+# differ), plus a release-v* summary. The notes use a matching file under
+# .github/release-notes when available. Otherwise, they use commit subjects
 # since the previous release (.github/scripts/release-notes.sh).
 #
 # The npm credential is the NPM_PUBLISH_TOKEN repository secret and reaches
@@ -127,7 +128,11 @@ jobs:
           previous="${previous:-${fallback}}"
 
           changes=$(mktemp)
-          if [ -n "${previous}" ]; then
+          prepared_notes="${GITHUB_WORKSPACE}/.github/release-notes/${tag}.md"
+          if [ -f "${prepared_notes}" ]; then
+            cat "${prepared_notes}" > "${changes}"
+            echo "Notes use ${tag}.md"
+          elif [ -n "${previous}" ]; then
             "${GITHUB_WORKSPACE}/.github/scripts/release-notes.sh" "${previous}" "${tag}" > "${changes}"
             echo "Notes cover ${previous}..${tag}"
           else
