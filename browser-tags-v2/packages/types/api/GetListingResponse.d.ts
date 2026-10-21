@@ -25,17 +25,6 @@ export type ContentTextPosition =
   | "bottom-center"
   | "bottom-right";
 export type Text = string | null;
-export type ContentTextPosition1 =
-  | "top-left"
-  | "top-center"
-  | "top-right"
-  | "middle-left"
-  | "middle-center"
-  | "middle-right"
-  | "bottom-left"
-  | "bottom-center"
-  | "bottom-right";
-export type Cta = string | null;
 export type Type = "video";
 export type Url = string;
 export type Link = string | null;
@@ -120,8 +109,8 @@ export interface ContentBlock {
 }
 export interface ImageContent {
   text?: string;
-  text_position?: ContentTextPosition;
-  cta?: string;
+  text_position?: ContentTextPosition & string;
+  cta?: string | null;
   type?: "image";
   url: string;
   link: string;
@@ -129,8 +118,8 @@ export interface ImageContent {
 }
 export interface VideoContent {
   text?: Text;
-  text_position?: ContentTextPosition1;
-  cta?: Cta;
+  text_position?: ContentTextPosition & string;
+  cta?: string | null;
   type?: Type;
   url: Url;
   link: Link;

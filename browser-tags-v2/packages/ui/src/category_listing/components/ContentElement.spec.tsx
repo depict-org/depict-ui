@@ -129,7 +129,7 @@ describe("component cache key", () => {
       makeComponentCacheKey({ ...base, cta: "Shop Now" })
     );
     expect(makeComponentCacheKey({ ...base })).toBe(
-      makeComponentCacheKey({ ...base, cta: null as unknown as string })
+      makeComponentCacheKey({ ...base, cta: null })
     );
   });
 
