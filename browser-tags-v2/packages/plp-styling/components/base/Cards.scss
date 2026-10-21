@@ -18,6 +18,19 @@
   .content-block-wrapper {
     position: relative;
 
+    &.has-explicit-aspect-ratio {
+      align-self: start;
+      height: auto;
+      min-height: 0;
+      aspect-ratio: var(--content-block-aspect-ratio);
+
+      .d-standard-content-wrapper {
+        flex: 0 0 100%;
+        width: 100%;
+        height: 100%;
+      }
+    }
+
     .d-standard-content {
       width: 100%;
       height: 100%;
@@ -117,7 +130,7 @@
     &.spans-whole-row {
       // Set aspect ratio for full-row media so it has stable height before it loads. This also supports scroll restoration.
       .d-standard-content-wrapper {
-        aspect-ratio: var(--media-aspect-ratio);
+        aspect-ratio: var(--content-block-aspect-ratio, var(--media-aspect-ratio));
       }
     }
 

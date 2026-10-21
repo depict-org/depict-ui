@@ -8,11 +8,12 @@ import {
   ListingQuery,
   ModernDisplayWithPageUrl,
 } from "@depict-ai/ui";
-import { Display, ModernDisplay, snakeCasifyObject } from "@depict-ai/utilishared";
+import { Display, ModernDisplay } from "@depict-ai/utilishared";
 import { internalCategory } from "./internal_state";
 import { JSUIContentBlocksByRow, PLPConfig } from "./types";
 import { DepictCategoryProvider } from "./DepictCategoryProvider";
 import { Accessor } from "solid-js";
+import { transformContentBlocks } from "./helpers/transformContentBlocks";
 
 export interface CategoryPageConfig<OriginalDisplay extends Display, OutputDisplay extends ModernDisplay | never>
   extends BaseCategoryPageConfig,
@@ -73,7 +74,7 @@ export function CategoryPage<OriginalDisplay extends Display, OutputDisplay exte
       get content_blocks_by_row() {
         const value = getContentBlocksByRow?.();
         if (!value) return value;
-        return value.map(block => block && snakeCasifyObject(block));
+        return transformContentBlocks(value);
       },
     })
   );

@@ -46,6 +46,7 @@ export type DepictProductCard<T extends Display> = (props: DepictProductCardProp
 export type ReactContentBlock = {
   spanColumns: number;
   spanRows: number;
+  aspectRatio?: 1.5;
   position: "left" | "center" | "right";
   content: FC;
 };
