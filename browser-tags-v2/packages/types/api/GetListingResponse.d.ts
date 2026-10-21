@@ -25,6 +25,17 @@ export type ContentTextPosition =
   | "bottom-center"
   | "bottom-right";
 export type Text = string | null;
+export type ContentTextPosition1 =
+  | "top-left"
+  | "top-center"
+  | "top-right"
+  | "middle-left"
+  | "middle-center"
+  | "middle-right"
+  | "bottom-left"
+  | "bottom-center"
+  | "bottom-right";
+export type Cta = string | null;
 export type Type = "video";
 export type Url = string;
 export type Link = string | null;
@@ -99,6 +110,7 @@ export interface ProductListing {
   slug?: string;
 }
 export interface ContentBlock {
+  aspect_ratio?: 1.5;
   span_columns: number;
   span_rows: number;
   position: ContentPosition;
@@ -108,8 +120,8 @@ export interface ContentBlock {
 }
 export interface ImageContent {
   text?: string;
-  text_position?: ContentTextPosition & string;
-  cta?: string | null;
+  text_position?: ContentTextPosition;
+  cta?: string;
   type?: "image";
   url: string;
   link: string;
@@ -117,8 +129,8 @@ export interface ImageContent {
 }
 export interface VideoContent {
   text?: Text;
-  text_position?: ContentTextPosition & string;
-  cta?: string | null;
+  text_position?: ContentTextPosition1;
+  cta?: Cta;
   type?: Type;
   url: Url;
   link: Link;

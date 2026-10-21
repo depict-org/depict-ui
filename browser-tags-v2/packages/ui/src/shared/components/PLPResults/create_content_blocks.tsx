@@ -33,6 +33,7 @@ import { ImagePlaceholder } from "../Placeholders/ImagePlaceholder";
 export type ContentBlock = {
   span_columns: number;
   span_rows: number;
+  aspect_ratio?: 1.5;
   position: "left" | "center" | "right";
   content: () => solid_JSX.Element | Promise<solid_JSX.Element>;
 };
@@ -324,10 +325,12 @@ function wrap_blocks_in_div(rendered_content_blocks: ContentBlocksByRow, max_spa
             classList={{
               "spans-whole-row": final_spans().spans_whole_row,
               "spans-multiple-rows": final_spans().spans_multiple_rows,
+              "has-explicit-aspect-ratio": block.aspect_ratio === 1.5,
             }}
             style={{
               "grid-column": `span ${final_span_columns()}`,
               "grid-row": `span ${final_span_rows()}`,
+              ...(block.aspect_ratio === 1.5 && { "--content-block-aspect-ratio": block.aspect_ratio }),
               [spans_columns_variable_name]: final_span_columns(),
             }}
           >

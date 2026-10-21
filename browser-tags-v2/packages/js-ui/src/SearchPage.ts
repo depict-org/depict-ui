@@ -6,11 +6,12 @@ import {
   ModernDisplayWithPageUrl,
   SearchPage as OrigSearchPage,
 } from "@depict-ai/ui";
-import { Display, ModernDisplay, snakeCasifyObject } from "@depict-ai/utilishared";
+import { Display, ModernDisplay } from "@depict-ai/utilishared";
 import { DepictSearchProvider } from "./DepictSearchProvider";
 import { internalSearch } from "./internal_state";
 import { JSUIContentBlocksByRow, PLPConfig } from "./types";
 import { Accessor } from "solid-js";
+import { transformContentBlocks } from "./helpers/transformContentBlocks";
 
 export interface SearchPageConfig<OriginalDisplay extends Display, OutputDisplay extends ModernDisplay | never>
   extends BaseSearchPageConfig,
@@ -51,7 +52,7 @@ export function SearchPage<OriginalDisplay extends Display, OutputDisplay extend
       get content_blocks_by_row() {
         const value = getContentBlocksByRow?.();
         if (!value) return value;
-        return value.map(block => block && snakeCasifyObject(block));
+        return transformContentBlocks(value);
       },
     })
   );
