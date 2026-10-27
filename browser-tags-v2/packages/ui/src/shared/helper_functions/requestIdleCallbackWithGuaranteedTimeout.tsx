@@ -8,6 +8,9 @@ let browserIsBugged = false;
  * When a setTimeout wins over the timeout in a requestIdleCallback, we won't tell the callback that a timeout happened and will say that there's 500ms ms left. As the chance is large that the browser is bugged, and we now need to quickly do all our work.
  *
  * If setTimeout winws once, we'll assume that the browser is bugged and only wait a quarter of `timeout` in the future (since high chance browser not busy, user waiting for stuff)
+ *
+ * Safari has no requestIdleCallback, and some third-party scripts polyfill it badly: the accessiBe widget calls the callback with `null` instead of an IdleDeadline.
+ * Callers call `deadline.timeRemaining()`, so we hand them a working deadline in that case (images in the search modal never loaded on iOS on sites with accessiBe, Pylon #3529, VROOM-3386).
  */
 export function requestIdleCallbackWithGuaranteedTimeout(
   callback: IdleRequestCallback,
@@ -25,7 +28,7 @@ export function requestIdleCallbackWithGuaranteedTimeout(
   const idleHandle = requestIdleCallback(
     deadline => {
       cancel();
-      return callback(deadline);
+      return callback(typeof deadline?.timeRemaining === "function" ? deadline : makeDeadline());
     },
     { timeout }
   );
@@ -41,4 +44,17 @@ export function requestIdleCallbackWithGuaranteedTimeout(
     });
   }, timeout + 1000);
   return cancel;
+}
+
+/**
+ * Stand-in for a missing IdleDeadline: 50ms, the most a real one gives, counting down from when the callback was called
+ */
+function makeDeadline(): IdleDeadline {
+  const start = performance.now();
+  return {
+    didTimeout: false,
+    timeRemaining() {
+      return Math.max(0, 50 - (performance.now() - start));
+    },
+  };
 }
