@@ -12,6 +12,9 @@ export const cases = [
   { name: "four-products-trailing", query: "count=4&row=1", index: 4, row: 1 },
   { name: "three-columns", query: "count=4&row=1&columns=3", index: 3, row: 1 },
   { name: "mobile-full-width", query: "count=5&row=1&columns=2", index: 2, row: 1, mobile: true },
+  { name: "explicit-landscape-3x2", query: "count=5&row=1&aspect_ratio=1.5", index: 4, row: 1, explicitAspectRatio: 1.5 },
+  { name: "mobile-explicit-landscape-3x2", query: "count=5&row=1&columns=2&aspect_ratio=1.5", index: 2, row: 1, mobile: true, explicitAspectRatio: 1.5 },
+  { name: "unnamed-second-collection", query: "count=5&row=1&aspect_ratio=1.5&collection=unlisted-fixture", index: 4, row: 1, explicitAspectRatio: 1.5 },
   { name: "percent-spacing", query: "count=5&row=1&gap=2%25", index: 4, row: 1 },
   { name: "full-width-banner", query: "count=5&row=2&banner", index: 5, row: 2, banner: true },
   { name: "custom-footer", query: "count=5&row=1&footer", index: 4, row: 1, footer: true },
@@ -39,6 +42,10 @@ async function measure(page) {
       image: rect(image),
       naturalRatio: image?.naturalWidth / image?.naturalHeight,
       fit: image && getComputedStyle(image).objectFit,
+      cardAspectRatio: card ? rect(card).width / rect(card).height : null,
+      gridRow: card && getComputedStyle(card).gridRow,
+      explicitRatioClass: card?.classList.contains("has-explicit-aspect-ratio") || false,
+      collection: document.querySelector(".depict")?.dataset.fixtureCollection,
       grid: rect(grid),
       product: rect(grid.querySelector(".fixture-product")),
       footer: rect(grid.querySelector(".fixture-footer")),
@@ -81,13 +88,20 @@ export async function runChecks(page, baseUrl, saveScreenshot, baseline = false)
     assert.equal(result.cardIndex, entry.index, `${entry.name}: insertion index`);
     assert.equal(result.fit, "cover", `${entry.name}: image fit`);
     assert.ok(Math.abs(result.image.height - result.card.height) < 1, `${entry.name}: image height`);
+    if (entry.explicitAspectRatio) {
+      assert.ok(Math.abs(result.card.height - result.card.width / entry.explicitAspectRatio) <= 1, `${entry.name}: pixel ratio`);
+      assert.equal(result.explicitRatioClass, true, `${entry.name}: explicit ratio class`);
+    }
     if (entry.mobile) {
-      assert.ok(Math.abs(result.card.width / result.card.height - 1) < 0.01, "mobile: intrinsic aspect ratio");
+      const expectedRatio = entry.explicitAspectRatio || 1;
+      assert.ok(Math.abs(result.card.width / result.card.height - expectedRatio) < 0.01, `${entry.name}: aspect ratio`);
     } else {
-      assert.ok(result.rows[entry.row + 1] > 150, `${entry.name}: empty row height`);
-      assert.ok(Math.abs(result.rows[entry.row] - result.rows[entry.row + 1]) < 1, `${entry.name}: equal product rows`);
-      const expectedHeight = result.rows[entry.row] * 2 + result.gap - result.margin;
-      assert.ok(Math.abs(result.card.height - expectedHeight) < 1, `${entry.name}: full row span`);
+      if (!entry.explicitAspectRatio) {
+        assert.ok(result.rows[entry.row + 1] > 150, `${entry.name}: empty row height`);
+        assert.ok(Math.abs(result.rows[entry.row] - result.rows[entry.row + 1]) < 1, `${entry.name}: equal product rows`);
+        const expectedHeight = result.rows[entry.row] * 2 + result.gap - result.margin;
+        assert.ok(Math.abs(result.card.height - expectedHeight) < 1, `${entry.name}: full row span`);
+      }
     }
     if (entry.column) {
       assert.ok(result.card.x > result.grid.x + 200, "center: column 2");

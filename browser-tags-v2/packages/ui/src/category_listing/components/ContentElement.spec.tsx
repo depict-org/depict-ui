@@ -34,7 +34,13 @@ jest.mock("../../shared/helper_functions/useVisibilityState", () => ({
 import { ContentElement } from "./ContentElement";
 import { makeComponentCacheKey } from "../helpers/useBackendContentBlocks";
 
-const renderContentElement = (extraProps: { text_?: string | null; textPosition_?: any; cta_?: string | null }) => {
+const renderContentElement = (extraProps: {
+  text_?: string | null;
+  textPosition_?: any;
+  cta_?: string | null;
+  aspectRatio_?: 1.5;
+  savedMediaRatio?: number;
+}) => {
   const container = document.createElement("div");
   const dispose = render(
     () =>
@@ -44,7 +50,7 @@ const renderContentElement = (extraProps: { text_?: string | null; textPosition_
         mediaUrl_: "https://example.com/image.jpg",
         router_: { navigate_: { go_to_: jest.fn() } } as any,
         setAspectRatioWas_: () => {},
-        aspectRatioWhenAloneInRow_: () => undefined,
+        aspectRatioWhenAloneInRow_: () => extraProps.savedMediaRatio,
         ...extraProps,
       }),
     container
@@ -122,6 +128,20 @@ describe("component cache key", () => {
     expect(makeComponentCacheKey({ ...base, cta: "Shop Now" })).toBe(
       makeComponentCacheKey({ ...base, cta: "Shop Now" })
     );
-    expect(makeComponentCacheKey({ ...base })).toBe(makeComponentCacheKey({ ...base, cta: null }));
+    expect(makeComponentCacheKey({ ...base })).toBe(
+      makeComponentCacheKey({ ...base, cta: null })
+    );
   });
+
+  test("the same media URL gets a new component key when its frame ratio changes", () => {
+    expect(makeComponentCacheKey(base, 1.5)).not.toBe(makeComponentCacheKey(base));
+    expect(makeComponentCacheKey(base, 1.5)).toBe(makeComponentCacheKey(base, 1.5));
+  });
+});
+
+test("an explicit card ratio takes precedence over the saved natural media ratio", () => {
+  const { container, dispose } = renderContentElement({ aspectRatio_: 1.5, savedMediaRatio: 2 });
+  const wrapper = container.querySelector(".d-standard-content-wrapper")!;
+  expect(wrapper.getAttribute("style")).toContain("--media-aspect-ratio: 1.5");
+  dispose();
 });

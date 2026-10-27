@@ -16,6 +16,7 @@ export function ContentElement({
   router_,
   setAspectRatioWas_,
   mediaUrl_,
+  aspectRatio_,
   aspectRatioWhenAloneInRow_,
   imageResizer_,
   text_,
@@ -25,6 +26,7 @@ export function ContentElement({
   link_: null | string;
   type_: "image" | "video" | undefined;
   mediaUrl_: string;
+  aspectRatio_?: 1.5;
   router_: PseudoRouter;
   setAspectRatioWas_: (aspectRatio: number) => void;
   aspectRatioWhenAloneInRow_: Accessor<number | undefined>;
@@ -47,7 +49,13 @@ export function ContentElement({
     <Dynamic
       component={link_ ? "a" : "div"}
       class="d-standard-content-wrapper"
-      style={aspectRatioWhenAloneInRow_() ? `--media-aspect-ratio: ${aspectRatioWhenAloneInRow_()}` : ""}
+      style={
+        aspectRatio_ === 1.5
+          ? "--media-aspect-ratio: 1.5"
+          : aspectRatioWhenAloneInRow_()
+            ? `--media-aspect-ratio: ${aspectRatioWhenAloneInRow_()}`
+            : ""
+      }
       ref={el => isImage && setWrapperSize(() => makeSizeAccessors(el))}
       onClick={catchify(
         (ev: MouseEvent) =>

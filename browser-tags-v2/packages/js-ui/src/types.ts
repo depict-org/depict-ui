@@ -37,6 +37,7 @@ export interface RecommendationRenderingConfig<T extends Display> extends BasePr
 export type JSUIContentBlock = {
   spanColumns: number;
   spanRows: number;
+  aspectRatio?: 1.5;
   position: "left" | "center" | "right";
   content: () => HTMLElement;
 };

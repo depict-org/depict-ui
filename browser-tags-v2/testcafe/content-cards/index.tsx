@@ -15,6 +15,8 @@ const columns = Number(params.get("columns") || 4);
 const row = Number(params.get("row") || 1);
 const count = Number(params.get("count") || 5);
 const ratio = Number(params.get("ratio") || 1);
+const explicitAspectRatio = params.has("aspect_ratio") ? Number(params.get("aspect_ratio")) : undefined;
+const fixtureCollection = params.get("collection") || "luca-fixture";
 const position = (params.get("position") || "left") as "left" | "center" | "right";
 const image = `data:image/svg+xml,${encodeURIComponent(
   `<svg xmlns="http://www.w3.org/2000/svg" width="${
@@ -45,7 +47,13 @@ render(() => {
       imageResizer_={url => url}
     />
   );
-  blocks[row] = { span_columns: 2, span_rows: 2, position, content: media(ratio) };
+  blocks[row] = {
+    span_columns: 2,
+    span_rows: explicitAspectRatio ? 1 : 2,
+    position,
+    ...(explicitAspectRatio ? { aspect_ratio: explicitAspectRatio } : {}),
+    content: media(ratio),
+  } as any;
   if (params.has("banner")) {
     blocks[0] = { span_columns: columns, span_rows: 1, position: "left", content: media(1) };
   }
@@ -64,7 +72,7 @@ render(() => {
   }));
   window.contentCardTest = { setCount, setComplete: complete[1] };
   return (
-    <div class="depict">
+    <div class="depict" data-fixture-collection={fixtureCollection}>
       <CSSGridLayout
         cols_at_size={cols_at_size_()}
         grid_spacing={params.get("gap") || "16px"}

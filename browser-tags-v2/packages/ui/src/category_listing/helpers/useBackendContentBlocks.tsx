@@ -11,9 +11,9 @@ export type ContentBlockHistoryState = { blocks: BackendContentBlock[]; aspectRa
 // Key the "content"-component by its rendered inputs, so we can reuse the component (and later downstream the block elements) if it's the same
 // This makes the block not flicker when going backwards/forwards if the content is the same on both pages
 // Also it lets us rewrite the blocks state in the history based on the block aspect ratio without infinite looping
-export const makeComponentCacheKey = (content: BackendContentBlock["content"]) => {
+export const makeComponentCacheKey = (content: BackendContentBlock["content"], aspectRatio?: 1.5) => {
   const { link, type, url, text, text_position, cta } = content;
-  return JSON.stringify([link, type, url, text ?? null, text_position ?? null, cta ?? null]);
+  return JSON.stringify([link, type, url, text ?? null, text_position ?? null, cta ?? null, aspectRatio ?? null]);
 };
 
 export function useBackendContentBlocks(
@@ -57,7 +57,7 @@ export function useBackendContentBlocks(
       const {
         content: { link, type, url, text, text_position, cta },
       } = row;
-      const componentCacheKey = makeComponentCacheKey(row.content);
+      const componentCacheKey = makeComponentCacheKey(row.content, row.aspect_ratio);
       // The aspect ratio depends only on the media, so its history key must stay the pre-text 3-element shape — widening it would orphan every ratio already persisted in history.state
       const mediaCacheKey = JSON.stringify([link, type, url]);
       let component = contentComponents.get(componentCacheKey);
@@ -69,6 +69,7 @@ export function useBackendContentBlocks(
             mediaUrl_={url}
             router_={router_}
             aspectRatioWhenAloneInRow_={() => historyContentBlocks().aspectRatios[mediaCacheKey]}
+            aspectRatio_={row.aspect_ratio}
             // Save aspect ratio in history for when one goes back to a page on mobile where a content block takes the whole page width. Otherwise it would have a height of 0 while it's loading.
             setAspectRatioWas_={aspectRatio =>
               setHistoryContentBlocks(prev => ({
@@ -87,6 +88,7 @@ export function useBackendContentBlocks(
       const contentBlock = {
         span_columns: row.span_columns,
         span_rows: row.span_rows,
+        aspect_ratio: row.aspect_ratio,
         position: row.position,
         content: component,
       } as ContentBlock;
