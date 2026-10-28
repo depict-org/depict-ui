@@ -1,0 +1,18 @@
+Upgrade the package you use to at least the version below. These versions were published in the October 28, 2026 release.
+
+| Package | Minimum version |
+| --- | --- |
+| `@depict-ai/react-ui` | `4.10.27` |
+| `@depict-ai/js-ui` | `4.10.24` |
+| `@depict-ai/ui` | `4.10.27` |
+
+The SDK renders portal content cards automatically. No new props, custom content block code, or API changes are needed.
+Include the updated SDK styles in your build as usual. These package versions depend on `@depict-ai/plp-styling` `4.6.18` or later.
+
+A **Landscape 3:2** card spans two columns and one row. Its media keeps a 3:2 crop with `object-fit: cover`.
+Cards without an explicit aspect ratio keep their current sizing.
+
+With the default grid, screens up to **901px** wide show two columns, so the card fills one row.
+Above 901px, it spans two columns beside products when at least three columns are available.
+If your grid uses one column, the card spans that column and keeps the 3:2 crop.
+Custom column breakpoints and the filter panel can change the available column count. The card's span never exceeds that count.

@@ -11,6 +11,16 @@ The Depict Category Page UI React SDK enables seamless integration of Depict Cat
 
 Please find the guide on how to integrate with depict if you're using react [here](/react-ui-guide/introduction).
 
+## Portal content cards
+
+`@depict-ai/react-ui` `4.10.27` or later renders **Landscape 3:2** portal cards automatically.
+Each card spans two columns and one row with a 3:2 media crop.
+At the default breakpoint of 901px and below, it fills the two-column grid's width.
+Its column span reduces to one if your grid has only one column. The crop stays 3:2.
+Cards without an aspect ratio keep their current sizing.
+
+See the [content card guide](/other-guides/content-blocks-react#landscape-32-cards-from-the-portal) for upgrades and portal steps.
+
 ## React component API
 
 The SDK is pre-built with React components and wrappers, making it a perfect fit for React.js and Next.js web applications. The following sections describe these components and their configuration.
@@ -176,6 +186,8 @@ The following table shows all `CategoryPage` configuration properties, their typ
 </ResponseField>
 
 <ResponseField name="contentBlocksByRow" type="(undefined | ReactContentBlock)[]?">
+    Use this prop for custom content blocks. Portal cards render automatically without this prop.
+
     A sparse array containing content blocks to show (or an empty slot or undefined if there's no block at that index). See ReactContentBlock for how a content block looks like. The index is the row where the content block should be shown.
 
     <Accordion title={<><code>ReactContentBlock</code> type definition</>}>
@@ -184,17 +196,19 @@ The following table shows all `CategoryPage` configuration properties, their typ
 /**
  * The interface for a content block.
  * Please make sure that you don't have content blocks overlap as that will cause undefined behavior.
- * The height of the content block will be the height of the tallest item in a row, so if there are no products in a row the content block needs to "bring its own height".
+ * Without aspectRatio, the tallest item in the row sets the block height. A block alone in a row needs its own height.
  * If you need to load any data in the content block, please make sure to return a placeholder while you're doing so (see `ImagePlaceholder`), to avoid layout shifts and ensure scroll restoration works correctly.
  *
  * - `spanColumns`: How many columns the block should span. This will be capped to the number of columns available.
  * - `spanRows`: How many rows the block should span.
+ * - `aspectRatio`: Set to 1.5 for a 3:2 block. Use spanColumns: 2 and spanRows: 1 for the landscape format.
  * - `position`: Where the block should be positioned. Can be `left`, `center` or `right`.
  * - `content`: The content to render in the block - please provide a React component.
  */
 export type ReactContentBlock = {
   spanColumns: number;
   spanRows: number;
+  aspectRatio?: 1.5;
   position: "left" | "center" | "right";
   content: React.FC;
 };

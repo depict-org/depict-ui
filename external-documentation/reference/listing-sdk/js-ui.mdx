@@ -6,6 +6,16 @@ title: "JavaScript UI Reference"
 This page does not apply to installs made in 2025 or later of the Depict Shopify apps
 </Warning>
 
+## Portal content cards
+
+`@depict-ai/js-ui` `4.10.24` or later renders **Landscape 3:2** portal cards automatically.
+Each card spans two columns and one row with a 3:2 media crop.
+At the default breakpoint of 901px and below, it fills the two-column grid's width.
+Its column span reduces to one if your grid has only one column. The crop stays 3:2.
+Cards without an aspect ratio keep their current sizing.
+
+See the [content card guide](/other-guides/content-blocks-js-ui#landscape-32-cards-from-the-portal) for upgrades and portal steps.
+
 ## DepictCategoryProvider class
 
 The `DepictCategoryProvider` class is what ties together all the configuration for the different components.
@@ -161,6 +171,9 @@ The following table shows the `CategoryPage`'s configuration properties, their t
   name="getContentBlocksByRow"
   type="Accessor<JSUIContentBlocksByRow>?"
 >
+  Use this option for custom content blocks. Portal cards render automatically without this option.
+  For a custom 3:2 block, set `aspectRatio: 1.5`, `spanColumns: 2`, and `spanRows: 1` on the block.
+
   Function returned by contentBlockStore. See
   [contentBlockStore](/reference/listings-search/js-ui#contentblockstore-function).
 </ResponseField>

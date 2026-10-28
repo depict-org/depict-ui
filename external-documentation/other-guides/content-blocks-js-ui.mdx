@@ -6,7 +6,24 @@ title: "A guide to setting up content blocks (JS UI)"
 This page does not apply to installs made in 2025 or later of the Depict Shopify apps
 </Warning>
 
-Want content blocks on your product listing/search pages? This guide is for you, who have already integrated with `@depict-ai/js-ui`.
+import LandscapeContentCardSDK from '/snippets/landscape-content-card-sdk.mdx';
+import CreateLandscapeContentCard from '/snippets/create-landscape-content-card.mdx';
+
+Use content cards from the portal or create custom content blocks with `@depict-ai/js-ui`.
+
+## Landscape 3:2 cards from the portal
+
+<LandscapeContentCardSDK />
+
+### Create the card
+
+<CreateLandscapeContentCard />
+
+For a custom frontend, follow the [listing API guide](/api-guide/listings#render-landscape-32-cards).
+
+## Custom content blocks in code
+
+Use the steps below when you want to supply your own components as content blocks.
 
 1. Make sure you're at least on version `2.1.9` of `@depict-ai/js-ui`.
 2. Provide a function that returns an array of content blocks to the `CategoryPage`/`SearchPage` function, like in the example below
