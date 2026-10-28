@@ -1,0 +1,81 @@
+---
+title: "Product listing pages"
+description: "Fetch listing metadata and render portal content cards in your own frontend."
+---
+
+<Warning>
+This page does not apply to installs made in 2025 or later of the Depict Shopify apps
+</Warning>
+
+import CreateLandscapeContentCard from '/snippets/create-landscape-content-card.mdx';
+
+Use the listing API when you render your own product listing pages.
+The same response fields apply when you fetch data in the browser, on your server, or through a proxy.
+
+## Fetch the listing
+
+Fetch listing metadata with either endpoint. Include your `merchant`, `market`, and `locale` query parameters.
+
+- [`GET /v3/listings/{listing_id}`](/reference/openapi-reference/listing-v3/get-listing) uses the Depict listing ID.
+- [`GET /v3/listings/external_id/{external_id}`](/reference/openapi-reference/listing-v3/get-listing-via-external-id) uses your external listing ID.
+
+Both responses include the top-level `content_blocks` array.
+Fetch products separately with [Get Products In Listing](/reference/openapi-reference/listing-v3/get-products-in-listing).
+See the [tracking guide](/api-guide/tracking/introduction) for product interaction tracking.
+
+## Create a Landscape 3:2 card
+
+<CreateLandscapeContentCard />
+
+## Render Landscape 3:2 cards
+
+The optional numeric field `content_blocks[].aspect_ratio` is `1.5` for a **Landscape 3:2** card.
+It sits on the content block beside `span_columns`, `span_rows`, `position`, and `row`.
+It is not inside the block's `content` object.
+
+This response excerpt shows one card. Other listing fields are omitted.
+
+```json
+{
+  "content_blocks": [
+    {
+      "aspect_ratio": 1.5,
+      "span_columns": 2,
+      "span_rows": 1,
+      "position": "left",
+      "row": 0,
+      "content": {
+        "type": "image",
+        "url": "https://example.com/campaign.jpg",
+        "link": "https://example.com/collections/campaign"
+      }
+    }
+  ]
+}
+```
+
+Render each block at its `row` and `position`. Row numbers start at zero.
+For a block with `aspect_ratio: 1.5`:
+
+- Span two grid columns and one grid row.
+- Limit the column span to the number of columns available on the current screen.
+- Give the media container a 3:2 aspect ratio, such as CSS `aspect-ratio: 3 / 2`.
+- Fill the container with the image using `width: 100%`, `height: 100%`, and `object-fit: cover`.
+
+In a two-column grid, the card fills the row. In a one-column grid, it spans one column.
+Keep the 3:2 crop in both cases.
+
+If `aspect_ratio` is missing, keep your current content block layout.
+The API omits this field for cards without an explicit ratio.
+If a stored card has an unsupported ratio, the API keeps the card and omits `aspect_ratio`.
+The only supported explicit value is `1.5`.
+
+### Server rendering and proxies
+
+Include `aspect_ratio` when you pass listing data through your server or proxy.
+Update response types, validators, and field mappings that select which content block fields to keep.
+Preserve it as an optional number on each content block, including in cached responses and hydration data.
+
+Apply the same rendering rule in your server-rendered markup and browser code.
+A custom frontend needs this rendering change even when the portal already shows the correct card format.
+An SDK upgrade applies only if you use Depict UI to render the cards.

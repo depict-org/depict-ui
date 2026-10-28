@@ -365,6 +365,12 @@
             ]
           },
           {
+            "group": "Product listing pages",
+            "pages": [
+              "api-guide/listings"
+            ]
+          },
+          {
             "group": "Recommendations",
             "pages": [
               "api-guide/recommendations/introduction",
