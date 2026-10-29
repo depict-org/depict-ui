@@ -109,7 +109,7 @@ export class PerformanceClient {
   }
 
   /**
-   * Adds click and impression tracking to a product card
+   * Adds click tracking to a product card, and impression tracking to recommendation cards
    */
   trackProductCard(card: HTMLElement, tracking_id: string, type: ProductCardType) {
     if (this.checkIfTracked(card)) return;
@@ -118,11 +118,12 @@ export class PerformanceClient {
       case ProductCardType.Recommendation:
       case ProductCardType.SnakeRecommendation:
         card.addEventListener("click", () => this.sendRecommendationClickEvent(tracking_id));
-        // impression_track_element({
-        //   element: card,
-        //   data: { recommendation_id: tracking_id, ...this.#getContextData() },
-        // });
+        impression_track_element({
+          element: card,
+          data: { recommendation_id: tracking_id, ...this.#getContextData() },
+        });
         break;
+      // Search and listing impressions stay off: they'd be roughly 10x the recommendation volume.
       case ProductCardType.SearchResult:
         card.addEventListener("click", () => this.sendSearchResultClickEvent(tracking_id));
         // impression_track_element({
