@@ -1,6 +1,10 @@
 import { strict as assert } from "node:assert";
 import { describe, it } from "node:test";
-import { ALLOWED_BASE_URL_HOST_SUFFIXES, is_allowed_base_url } from "./query_params.ts";
+import {
+  ALLOWED_BASE_URL_HOST_SUFFIXES,
+  ALLOWED_BASE_URL_HOSTS_DESCRIPTION,
+  is_allowed_base_url,
+} from "./query_params.ts";
 
 // Runs on the built-in node test runner with no dependencies at all, which is what lets it run in CI
 // without a yarn install: query_params.ts imports nothing.
@@ -21,6 +25,30 @@ describe("is_allowed_base_url", () => {
     assert.equal(is_allowed_base_url("http://localhost:9100"), true);
     assert.equal(is_allowed_base_url("http://localhost"), true);
     assert.equal(is_allowed_base_url("https://api.depict.ai:8443"), true);
+  });
+
+  it("accepts our V4 Worker hosts on workers.dev, including version previews", () => {
+    assert.equal(is_allowed_base_url("https://depict-v4-staging.anton-osika.workers.dev"), true);
+    assert.equal(is_allowed_base_url("https://depict-v4-prod.anton-osika.workers.dev/"), true);
+    assert.equal(is_allowed_base_url("https://1a2b3c4d-depict-v4-staging.anton-osika.workers.dev"), true);
+    assert.equal(is_allowed_base_url("https://DEPICT-V4-STAGING.Anton-Osika.workers.dev"), true);
+  });
+
+  it("only accepts our workers.dev hosts over https", () => {
+    assert.equal(is_allowed_base_url("http://depict-v4-staging.anton-osika.workers.dev"), false);
+  });
+
+  it("rejects workers.dev hosts that are not on our account", () => {
+    // workers.dev is a public suffix every Cloudflare customer deploys under
+    assert.equal(is_allowed_base_url("https://depict-v4-staging.evil.workers.dev"), false);
+    assert.equal(is_allowed_base_url("https://workers.dev"), false);
+    assert.equal(is_allowed_base_url("https://notanton-osika.workers.dev"), false);
+    assert.equal(is_allowed_base_url("https://anton-osika.workers.dev.evil.com"), false);
+    assert.equal(is_allowed_base_url("https://depict-v4-staging.anton-osika.workers.dev@evil.com"), false);
+    assert.equal(
+      is_allowed_base_url("https://evil.com/?next=https://depict-v4-staging.anton-osika.workers.dev"),
+      false
+    );
   });
 
   it("rejects other hosts", () => {
@@ -69,7 +97,11 @@ describe("is_allowed_base_url", () => {
     assert.equal(is_allowed_base_url(undefined), false);
   });
 
-  it("keeps the two documented suffix shapes", () => {
-    assert.deepEqual(ALLOWED_BASE_URL_HOST_SUFFIXES, [".depict.ai", "localhost"]);
+  it("keeps the documented suffix shapes", () => {
+    assert.deepEqual(ALLOWED_BASE_URL_HOST_SUFFIXES, [".depict.ai", ".anton-osika.workers.dev", "localhost"]);
+  });
+
+  it("tells people which allowed hosts need https", () => {
+    assert.equal(ALLOWED_BASE_URL_HOSTS_DESCRIPTION, ".depict.ai, .anton-osika.workers.dev (https only), localhost");
   });
 });

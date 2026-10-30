@@ -50,8 +50,26 @@ export const headers_param_name = "headers";
  * Loopback literals (127.0.0.1, [::1]) and trailing-dot forms ("api.depict.ai.") are absent, so they
  * fail closed. Adding the loopback literals would widen exactly the surface described above for no
  * workflow anyone has asked for; the trailing dot is a form nobody writes by hand.
+ *
+ * ".anton-osika.workers.dev" is our own Cloudflare account's workers.dev subdomain, where the V4 Worker
+ * runs (depict-v4-staging, depict-v4-prod and their version previews, "<id>-depict-v4-staging"). Only
+ * that account can deploy under it, and it is the account that hosts demo.depict.ai itself (see
+ * preview_browser_deploy/wrangler.jsonc), so trusting it adds nobody who could not already change this
+ * page. "workers.dev" itself is a public suffix shared by every Cloudflare customer, so it must never be
+ * listed on its own.
  */
-export const ALLOWED_BASE_URL_HOST_SUFFIXES = [".depict.ai", "localhost"];
+export const ALLOWED_BASE_URL_HOST_SUFFIXES = [".depict.ai", ".anton-osika.workers.dev", "localhost"];
+
+/**
+ * Entries of {@link ALLOWED_BASE_URL_HOST_SUFFIXES} that are only accepted over https. workers.dev
+ * always serves https, so plain http there is never a real workflow and is refused rather than allowed.
+ */
+const HTTPS_ONLY_BASE_URL_HOST_SUFFIXES = new Set([".anton-osika.workers.dev"]);
+
+/** {@link ALLOWED_BASE_URL_HOST_SUFFIXES} as shown to people, with the https-only entries marked as such. */
+export const ALLOWED_BASE_URL_HOSTS_DESCRIPTION = ALLOWED_BASE_URL_HOST_SUFFIXES.map(entry =>
+  HTTPS_ONLY_BASE_URL_HOST_SUFFIXES.has(entry) ? `${entry} (https only)` : entry
+).join(", ");
 
 /**
  * Whether the BASE_URL override may be sent requests. The override arrives from the query string, so
@@ -73,7 +91,9 @@ export function is_allowed_base_url(value: string | null | undefined) {
   if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return false;
   // URL already lowercases hostname for us, so there is nothing to normalise here.
   const { hostname } = parsed;
-  return ALLOWED_BASE_URL_HOST_SUFFIXES.some(entry =>
-    entry.startsWith(".") ? hostname === entry.slice(1) || hostname.endsWith(entry) : hostname === entry
+  return ALLOWED_BASE_URL_HOST_SUFFIXES.some(
+    entry =>
+      (parsed.protocol === "https:" || !HTTPS_ONLY_BASE_URL_HOST_SUFFIXES.has(entry)) &&
+      (entry.startsWith(".") ? hostname === entry.slice(1) || hostname.endsWith(entry) : hostname === entry)
   );
 }
