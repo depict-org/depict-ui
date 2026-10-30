@@ -148,6 +148,22 @@ it("accepts exactly 48 KiB but rejects an indivisible oversized event", () => {
   });
 });
 
+it("counts commas and brackets at the batch boundary, including after a flush", () => {
+  const first = { type: "element_visible", deduplication_id: "first", detail: "x".repeat(24000) };
+  const second = { type: "element_visible", deduplication_id: "second", detail: "" };
+  second.detail = "x".repeat(48 * 1024 - new Blob([JSON.stringify([first, second])]).size);
+  transmission.send_depict_unfiltered([first, second]);
+  jest.advanceTimersByTime(250);
+  expect(fetch_mock).toHaveBeenCalledTimes(1);
+  expect(new Blob([fetch_mock.mock.calls[0][1].body]).size).toBe(48 * 1024);
+
+  transmission.send_depict_unfiltered([first, { ...second, detail: second.detail + "x" }]);
+  jest.advanceTimersByTime(250);
+  expect(fetch_mock).toHaveBeenCalledTimes(3);
+  expect(events(1)).toEqual([first]);
+  expect(events(2)).toEqual([{ ...second, detail: second.detail + "x" }]);
+});
+
 it("retries a 5xx only once with the same body and ids", async () => {
   fetch_mock.mockResolvedValue({ status: 503 });
   transmission.send_depict_unfiltered([{ type: "click" }]);
