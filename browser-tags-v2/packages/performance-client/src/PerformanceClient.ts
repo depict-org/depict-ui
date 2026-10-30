@@ -13,6 +13,8 @@ import {
   instant_exec_on_suspect_history_change,
   observer,
   send_depict_unfiltered,
+  set_event_transport,
+  EventTransport,
 } from "@depict-ai/utilishared";
 import { PurchasedProduct, TrackV2Request } from "@depict-ai/types/api/TrackV2Request";
 import { a2c_selector, product_card_tracking_id_attributes } from "./selectors";
@@ -20,6 +22,8 @@ import { setup_dpq } from "./setup_dpq";
 import { GA4Purchase, ProductCardType, tracking_keys, TrackingKey } from "./types";
 
 export interface Options {
+  /** Configure shared SDK tracking before sending events. Defaults to http; both enables the canary socket. */
+  transport?: EventTransport;
   /**
    * The initial market. Should be specified if the market is known at the point of intializing DPC.
    */
@@ -77,6 +81,9 @@ export class PerformanceClient {
 
   #parseOptions(options?: Options) {
     if (options !== undefined) {
+      if (options.transport !== undefined) {
+        set_event_transport(options.transport);
+      }
       if (options.auto_observe !== undefined) {
         this.auto_observe = options.auto_observe;
       }
