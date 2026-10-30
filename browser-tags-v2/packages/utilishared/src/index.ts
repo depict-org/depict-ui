@@ -70,6 +70,8 @@ export {
 } from "./tracking/depict_tracking";
 export type { TrackingEventContextData } from "./tracking/depict_tracking";
 export type { depict_payload, noisy_depict_payload, depict_body, event_types } from "./tracking/depict_transmission";
+export { set_event_transport } from "./tracking/event_queue";
+export type { EventTransport } from "./tracking/event_queue";
 export {
   filter_depict_payload,
   send_depict,
