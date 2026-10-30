@@ -1,6 +1,10 @@
 import { strict as assert } from "node:assert";
 import { describe, it } from "node:test";
-import { ALLOWED_BASE_URL_HOST_SUFFIXES, is_allowed_base_url } from "./query_params.ts";
+import {
+  ALLOWED_BASE_URL_HOST_SUFFIXES,
+  ALLOWED_BASE_URL_HOSTS_DESCRIPTION,
+  is_allowed_base_url,
+} from "./query_params.ts";
 
 // Runs on the built-in node test runner with no dependencies at all, which is what lets it run in CI
 // without a yarn install: query_params.ts imports nothing.
@@ -95,5 +99,9 @@ describe("is_allowed_base_url", () => {
 
   it("keeps the documented suffix shapes", () => {
     assert.deepEqual(ALLOWED_BASE_URL_HOST_SUFFIXES, [".depict.ai", ".anton-osika.workers.dev", "localhost"]);
+  });
+
+  it("tells people which allowed hosts need https", () => {
+    assert.equal(ALLOWED_BASE_URL_HOSTS_DESCRIPTION, ".depict.ai, .anton-osika.workers.dev (https only), localhost");
   });
 });

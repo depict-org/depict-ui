@@ -26,7 +26,7 @@ import { Cart } from "~/components/Cart";
 import { createStore, reconcile } from "solid-js/store";
 import { HeadersModalElements } from "~/components/HeadersModalElements";
 import {
-  ALLOWED_BASE_URL_HOST_SUFFIXES,
+  ALLOWED_BASE_URL_HOSTS_DESCRIPTION,
   base_url_param_name,
   cart_param_name,
   collections_category_listing_id_param_name,
@@ -141,7 +141,7 @@ export function Header() {
       <Show when={get_rejected_base_url()}>
         <div class="depict plp base_url_rejected">
           Ignored the {base_url_param_name} override {get_rejected_base_url()} — only{" "}
-          {ALLOWED_BASE_URL_HOST_SUFFIXES.join(", ")} are allowed, so requests go to {default_base_url}.
+          {ALLOWED_BASE_URL_HOSTS_DESCRIPTION} are allowed, so requests go to {default_base_url}.
         </div>
       </Show>
       <Show when={!wide()}>
@@ -204,7 +204,7 @@ export function Header() {
             }
             if (value !== "" && !is_allowed_base_url(value)) {
               base_url_input.value = current_base_url();
-              alert(`BASE_URL must be on one of ${ALLOWED_BASE_URL_HOST_SUFFIXES.join(", ")}`);
+              alert(`BASE_URL must be on one of ${ALLOWED_BASE_URL_HOSTS_DESCRIPTION}`);
               return;
             }
             if (value) {
