@@ -88,23 +88,7 @@ export const depict_click = /*@__PURE__*/ c((vars: noisy_depict_payload[0]) => {
   if (process.env.DEPICT === "false") {
     return;
   }
-  const beacon_retval = depict_prefilled(
-    {
-      ...vars,
-      type: "click",
-    },
-    false // don't send clicks over websockets because the page might unload
-  );
-
-  depict_prefilled(
-    {
-      ...vars,
-      type: "ws_click",
-    },
-    true // explicitly send `ws-click` over websockets, this is an experiment to test the hypothesis of above - does unloading the page affect if this gets sent?
-  );
-
-  return beacon_retval;
+  return depict_prefilled({ ...vars, type: "click" });
 });
 
 export const depict_add_to_cart = /*@__PURE__*/ c((vars: noisy_depict_payload[0]) => {

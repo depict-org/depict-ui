@@ -31,8 +31,6 @@ export type ImpressionEvent = {
 
 /**
  * Sends an impression event to the api.
- *
- * Impression events always use websockets.
  */
 export const send_impression_event = (data: Optional<ImpressionEvent, "type">) => {
   data.type = "element_visible"; // Set the type to element_visible as this is optional to pass here.

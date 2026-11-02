@@ -1,17 +1,14 @@
-import { DepictAPIWS } from "./strongwilled_ws_client";
-import { random_string } from "../utilities/random_string";
-import { catchify, report } from "../logging/error";
+import { catchify } from "../logging/error";
 import { dlog } from "../logging/dlog";
 import { Sentry } from "../logging/sentry_instance";
-import { base_url } from "../constants";
+import { queue_events } from "./event_queue";
 
 export type event_types = "page_view" | "click" | "add_to_cart" | "purchase" | "element_visible";
 
 const c = catchify;
 
-const ws_instance = /*@__PURE__*/ c(() => new DepictAPIWS("wss://ws.depict.ai/ws/create-events"))();
-
 const allowed_keys = [
+  "deduplication_id",
   "tenant",
   "market",
   "type",
@@ -59,28 +56,13 @@ export const filter_depict_payload = /*@__PURE__*/ c((payload: noisy_depict_payl
 });
 
 export const send_websocket = /*@__PURE__*/ c(async (bodies: depict_payload) => {
-  if (process.env.DEPICT === "false") {
-    return;
-  }
-  for (let i = 0; i < bodies.length; i++) {
-    const id = random_string();
-    ws_instance?.ensure_sent({ id, event: bodies[i] }).catch(e => report(e, "error"));
-  }
+  queue_events(bodies);
 });
 
-export const send_depict_unfiltered = /*@__PURE__*/ c((payload: depict_payload, use_ws = true) => {
-  if (process.env.DEPICT === "false") {
-    return;
-  }
-  if (use_ws && typeof WebSocket == "function" && typeof ws_instance?.ensure_sent == "function") {
-    dlog("Sending to depict (ws)", payload);
-    return send_websocket(payload);
-  }
-
-  const url = base_url + "/create-events";
-
-  return foolproof_send_beacon(url, payload);
-});
+/** use_ws is retained for compatibility; transport is configured with set_event_transport. */
+export const send_depict_unfiltered = /*@__PURE__*/ c(
+  (payload: depict_payload, use_ws = true): boolean | Promise<void> | undefined => queue_events(payload)
+);
 
 export const foolproof_send_beacon = /*@__PURE__*/ c((url: string, payload: { [key: string]: any }) => {
   const payload_json = JSON.stringify(payload);
