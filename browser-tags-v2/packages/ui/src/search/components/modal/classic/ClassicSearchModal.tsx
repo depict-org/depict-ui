@@ -1,4 +1,5 @@
 /** @jsxImportSource solid-js */
+import { NoExactMatches, is_similar_products_fallback } from "../../NoExactMatches";
 import { Accessor, createMemo, createSignal, JSX, onCleanup, Resource, Show, Signal, untrack } from "solid-js";
 import { catchify, ContainedImage, make_random_classname } from "@depict-ai/utilishared";
 import { InstantResults } from "../../InstantResults";
@@ -241,6 +242,14 @@ function RawClassicSearchModal({
           </SentryErrorBoundary>
           <SentryErrorBoundary severity_="error" message_="Instant results failed">
             <ListingProvider>
+              <NoExactMatches
+                get_search_query_={get_search_field_value_}
+                i18n_={i18n_}
+                is_fallback_={() => {
+                  const results = get_modal_search_results();
+                  return !!results && !results.loading && is_similar_products_fallback(results());
+                }}
+              />
               {InstantResults({
                 search_field_value_,
                 depict_api_,

@@ -89,4 +89,9 @@ export const french_search_translation: search_i18n = {
   popular_: "Populaire",
   products_: "Produits",
   modal_view_all_no_results_: "Voir les alternatives",
+  get_no_exact_matches_: (query: HTMLElement) => [
+    "Aucun résultat exact pour ",
+    query,
+    ". Voici des produits similaires.",
+  ],
 } as const;

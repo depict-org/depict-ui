@@ -102,4 +102,9 @@ export const polish_search_translation: search_i18n = {
   popular_: "Popularne",
   products_: "Produkty",
   modal_view_all_no_results_: "Zobacz alternatywy",
+  get_no_exact_matches_: (query: HTMLElement) => [
+    "Brak dokładnych wyników dla ",
+    query,
+    ". Pokazujemy podobne produkty.",
+  ],
 } as const;

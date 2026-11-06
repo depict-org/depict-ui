@@ -26,11 +26,11 @@ export type Values = (
   | number
   | number
   | string
-    | [string, string]
-    | [string, number]
-    | [number, string]
-    | [number, number]
-  )[];
+  | [string, string]
+  | [string, number]
+  | [number, string]
+  | [number, number]
+)[];
 /**
  * Counts for values
  */
@@ -66,6 +66,15 @@ export type Counts1 = number[];
 export type Names1 = string[] | null;
 
 export interface SearchResponse {
+  /**
+   * True when no product matched the query and the displays are similar products.
+   * Null or absent when the engine did not report it.
+   */
+  is_fallback?: boolean | null;
+  /**
+   * Filters the engine relaxed to find results, if any.
+   */
+  relaxed_filters?: string[] | null;
   /**
    * Total number of results for this query. Not necessarily exact.
    */
@@ -147,16 +156,16 @@ export interface SearchFilter {
     | [string, number]
     | [number, string]
     | [number, number]
-  | (
+    | (
         | ("true" | "false")
         | number
         | number
         | string
-    | [string, string]
-    | [string, number]
-    | [number, string]
-    | [number, number]
-  )[]
+        | [string, string]
+        | [string, number]
+        | [number, string]
+        | [number, number]
+      )[]
     | string[][];
   /**
    * Metadata about the filter that can be used for rendering. For example, this could contain the possible values to filter by and their counts in the results.

@@ -16,7 +16,8 @@
       padding: $mobile-item-gap calc(#{$mobile-item-gap} / 2);
     }
     & > .filter-results-for-one-row,
-    & > .results-for {
+    & > .results-for,
+    & > .no-exact-matches {
       margin-bottom: calc(#{$desktop-item-gap} / 2);
       @include mobile_sizes() {
         margin-bottom: calc(#{$mobile-item-gap} / 2);

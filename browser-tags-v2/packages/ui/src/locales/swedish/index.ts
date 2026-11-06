@@ -48,6 +48,7 @@ export const swedish_search_translation: search_i18n = {
   "no_results_text_": "Inga resultat",
   modal_view_all_results_: (number_of_results: HTMLElement) => ["Visa alla ", number_of_results, " resultat"],
   modal_view_all_no_results_: "Visa andra alternativ",
+  get_no_exact_matches_: (query: HTMLElement) => ["Inga exakta träffar för ", query, ". Visar liknande produkter."],
   "search_recs_title_": "Andra alternativ",
   "clear_filters_query_sorting_after_submit_": "Rensa förfråga och filter + sorting efter ny förfråga",
   "previous_searches_text_": "Dina tidigare sökningar",

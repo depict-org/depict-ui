@@ -88,4 +88,9 @@ export const finnish_search_translation: search_i18n = {
   popular_: "Suosittu",
   products_: "Tuotteet",
   modal_view_all_no_results_: "Näytä vaihtoehdot",
+  get_no_exact_matches_: (query: HTMLElement) => [
+    "Ei tarkkoja osumia haulle ",
+    query,
+    ". Näytetään samankaltaisia tuotteita.",
+  ],
 } as const;

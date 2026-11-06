@@ -89,4 +89,9 @@ export const spanish_search_translation: search_i18n = {
   popular_: "Popular",
   products_: "Productos",
   modal_view_all_no_results_: "Ver alternativas",
+  get_no_exact_matches_: (query: HTMLElement) => [
+    "No hay coincidencias exactas para ",
+    query,
+    ". Mostrando productos similares.",
+  ],
 } as const;
