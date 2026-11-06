@@ -81,6 +81,6 @@ export const portuguese_search_translation: search_i18n = {
   get_no_exact_matches_: (query: HTMLElement) => [
     "Nenhuma correspondência exata para ",
     query,
-    ". Mostrando produtos semelhantes.",
+    ". A mostrar produtos semelhantes.",
   ],
 } as const;

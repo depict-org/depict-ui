@@ -108,6 +108,7 @@ function RawClassicSearchModal({
   // Search field alignment unused in ClassicSearchModal since the search field spans the whole modal
   const { body_: bodyAlignmentSignal = createSignal({}) } = alignmentSignals_ || {};
   const [bodyAlignmentStyle] = bodyAlignmentSignal;
+  const [get_instant_query_, set_instant_query_] = createSignal("");
   const [get_modal_search_results, set_modal_search_results_] = createSignal<
     undefined | Resource<(SearchResponseAfterDisplayTransformer & { failed?: true | undefined }) | undefined>
   >();
@@ -243,7 +244,7 @@ function RawClassicSearchModal({
           <SentryErrorBoundary severity_="error" message_="Instant results failed">
             <ListingProvider>
               <NoExactMatches
-                get_search_query_={get_search_field_value_}
+                get_search_query_={get_instant_query_}
                 i18n_={i18n_}
                 is_fallback_={() => {
                   const results = get_modal_search_results();
@@ -258,6 +259,7 @@ function RawClassicSearchModal({
                 market_,
                 router_,
                 set_modal_search_results_,
+                set_instant_query_,
                 InstantCardImageComponent_: props =>
                   createMemo(() =>
                     ContainedImage({

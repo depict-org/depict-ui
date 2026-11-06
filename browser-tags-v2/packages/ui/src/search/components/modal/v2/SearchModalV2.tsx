@@ -153,6 +153,7 @@ function RawSearchModalV2<InputDisplay extends Display, OutputDisplay extends Mo
   const [unfiltered_previous_searches] = previous_searches_;
   const random_classname_body = make_random_classname();
   const backdropRandomClassname = make_random_classname();
+  const [get_instant_query_, set_instant_query_] = createSignal("");
   const [get_modal_search_results_, set_modal_search_results_] = createSignal<
     undefined | Resource<(SearchResponseAfterDisplayTransformer & { failed?: true | undefined }) | undefined>
   >();
@@ -346,7 +347,7 @@ function RawSearchModalV2<InputDisplay extends Display, OutputDisplay extends Mo
           <div class="instant-results-wrapper" style={{ order: itemIndexes.instantResultsIndex_() }}>
             <h2>{i18n_.products_()}</h2>
             <NoExactMatches
-              get_search_query_={get_search_field_value_}
+              get_search_query_={get_instant_query_}
               i18n_={i18n_}
               is_fallback_={() => {
                 const results = get_modal_search_results_();
@@ -361,6 +362,7 @@ function RawSearchModalV2<InputDisplay extends Display, OutputDisplay extends Mo
               market_,
               router_,
               set_modal_search_results_,
+              set_instant_query_,
               itemIndex_: itemIndexes.instantResultsIndex_,
               selected_index_,
               currently_showing_suggestions_,

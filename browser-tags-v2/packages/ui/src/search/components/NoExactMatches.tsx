@@ -26,7 +26,7 @@ export function NoExactMatches({
     catchify(() => i18n_.get_no_exact_matches_?.()?.((<b>{get_search_query_()}</b>) as HTMLElement))
   );
   return (
-    <Show when={is_fallback_() && contents()}>
+    <Show when={is_fallback_() && get_search_query_().trim() !== "" && contents()}>
       <div class="no-exact-matches" role="status">
         {contents()}
       </div>

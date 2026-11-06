@@ -74,3 +74,31 @@ describe("NoExactMatches", () => {
     expect(mount(custom, similar).innerHTML).toBe("");
   });
 });
+
+describe("NoExactMatches reactivity", () => {
+  it("follows the response and its query, and hides for an empty query", () => {
+    const container = document.createElement("div");
+    const [query, set_query] = createSignal("abcde");
+    const [response, set_response] = createSignal<Parameters<typeof is_similar_products_fallback>[0]>(similar);
+    const dispose = render(
+      () => (
+        <NoExactMatches
+          get_search_query_={query}
+          i18n_={i18n_from(en)}
+          is_fallback_={() => is_similar_products_fallback(response())}
+        />
+      ),
+      container
+    );
+    expect(container.textContent).toBe("No exact matches for abcde. Showing similar products.");
+    set_query("dress");
+    set_response(exact);
+    expect(container.innerHTML).toBe("");
+    set_query("qxzvbn");
+    set_response(similar);
+    expect(container.textContent).toBe("No exact matches for qxzvbn. Showing similar products.");
+    set_query("  ");
+    expect(container.innerHTML).toBe("");
+    dispose();
+  });
+});
