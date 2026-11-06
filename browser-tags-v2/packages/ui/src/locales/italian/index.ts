@@ -89,4 +89,9 @@ export const italian_search_translation: search_i18n = {
   popular_: "Popolare",
   products_: "Prodotti",
   modal_view_all_no_results_: "Visualizza alternative",
+  get_no_exact_matches_: (query: HTMLElement) => [
+    "Nessuna corrispondenza esatta per ",
+    query,
+    ". Ecco alcuni prodotti simili.",
+  ],
 } as const;

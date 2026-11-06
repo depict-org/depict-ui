@@ -89,4 +89,9 @@ export const german_search_translation: search_i18n = {
       : [number_of_results_element, ` ${page_form}`];
   },
   modal_view_all_no_results_: "Alternativen anzeigen",
+  get_no_exact_matches_: (query: HTMLElement) => [
+    "Keine genauen Treffer für ",
+    query,
+    ". Ähnliche Produkte werden angezeigt.",
+  ],
 } as const;

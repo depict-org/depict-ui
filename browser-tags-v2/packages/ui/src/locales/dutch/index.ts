@@ -89,4 +89,9 @@ export const dutch_search_translation: search_i18n = {
   popular_: "Populair",
   products_: "Producten",
   modal_view_all_no_results_: "Bekijk alternatieven",
+  get_no_exact_matches_: (query: HTMLElement) => [
+    "Geen exacte resultaten voor ",
+    query,
+    ". Vergelijkbare producten worden getoond.",
+  ],
 } as const;

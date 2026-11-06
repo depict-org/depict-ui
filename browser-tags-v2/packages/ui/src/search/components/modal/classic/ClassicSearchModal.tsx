@@ -1,4 +1,5 @@
 /** @jsxImportSource solid-js */
+import { NoExactMatches, is_similar_products_fallback } from "../../NoExactMatches";
 import { Accessor, createMemo, createSignal, JSX, onCleanup, Resource, Show, Signal, untrack } from "solid-js";
 import { catchify, ContainedImage, make_random_classname } from "@depict-ai/utilishared";
 import { InstantResults } from "../../InstantResults";
@@ -107,6 +108,7 @@ function RawClassicSearchModal({
   // Search field alignment unused in ClassicSearchModal since the search field spans the whole modal
   const { body_: bodyAlignmentSignal = createSignal({}) } = alignmentSignals_ || {};
   const [bodyAlignmentStyle] = bodyAlignmentSignal;
+  const [get_instant_query_, set_instant_query_] = createSignal("");
   const [get_modal_search_results, set_modal_search_results_] = createSignal<
     undefined | Resource<(SearchResponseAfterDisplayTransformer & { failed?: true | undefined }) | undefined>
   >();
@@ -241,6 +243,14 @@ function RawClassicSearchModal({
           </SentryErrorBoundary>
           <SentryErrorBoundary severity_="error" message_="Instant results failed">
             <ListingProvider>
+              <NoExactMatches
+                get_search_query_={get_instant_query_}
+                i18n_={i18n_}
+                is_fallback_={() => {
+                  const results = get_modal_search_results();
+                  return !!results && !results.loading && is_similar_products_fallback(results());
+                }}
+              />
               {InstantResults({
                 search_field_value_,
                 depict_api_,
@@ -249,6 +259,7 @@ function RawClassicSearchModal({
                 market_,
                 router_,
                 set_modal_search_results_,
+                set_instant_query_,
                 InstantCardImageComponent_: props =>
                   createMemo(() =>
                     ContainedImage({

@@ -67,6 +67,11 @@ export type Names1 = string[] | null;
 
 export interface SearchResponse {
   /**
+   * True when no product matched the query and the displays are similar products.
+   * Null or absent when the engine did not report it.
+   */
+  is_fallback?: boolean | null;
+  /**
    * Total number of results for this query. Not necessarily exact.
    */
   n_hits: number;
