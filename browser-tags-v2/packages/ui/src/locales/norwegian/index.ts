@@ -88,4 +88,5 @@ export const norwegian_search_translation: search_i18n = {
       : [`Fant `, number_of_results_element, ` ${page_form}`];
   },
   modal_view_all_no_results_: "Vis alternativer",
+  get_no_exact_matches_: (query: HTMLElement) => ["Ingen eksakte treff for ", query, ". Viser lignende produkter."],
 } as const;

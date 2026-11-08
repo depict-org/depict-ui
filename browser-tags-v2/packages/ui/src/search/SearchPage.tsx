@@ -1,4 +1,5 @@
 /** @jsxImportSource solid-js */
+import { NoExactMatches, is_similar_products_fallback } from "./components/NoExactMatches";
 import {
   Accessor,
   createComputed,
@@ -452,6 +453,11 @@ export function SearchPage<T extends Display>({
           </Show>
         </SentryErrorBoundary>
         {results_filters[0]()}
+        <NoExactMatches
+          get_search_query_={get_search_query_}
+          i18n_={i18n_}
+          is_fallback_={() => !search_results_.loading && is_similar_products_fallback(search_results_())}
+        />
         <Show when={selected_filters_[0]()?.length} keyed={false}>
           <SentryErrorBoundary message_="Selected filters failed" severity_="error">
             {SelectedFilters({

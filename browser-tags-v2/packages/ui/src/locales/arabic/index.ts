@@ -95,5 +95,5 @@ export const arabic_search_translation: search_i18n = {
       : [`تم العثور على `, number_of_results_element, ` ${page_form}`];
   },
   modal_view_all_no_results_: "عرض البدائل",
+  get_no_exact_matches_: (query: HTMLElement) => ["لا توجد نتائج مطابقة تمامًا لـ ", query, ". نعرض منتجات مشابهة."],
 } as const;
-

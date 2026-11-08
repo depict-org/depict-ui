@@ -37,6 +37,7 @@ export function InstantResults<InputDisplay extends Display, OutputDisplay exten
   i18n_,
   router_,
   set_modal_search_results_,
+  set_instant_query_,
   InstantCardImageComponent_,
   itemIndex_,
   selected_index_,
@@ -55,6 +56,8 @@ export function InstantResults<InputDisplay extends Display, OutputDisplay exten
   set_modal_search_results_: Setter<
     undefined | Resource<(SearchResponseAfterDisplayTransformer & { failed?: true | undefined }) | undefined>
   >;
+  // Receives the query that the instant results are for. The field value can be ahead of it while the input is debounced.
+  set_instant_query_?: Setter<string>;
 } & (
   | {
       itemIndex_?: never;
@@ -107,6 +110,9 @@ export function InstantResults<InputDisplay extends Display, OutputDisplay exten
   // Maybe we should move this createResource out of this component, on the other hand it bloats the parent component and if it fails it takes more than needed with it, so I think writing the content results from here is better
   // This is for the press-enter-to-instant-content-result feature which gets called from Autocomplete.tsx/TextSuggestions.tsx
   set_modal_search_results_(() => search_results);
+  if (set_instant_query_) {
+    createComputed(() => set_instant_query_(read_current_instant_query()));
+  }
   onCleanup(() => set_modal_search_results_(undefined)); // for consistency, in case this component crashes
 
   if (itemIndex_) {

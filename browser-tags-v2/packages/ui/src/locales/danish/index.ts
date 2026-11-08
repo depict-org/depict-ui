@@ -88,4 +88,5 @@ export const danish_search_translation: search_i18n = {
       : [`Fandt `, number_of_results_element, ` ${page_form}`];
   },
   modal_view_all_no_results_: "Se alternativer",
+  get_no_exact_matches_: (query: HTMLElement) => ["Ingen præcise match for ", query, ". Viser lignende produkter."],
 } as const;
