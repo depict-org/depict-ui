@@ -5,6 +5,8 @@ import { ContentBlock, ContentBlocksByRow } from "../../shared/components/PLPRes
 import { PseudoRouter } from "../../shared/helper_functions/pseudo_router";
 import { GetListingResponseAfterDisplayTransformer } from "../types";
 import { ImageResizer } from "../../shared/components/ModernResponsiveContainedImage";
+import { media_query_to_accessor } from "../../shared/helper_functions/media_query_to_accessor";
+import { isContentBlockShownOnDevice, PHONE_MEDIA_QUERY } from "./contentBlockVisibility";
 
 export type ContentBlockHistoryState = { blocks: BackendContentBlock[]; aspectRatios: Record<string, number> };
 
@@ -27,6 +29,7 @@ export function useBackendContentBlocks(
   let hasSeenContentBlock = false;
   const [historyContentBlocks, setHistoryContentBlocks] = history_content_blocks_;
   const contentComponents = new Map<string, () => JSX.Element>();
+  const isPhone = media_query_to_accessor(PHONE_MEDIA_QUERY);
 
   const delayedServerBlocks = createMemo<BackendContentBlock[] | undefined>(prev => {
     // Do not update the server blocks while the products request is loading, to avoid this: https://depictaiworkspace.slack.com/archives/C01JB6E7K7G/p1750861454651319
@@ -52,8 +55,11 @@ export function useBackendContentBlocks(
     if (!blocksFromHistory?.length && !hasSeenContentBlock) return developerProvided;
     const content: (ContentBlock | undefined)[] = [...(developerProvided || [])];
     hasSeenContentBlock = true;
+    const phone = isPhone();
 
     blocksFromHistory.forEach(row => {
+      // Leave a block hidden on this device out before placement, so products fill its cells instead of a gap.
+      if (!isContentBlockShownOnDevice(row.visibility, phone)) return;
       const {
         content: { link, type, url, text, text_position, cta },
       } = row;

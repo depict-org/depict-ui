@@ -100,6 +100,7 @@ export interface ProductListing {
 }
 export interface ContentBlock {
   aspect_ratio?: 1.5;
+  visibility?: "desktop" | "mobile";
   span_columns: number;
   span_rows: number;
   position: ContentPosition;
