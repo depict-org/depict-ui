@@ -43,7 +43,7 @@ import { mergeProps } from "solid-js";
 const v3_base_url = base_url + "/v3/";
 const search_base_url = v3_base_url + "search/";
 
-type DepictAPIConstructorOptions<InputDisplay extends Display, OutputDisplay extends ModernDisplay | never> = {
+export type DepictAPIConstructorOptions<InputDisplay extends Display, OutputDisplay extends ModernDisplay | never> = {
   get_metadata?: () => Promise<{ [k: string]: string } | undefined>;
   get_session_id?: () => string | undefined;
 } & SomethingTakingADisplayTransformers<InputDisplay, OutputDisplay>;
@@ -53,6 +53,39 @@ export interface GetListingOptions extends Omit<GetListingRequest, "listing_id">
   id_to_query_for_: string;
   id_type_: typeof IdTypes.LISTING_ID | typeof IdTypes.EXTERNAL_ID;
 }
+
+/**
+ * One read DepictAPI makes, as the transport sees it. `request_` is the v3 request as DepictAPI would send it (with
+ * session_id and metadata added), `body_` its JSON. A transport answers with the v3-shaped JSON response, or undefined
+ * when the request failed (DepictAPI then serves its fallback response).
+ */
+export type DepictAPIRawCall =
+  | {
+      kind_: "search" | "related";
+      endpoint_: string;
+      method_: "POST" | "GET";
+      request_: SearchRequestV3 & { session_id?: string; metadata?: unknown };
+      body_: string;
+    }
+  | {
+      kind_: "listing" | "listing_products";
+      endpoint_: string;
+      method_: "POST" | "GET";
+      request_: (Omit<GetListingOptions, "id_type_" | "id_to_query_for_"> | ProductListingRequestV3) & {
+        session_id?: string;
+        metadata?: unknown;
+      };
+      body_: string;
+      id_to_query_for_: string;
+      id_type_: typeof IdTypes.LISTING_ID | typeof IdTypes.EXTERNAL_ID;
+    }
+  | {
+      kind_: "suggest";
+      endpoint_: string;
+      method_: "GET";
+      request_: SearchSuggestionsRequestV3 & { session_id?: string; metadata?: string };
+      body_?: never;
+    };
 
 /**
  * Class that handles all communication done in PLP code with the Depict API. (Notably not for recommendations currently).
@@ -256,12 +289,18 @@ export class DepictAPI<
     fallback_response_,
     method_ = "POST",
     currentListingForTransformer_,
+    kind_,
+    id_to_query_for_,
+    id_type_,
   }: {
     endpoint_: string;
     input_req_: I;
     fallback_response_: (request: I) => O;
     method_?: "POST" | "GET";
     currentListingForTransformer_?: Promise<ProductListing>;
+    kind_: DepictAPIRawCall["kind_"];
+    id_to_query_for_?: string;
+    id_type_?: typeof IdTypes.LISTING_ID | typeof IdTypes.EXTERNAL_ID;
   }) {
     const cache_obj = this.#get_cache_obj_for_endpoint<O>(endpoint_);
     const with_ids = this.#add_ids_to_request(input_req_);
@@ -283,21 +322,21 @@ export class DepictAPI<
     let resolve_in_progress: (value: O | PromiseLike<O>) => void;
     cache_obj.in_progress_[body] = new Promise<O>(r => (resolve_in_progress = r));
     try {
-      const is_post = method_ === "POST";
-      const url_to_request = is_post ? endpoint_ : make_url_with_query_params(endpoint_, sorted_request);
-      const api_response: false | Response = await fetch_retry(add_version_query_params(url_to_request), {
-        method: method_,
-        ...(is_post ? { body } : {}),
-      });
-
       return_successfully: {
-        if (!api_response || api_response.status !== 200) {
-          break return_successfully;
-        }
-
         let result: O;
         try {
-          const unmodified_result = await api_response.json();
+          const unmodified_result = await this.request_raw_({
+            kind_,
+            endpoint_,
+            method_,
+            request_: sorted_request,
+            body_: body,
+            id_to_query_for_,
+            id_type_,
+          } as DepictAPIRawCall);
+          if (unmodified_result === undefined) {
+            break return_successfully;
+          }
           result = (await this.#run_display_transformers_for_rest(
             input_req_.merchant,
             input_req_.market,
@@ -343,6 +382,26 @@ export class DepictAPI<
     }
   }
 
+  /**
+   * The network step of every read: sends `call` to the v3 API and returns the decoded JSON, or undefined when the
+   * request failed. NativeDepictAPI overrides this to read the native V4 API instead and map its answers to v3 shapes,
+   * so caching, display transformers and fallbacks stay the same for both.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  protected async request_raw_(call: DepictAPIRawCall): Promise<any> {
+    const { endpoint_, method_, request_, body_ } = call;
+    const is_post = method_ === "POST";
+    const url_to_request = is_post ? endpoint_ : make_url_with_query_params(endpoint_, request_);
+    const api_response: false | Response = await fetch_retry(add_version_query_params(url_to_request), {
+      method: method_,
+      ...(is_post ? { body: body_ } : {}),
+    });
+    if (!api_response || (call.kind_ !== "suggest" && api_response.status !== 200)) {
+      return undefined;
+    }
+    return await api_response.json();
+  }
+
   constructor(options: DepictAPIConstructorOptions<InputDisplay, OutputDisplay>) {
     const { get_metadata, get_session_id, display_transformers } = options ?? {};
     this.#get_metadata = get_metadata;
@@ -357,13 +416,13 @@ export class DepictAPI<
     const metaData = await this.#get_metadata?.();
     const request = metaData ? Object.assign(with_ids, { metadata: JSON.stringify(metaData) }) : with_ids;
 
-    const url = make_url_with_query_params(search_base_url + "suggestions", request);
-    const results = await fetch_retry(add_version_query_params(url));
     attempt_to_return_api_response: {
-      if (!results) {
-        break attempt_to_return_api_response;
-      }
-      const decoded_json = (await results.json()) as SearchSuggestionsResponseV3;
+      const decoded_json = (await this.request_raw_({
+        kind_: "suggest",
+        endpoint_: search_base_url + "suggestions",
+        method_: "GET",
+        request_: request,
+      })) as SearchSuggestionsResponseV3 | undefined;
       if (!Array.isArray(decoded_json?.suggestions)) {
         break attempt_to_return_api_response;
       }
@@ -372,7 +431,7 @@ export class DepictAPI<
           input_req.merchant,
           input_req.market,
           input_req.locale,
-          decoded_json
+          decoded_json!
         );
       } catch (e) {
         dwarn("displayTransformer failed", e);
@@ -388,6 +447,7 @@ export class DepictAPI<
   async query(input_req: SearchRequestV3): Promise<SearchResponseAfterDisplayTransformer & { failed?: true }> {
     return await this.#cached_request<SearchRequestV3, SearchResponseAfterDisplayTransformer & { failed?: true }>({
       endpoint_: search_base_url + "results",
+      kind_: "search",
       input_req_: input_req,
       fallback_response_: () => ({
         "n_hits": 0,
@@ -415,6 +475,9 @@ export class DepictAPI<
         (id_type_ === IdTypes.EXTERNAL_ID ? "external_id/" : "") +
         encodeURIComponent(id_to_query_for_),
       input_req_: input_req,
+      kind_: "listing",
+      id_to_query_for_,
+      id_type_,
       fallback_response_: () => ({
         listing_id: "",
         listing_type: "category",
@@ -454,6 +517,9 @@ export class DepictAPI<
         "/products",
       input_req_,
       currentListingForTransformer_,
+      kind_: "listing_products",
+      id_to_query_for_,
+      id_type_,
       fallback_response_: () => ({
         "n_hits": 0,
         "displays": [],
@@ -468,6 +534,7 @@ export class DepictAPI<
   async get_recommended<T extends Display>(input_req: BaseSearchRequestV3) {
     return await this.#cached_request<BaseSearchRequestV3, { displays: T[] } & { failed?: true }>({
       endpoint_: search_base_url + "related",
+      kind_: "related",
       input_req_: input_req,
       fallback_response_: () => ({
         displays: [],

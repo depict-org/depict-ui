@@ -1,7 +1,7 @@
 import {
   BaseCategoryProviderConfig,
   BaseProviderConfig,
-  DepictAPI,
+  create_depict_api,
   DepictCategory,
   ListingQuery,
   ModernDisplayWithPageUrl,
@@ -70,10 +70,11 @@ export class DepictCategoryProvider<
       listingQuery,
       disableOverrideListingId,
       displayTransformers,
+      api: apiVersion,
       uniqueInstanceKeyForState = "",
     } = options;
 
-    const api = new DepictAPI({
+    const api = create_depict_api(apiVersion, {
       get_metadata: async () => metaData,
       get_session_id: () => sessionId,
       // @ts-ignore

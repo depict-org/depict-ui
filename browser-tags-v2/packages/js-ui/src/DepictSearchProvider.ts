@@ -1,7 +1,7 @@
 import {
   BaseProviderConfig,
   BaseSearchProviderConfig,
-  DepictAPI,
+  create_depict_api,
   DepictSearch,
   modalVersionSymbol,
   ModernDisplayWithPageUrl,
@@ -70,11 +70,12 @@ export class DepictSearchProvider<
       enableContentSearch,
       searchPagePath,
       displayTransformers,
+      api: apiVersion,
       searchModalComponent,
       imageResizer,
     } = options;
 
-    const api = new DepictAPI({
+    const api = create_depict_api(apiVersion, {
       get_metadata: async () => metaData,
       get_session_id: () => sessionId,
       // @ts-ignore

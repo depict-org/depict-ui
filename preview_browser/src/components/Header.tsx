@@ -28,6 +28,7 @@ import { HeadersModalElements } from "~/components/HeadersModalElements";
 import {
   ALLOWED_BASE_URL_HOSTS_DESCRIPTION,
   base_url_param_name,
+  depict_api_param_name,
   cart_param_name,
   collections_category_listing_id_param_name,
   headers_param_name,
@@ -35,6 +36,7 @@ import {
   product_id_source_param_name,
   recommendation_rows_param_name,
 } from "~/helpers/query_params";
+import { reads_native_api } from "~/helpers/depict_api_option";
 import { get_instant_current_url_as_object } from "~/helpers/get_instant_current_url_as_object";
 import { use_set_search_param } from "~/helpers/set_search_param";
 import { get_available_markets_or_locales } from "~/helpers/get_available_markets_or_locales";
@@ -138,6 +140,12 @@ export function Header() {
         onCleanup(() => ro.disconnect());
       }}
     >
+      <Show when={reads_native_api()}>
+        <div class="depict plp native_api_notice">
+          Search, listing pages and suggestions read the native V4 API ({depict_api_param_name}=v4); everything else
+          reads v3.
+        </div>
+      </Show>
       <Show when={get_rejected_base_url()}>
         <div class="depict plp base_url_rejected">
           Ignored the {base_url_param_name} override {get_rejected_base_url()} — only{" "}

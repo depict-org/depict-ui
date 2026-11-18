@@ -105,6 +105,8 @@ export { disable_scrolling } from "./search/helper_functions/disable_scrolling";
 export { open_search_with_shift_slash } from "./search/helper_functions/open_search_with_shift_slash";
 export type { WithRequired, SDKRenderingInfo, ProductCardTemplate } from "./shared/types";
 export { DepictAPI } from "./shared/DepictAPI";
+export { NativeDepictAPI, create_depict_api } from "./shared/native_v4/NativeDepictAPI";
+export type { DepictAPIVersion } from "./shared/native_v4/NativeDepictAPI";
 export { media_query_to_accessor } from "./shared/helper_functions/media_query_to_accessor";
 export { setup_fast_leave } from "./shared/helper_functions/setup_fast_leave";
 export { show_toast } from "./shared/helper_functions/show_toast";
