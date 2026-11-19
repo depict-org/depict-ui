@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from "@jest/globals";
+import { get_event_api, set_event_api } from "@depict-ai/utilishared";
 import { DepictAPI } from "../DepictAPI";
 import * as IdTypes from "../../category_listing/IdTypes";
 import { create_depict_api, NativeDepictAPI } from "./NativeDepictAPI";
@@ -61,6 +62,15 @@ describe("create_depict_api", () => {
     expect(create_depict_api("v3", {})).not.toBeInstanceOf(NativeDepictAPI);
     expect(create_depict_api("v4", {})).toBeInstanceOf(NativeDepictAPI);
     expect(create_depict_api("v4", {})).toBeInstanceOf(DepictAPI);
+  });
+
+  it("sends tracking events to V4 only once a native API exists", () => {
+    set_event_api("v3");
+    create_depict_api(undefined, {});
+    create_depict_api("v3", {});
+    expect(get_event_api()).toBe("v3");
+    create_depict_api("v4", {});
+    expect(get_event_api()).toBe("v4");
   });
 });
 

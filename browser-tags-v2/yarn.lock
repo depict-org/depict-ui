@@ -3681,8 +3681,11 @@ __metadata:
     "@depict-ai/types": "workspace:^"
     "@depict-ai/utilishared": "workspace:^"
     "@parcel/resolver-default": "npm:^2.10.3"
+    "@types/jest": "npm:^29.2.5"
     "@types/node": "npm:^18.11.10"
+    jest: "npm:^29.3.1"
     parcel: "npm:^2.10.3"
+    ts-jest: "npm:^29.0.3"
   languageName: unknown
   linkType: soft
 

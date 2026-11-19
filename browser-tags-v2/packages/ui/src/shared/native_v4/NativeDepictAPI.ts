@@ -1,4 +1,4 @@
-import { base_url, Display, dwarn, fetch_retry, ModernDisplay, report } from "@depict-ai/utilishared";
+import { base_url, Display, dwarn, fetch_retry, ModernDisplay, report, set_event_api } from "@depict-ai/utilishared";
 import { DepictAPI, DepictAPIConstructorOptions, DepictAPIRawCall } from "../DepictAPI";
 import { ModernDisplayWithPageUrl } from "../display_transformer_types";
 import * as IdTypes from "../../category_listing/IdTypes";
@@ -48,7 +48,11 @@ export type DepictAPIVersion = "v3" | "v4";
  * so the UI and merchant display transformers work unchanged (see cards.ts for the card mapping).
  *
  * Not native yet (phase 1): search-related recommendations (`get_recommended`) stay on v3, and so do everything
- * outside DepictAPI (recommendations, looks, shop the look, tracking events).
+ * outside DepictAPI (recommendations, looks, shop the look).
+ *
+ * Creating one also sends tracking events to the native `/v4/{merchant}/events` (`set_event_api("v4")`), for the
+ * Performance Client and anything else on this page that shares this `@depict-ai/utilishared`. Events V4 can't take
+ * as v3 did (a v3 recommendation's click, say) stay on `/create-events`.
  *
  * The native API is strict: it rejects unknown parameters and fields, and content requests carry no session or
  * metadata, so `get_metadata`/`get_session_id` only affect the cache key here.
@@ -67,6 +71,11 @@ export class NativeDepictAPI<
   #cursor_offsets = new Map<string, number>();
   /** Each listing's ancestors from the listing tree, per merchant, market and locale, read once a page load. */
   #ancestor_lookups = new Map<string, Promise<AncestorLookup | undefined>>();
+
+  constructor(options: DepictAPIConstructorOptions<InputDisplay, OutputDisplay>) {
+    super(options);
+    set_event_api("v4");
+  }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected async request_raw_(call: DepictAPIRawCall): Promise<any> {
