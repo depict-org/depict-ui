@@ -1,5 +1,4 @@
 /** @jsxImportSource solid-js */
-import { NoExactMatches, is_similar_products_fallback } from "../../NoExactMatches";
 import {
   Accessor,
   createEffect,
@@ -346,14 +345,6 @@ function RawSearchModalV2<InputDisplay extends Display, OutputDisplay extends Mo
         <ListingProvider>
           <div class="instant-results-wrapper" style={{ order: itemIndexes.instantResultsIndex_() }}>
             <h2>{i18n_.products_()}</h2>
-            <NoExactMatches
-              get_search_query_={get_instant_query_}
-              i18n_={i18n_}
-              is_fallback_={() => {
-                const results = get_modal_search_results_();
-                return !!results && !results.loading && is_similar_products_fallback(results());
-              }}
-            />
             {InstantResults<InputDisplay, OutputDisplay>({
               search_field_value_,
               depict_api_,
