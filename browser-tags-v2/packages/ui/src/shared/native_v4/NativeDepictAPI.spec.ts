@@ -3,6 +3,7 @@ import { DepictAPI } from "../DepictAPI";
 import * as IdTypes from "../../category_listing/IdTypes";
 import { create_depict_api, NativeDepictAPI } from "./NativeDepictAPI";
 import type { BrowseResponse, Facet, Product } from "./v4_types";
+import type { SearchFilter } from "@depict-ai/types/api/SearchRequestV3";
 
 const card = (id: string): Product => ({
   group_id: `g${id}`,
@@ -117,6 +118,63 @@ describe("NativeDepictAPI", () => {
       )}&include=facets&limit=1`
     );
     expect(real).toContain("&filter_by=var_color%3A%3D%5B%60Green%60%5D&");
+  });
+
+  describe("a filtered link opened in a new page load (a reload) sends what the page sent before it", () => {
+    // iciw, en-GB: the category tree is titled "Category", the brand facet "Collection", the colours "Colour". A
+    // title that is also a reserved field (category, price) names another facet's field than that one.
+    const facet = (field: string, type: Facet["type"], title: string, value: string): Facet =>
+      ({
+        field,
+        type,
+        title,
+        expanded: true,
+        values: [{ value, label: value, count: 3, selected: false }],
+      }) as Facet;
+    const facets: Facet[] = [
+      facet("product_scollection_category_hierarchy", "hierarchy", "Category", "Women # Tights & Leggings"),
+      facet("brand", "checkbox", "Collection", "Define Seamless Collection"),
+      facet("color_with_hex_list", "swatch", "Colour", "Black;0d0d0d"),
+      { field: "list_price", type: "range", title: "Price", expanded: true, min: 0, max: 900 } as Facet,
+      facet("size_name", "grid", "Size", "S"),
+    ];
+    it.each<[string, SearchFilter, string]>([
+      [
+        "category tree, a parent with its whole subtree",
+        { field: "category", op: "in", data: [["Women"], ["Women", "Tights & Leggings"]] },
+        "product_scollection_category_hierarchy:=[`Women`,`Women # Tights & Leggings`]",
+      ],
+      [
+        "checkbox on the brand field",
+        { field: "collection", op: "in", data: ["Define Seamless Collection"] },
+        "brand:=[`Define Seamless Collection`]",
+      ],
+      ["colour", { field: "colour", op: "in", data: ["Black;0d0d0d"] }, "color_with_hex_list:=[`Black;0d0d0d`]"],
+      ["range titled Price", { field: "price", op: "inrange", data: [100, 500] }, "list_price:[100..500]"],
+      ["grid", { field: "size", op: "in", data: ["S"] }, "size_name:=[`S`]"],
+    ])("%s", async (_kind, filter, expected) => {
+      fetch_mock.mockImplementation(async () => json(browse({ facets })));
+      const q = query();
+      await new NativeDepictAPI({}).query({ ...base, query: q, filters: [filter] });
+      const [learn, real] = requested();
+      expect(learn).toBe(
+        `https://api.depict.ai/v4/demo/browse?market=se&locale=sv-SE&query=${encodeURIComponent(
+          q
+        )}&include=facets&limit=1`
+      );
+      expect(new URL(real).searchParams.get("filter_by")).toBe(expected);
+    });
+  });
+
+  it("sends a toggle from a link without reading the facets first", async () => {
+    fetch_mock.mockResolvedValueOnce(json(browse()));
+    await new NativeDepictAPI({}).query({
+      ...base,
+      query: query(),
+      filters: [{ field: "in_stock", op: "eq", data: "true" }],
+    });
+    expect(requested()).toHaveLength(1);
+    expect(requested()[0]).toContain("&filter_by=in_stock%3A%3Dtrue&");
   });
 
   it("counts the products it has seen when V4 withholds the total", async () => {
