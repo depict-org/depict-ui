@@ -84,10 +84,7 @@ export interface search_i18n extends plp_shared_i18n {
   popular_: string;
   products_: string;
   modal_view_all_no_results_: string;
-  /**
-   * Shown above the results when no product matched the query and search shows similar products.
-   * Optional: a custom locale without it shows no notice.
-   */
+  /** @deprecated Retained for custom locale compatibility. The notice is no longer shown. */
   get_no_exact_matches_?: (query: HTMLElement) => Elem[];
 }
 

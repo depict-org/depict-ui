@@ -104,5 +104,4 @@ export const czech_search_translation: search_i18n = {
   popular_: "Populární",
   products_: "Produkty",
   modal_view_all_no_results_: "Zobrazit alternativy",
-  get_no_exact_matches_: (query: HTMLElement) => ["Žádné přesné shody pro ", query, ". Zobrazujeme podobné produkty."],
 } as const;
