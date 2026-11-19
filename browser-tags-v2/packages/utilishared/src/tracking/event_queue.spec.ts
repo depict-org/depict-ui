@@ -318,7 +318,7 @@ describe("api v4", () => {
   const SEARCH_ID = `d1.s.${HEX}.3.U0tVLTE`;
   const RECS_ID = `d1.r.${HEX}.0.U0tVLTE.bm9ybWFs`;
   const context = { tenant: "depictcentra", market: "se", session_id: "s1", url: "https://shop.example/" };
-  const V4_URL = /^https:\/\/api\.depict\.ai\/v4\/depictcentra\/events(\?|$)/;
+  const V4_URL = /^https:\/\/api\.depict\.ai\/v4\/depictcentra\/events$/;
   const lines = (request = 0) =>
     (fetch_mock.mock.calls[request][1].body as string).split("\n").map(line => JSON.parse(line));
 
@@ -381,7 +381,7 @@ describe("api v4", () => {
     const urls = fetch_mock.mock.calls.map(([url]) => url);
     expect(urls[0]).toMatch(/\/create-events(\?|$)/);
     expect(urls[1]).toMatch(V4_URL);
-    expect(urls[2]).toMatch(/\/v4\/other\/events(\?|$)/);
+    expect(urls[2]).toBe("https://api.depict.ai/v4/other/events");
     expect(events(0).map((event: { type: string }) => event.type)).toEqual([
       "element_visible",
       "recommendations_inserted",

@@ -115,8 +115,8 @@ const flush = /*@__PURE__*/ catchify(() => {
 });
 
 const v3_url = () => String(add_version_query_params(base_url + "/create-events"));
-const v4_url = (merchant: string) =>
-  String(add_version_query_params(`${base_url}/v4/${encodeURIComponent(merchant)}/events`));
+/** No version params: like the native reads, V4 gets only what its contract defines. */
+const v4_url = (merchant: string) => `${base_url}/v4/${encodeURIComponent(merchant)}/events`;
 
 function listen() {
   if (listening) return;
