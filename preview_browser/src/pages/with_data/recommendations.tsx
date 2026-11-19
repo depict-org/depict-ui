@@ -57,6 +57,7 @@ import { useTopLevelContext } from "~/helpers/useTopLevelContext";
 import { cols_at_size } from "~/helpers/global_values";
 import { Dynamic } from "solid-js/web";
 import { display_transformers } from "~/helpers/url_creator_transformer";
+import { depict_api_option, reads_native_api } from "~/helpers/depict_api_option";
 import { useGap } from "~/helpers/GapProvider";
 
 type RecommendationRow = {
@@ -410,7 +411,9 @@ function RecsComponent({
         market: get_market(),
         locale: get_locale(),
         type: row().type!,
-        headers: { "X-Debug": "true" },
+        // The native V4 API takes no custom headers (a CORS preflight it doesn't allow), so X-Debug is v3 only.
+        ...(reads_native_api() ? {} : { headers: { "X-Debug": "true" } }),
+        ...depict_api_option(),
         ...id_opts,
       });
 
@@ -447,6 +450,7 @@ type BackendTypeKind = "user_only" | "product" | "category" | "multi_product";
 type BackendTypeRes = { name: string; kind: BackendTypeKind }[];
 export function fetch_tenant_types() {
   const [resource] = createResource(get_merchant, async merchant => {
+    if (reads_native_api()) return await fetch_native_tenant_types(merchant);
     const response = (await fetch_retry(`${get_base_url()}/v2/recommend/surfaces?tenant=` + merchant).then(res =>
       !res ? res : res?.json()
     )) as BackendTypeRes | false;
@@ -463,6 +467,23 @@ export function fetch_tenant_types() {
       .flat();
   });
   return resource;
+}
+
+type ContextResponse = { recommendation_types?: { type: string; inputs: string[] }[] };
+
+/**
+ * The recommendation types the merchant's native V4 API serves (`/context`), as the kinds the v3 surfaces list uses:
+ * a type reading an anchor takes a product id (or a category id), one reading a cart a list of ids, and one reading
+ * no anchor takes none (its recently viewed products come from the browser).
+ */
+async function fetch_native_tenant_types(merchant: string): Promise<BackendTypeRes | false> {
+  const response = await fetch_retry(`${get_base_url()}/v4/${encodeURIComponent(merchant)}/context`);
+  if (!response || response.status !== 200) return false;
+  const { recommendation_types = [] } = (await response.json()) as ContextResponse;
+  return recommendation_types.flatMap(({ type, inputs }) => [
+    { name: type, kind: inputs.includes("anchor") ? ("product" as const) : ("user_only" as const) },
+    ...(inputs.includes("cart") ? [{ name: type, kind: "multi_product" as const }] : []),
+  ]);
 }
 
 /**

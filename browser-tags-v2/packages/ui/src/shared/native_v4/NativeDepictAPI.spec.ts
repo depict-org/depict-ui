@@ -225,10 +225,5 @@ describe("NativeDepictAPI", () => {
     ]);
   });
 
-  it("keeps search-related recommendations on v3", async () => {
-    fetch_mock.mockResolvedValueOnce(json({ displays: [] }));
-    await new NativeDepictAPI({}).get_recommended({ ...base, query: query() } as never);
-    expect(requested()[0]).toMatch(/^https:\/\/api\.depict\.ai\/v3\/search\/related\?/);
-    expect(fetch_mock.mock.calls[0][1]?.method).toBe("POST");
-  });
+  // get_recommended (search-related recommendations) reads native V4 too: fetch_native_recommendations.spec.ts.
 });

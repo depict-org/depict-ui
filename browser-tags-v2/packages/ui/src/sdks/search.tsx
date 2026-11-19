@@ -84,7 +84,9 @@ type ConstructorOptionsWithoutAPI<
 > = GeneralConstructorOptions<InputDisplay, OutputDisplay> & {
   /**
    * Which Depict API to read: `"v3"` (the default) or `"v4"`, the native V4 API (`https://api.depict.ai/v4/{merchant}`).
-   * V4 serves search, listing pages and search suggestions; everything else stays on v3. Opt-in while V4 is rolled out.
+   * V4 serves search, listing pages, search suggestions and the search page's related products; looks and shop the look
+   * stay on v3. Recommendations take their own `api` option (fetchDepictRecommendations; React's useFetchRecommendations
+   * follows its DepictProvider). Opt-in while V4 is rolled out.
    */
   api?: DepictAPIVersion;
 } & SomethingTakingADisplayTransformers<InputDisplay, OutputDisplay>;

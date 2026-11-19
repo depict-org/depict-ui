@@ -1,4 +1,4 @@
-import { fetchDepictRecommendations } from "@depict-ai/ui";
+import { fetchDepictRecommendations, NativeDepictAPI } from "@depict-ai/ui";
 import { ModernDisplay } from "@depict-ai/utilishared";
 import { globalState } from "../../../global_state";
 import { FetchRecsOptions, UseFetchRecommendationsReturn } from "./useFetchRecommendations.types";
@@ -81,6 +81,8 @@ async function fetchRecommendations<T extends ModernDisplay>(opts: FetchRecsOpti
     market,
     locale,
     sessionId: untrack(get_sessionId),
+    // A DepictProvider with `api="v4"` reads recommendations from the native V4 API too.
+    ...(globalState.api instanceof NativeDepictAPI ? { api: "v4" as const } : {}),
     ...opts,
   });
 
