@@ -36,8 +36,12 @@ const V4_SORT: Record<string, string> = Object.fromEntries(Object.entries(V3_SOR
 
 /** V4's public filter field syntax (`FilterField` in the contract). */
 const PUBLIC_FIELD = /^[A-Za-z0-9_-]+(\.[A-Za-z0-9_-]+)*$/;
-/** Fields every tenant can filter on (`ReservedFilterField`). */
-const RESERVED_FIELDS = new Set(["price", "in_stock", "brand", "category"]);
+/**
+ * Fields that are never a lowercased group title: v3's toggles carry no group title, and `sale_price` is v3's own
+ * name for V4's price. A reserved V4 field (`price`, `brand`, `category`) is not among them: iciw's category tree is
+ * titled "Category", so `category` from a link may name `product_scollection_category_hierarchy`.
+ */
+const NEVER_A_TITLE = new Set(["in_stock", "on_sale", "sale_price"]);
 /** fi's enriched colour fields: their values are names, never a `<name>;#<hex>` composite. */
 const FI_COLOUR_FIELDS = new Set(["colors", "color_details"]);
 /** The colour template's field, which indexes the composite itself. */
@@ -94,11 +98,13 @@ export class FacetIndex {
   }
 }
 
-/** Whether V4 can take `field` as it is: a served facet's field or title, a reserved field, or a v3 alias of one. */
+/**
+ * Whether `field` resolves without reading the facets: a served facet's field or title, or a field that can't be a
+ * group title. Any other field may be a title, a reserved field's name included, so a link's filters read the facets
+ * once before they are sent.
+ */
 export function is_resolvable_field(field: string, index: FacetIndex): boolean {
-  if (index.get_(field)) return true;
-  const bare = field.replace(/#$/, "");
-  return RESERVED_FIELDS.has(V4_FIELD[bare] ?? bare);
+  return !!index.get_(field) || NEVER_A_TITLE.has(field.replace(/#$/, ""));
 }
 
 function is_empty(data: unknown): boolean {
