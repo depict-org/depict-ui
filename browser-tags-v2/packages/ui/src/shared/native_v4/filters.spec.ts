@@ -138,7 +138,7 @@ describe("v3_filters_to_filter_by", () => {
 });
 
 describe("is_resolvable_field", () => {
-  it("knows served facets by field and title, and the reserved fields", () => {
+  it("knows served facets by field and title, and the fields that are never a title", () => {
     const index = new FacetIndex();
     index.learn_([values("var_color", "swatch", "Färg", ["Green"])]);
     expect(is_resolvable_field("färg", index)).toBe(true);
@@ -146,6 +146,24 @@ describe("is_resolvable_field", () => {
     expect(is_resolvable_field("sale_price", index)).toBe(true);
     expect(is_resolvable_field("in_stock", index)).toBe(true);
     expect(is_resolvable_field("storlek", index)).toBe(false);
+  });
+
+  it("doesn't take a reserved name for its field before the facets are read: it may be a group title", () => {
+    // A filtered link opened in a new page load: iciw's category tree is titled "Category", price "Price".
+    const empty = new FacetIndex();
+    for (const title of ["category", "brand", "price"]) expect(is_resolvable_field(title, empty)).toBe(false);
+    // A toggle carries no group title and sale_price is v3's own name, so neither can be a title.
+    for (const field of ["in_stock", "on_sale", "sale_price"]) expect(is_resolvable_field(field, empty)).toBe(true);
+
+    const learned = new FacetIndex();
+    learned.learn_([values("product_scollection_category_hierarchy", "hierarchy", "Category", ["Women"])]);
+    expect(is_resolvable_field("category", learned)).toBe(true);
+    expect(
+      v3_filters_to_filter_by(
+        [{ field: "category", op: "in", data: [["Women"], ["Women", "Tights & Leggings"]] }],
+        learned
+      )
+    ).toBe("product_scollection_category_hierarchy:=[`Women`,`Women # Tights & Leggings`]");
   });
 });
 
