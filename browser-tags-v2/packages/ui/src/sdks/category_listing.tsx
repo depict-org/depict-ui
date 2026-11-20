@@ -4,6 +4,7 @@ import { Display, ModernDisplay } from "@depict-ai/utilishared";
 import { make_resettable_history_state } from "../shared/helper_functions/make_resettable_history_state";
 import { category_i18n, solid_category_i18n } from "../locales/i18n_types";
 import { DepictAPI } from "../shared/DepictAPI";
+import { create_depict_api, DepictAPIVersion } from "../shared/native_v4/NativeDepictAPI";
 import { SearchFilter, SortModel } from "@depict-ai/types/api/ProductListingResponseV3";
 import { preserve_items_in_history_dot_state } from "../shared/helper_functions/preserve_items_in_history_dot_state";
 import { FilterWithData, ScrollRestorationData } from "../shared/types";
@@ -37,7 +38,12 @@ type CategoryConstructorOptionsWithoutApi<
   InputDisplay extends Display,
   OutputDisplay extends ModernDisplay | never,
 > = GeneralCategoryListingOptions & {
-  api?: never;
+  /**
+   * Which Depict API to read: `"v3"` (the default) or `"v4"`, the native V4 API (`https://api.depict.ai/v4/{merchant}`).
+   * V4 serves search, listing pages and search suggestions; anything not named here stays on v3.
+   * Opt-in while V4 is rolled out.
+   */
+  api?: DepictAPIVersion;
 } & SomethingTakingADisplayTransformers<InputDisplay, OutputDisplay>;
 
 type DepictCategoryConstructorOptions<InputDisplay extends Display, OutputDisplay extends ModernDisplay> =
@@ -196,8 +202,11 @@ export class DepictCategory<
         quicklinks_signal_: createSignal(),
         i18n_,
         reset_history_state_,
-        // @ts-ignore
-        depict_api_: api ?? new DepictAPI({ display_transformers }),
+        depict_api_:
+          typeof api === "object" && api
+            ? api
+            : // @ts-ignore
+              create_depict_api(api, { display_transformers }),
         router_: this.#router,
         selected_filters_,
         current_sorting_,

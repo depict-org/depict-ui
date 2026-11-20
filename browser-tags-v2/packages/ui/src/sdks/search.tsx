@@ -28,6 +28,7 @@ import { search_i18n, solid_search_i18n } from "../locales/i18n_types";
 import { SearchModalV2 } from "../search/components/modal/v2/SearchModalV2";
 import { SearchPage } from "../search/SearchPage";
 import { DepictAPI } from "../shared/DepictAPI";
+import { create_depict_api, DepictAPIVersion } from "../shared/native_v4/NativeDepictAPI";
 import {
   convert_sdk_cols_at_size_to_layout,
   SDKColsAtSize,
@@ -81,7 +82,12 @@ type ConstructorOptionsWithoutAPI<
   InputDisplay extends Display,
   OutputDisplay extends ModernDisplay | never,
 > = GeneralConstructorOptions<InputDisplay, OutputDisplay> & {
-  api?: never;
+  /**
+   * Which Depict API to read: `"v3"` (the default) or `"v4"`, the native V4 API (`https://api.depict.ai/v4/{merchant}`).
+   * V4 serves search, listing pages and search suggestions; anything not named here stays on v3.
+   * Opt-in while V4 is rolled out.
+   */
+  api?: DepictAPIVersion;
 } & SomethingTakingADisplayTransformers<InputDisplay, OutputDisplay>;
 
 type ConstructorOptions<InputDisplay extends Display, OutputDisplay extends ModernDisplay> =
@@ -234,8 +240,11 @@ export class DepictSearch<
           return raw_search_query_accessor();
         }
       });
-      // @ts-ignore
-      const depict_api_ = api ?? new DepictAPI({ display_transformers });
+      const depict_api_ =
+        typeof api === "object" && api
+          ? api
+          : // @ts-ignore
+            create_depict_api(api, { display_transformers });
 
       const previous_searches = make_previous_searches_signal(get_search_query_);
       const [, set_search_showing_recommendation_rows] = state_.showing_recommendation_rows;

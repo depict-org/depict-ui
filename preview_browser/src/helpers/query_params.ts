@@ -29,6 +29,18 @@ export const base_url_param_name = "BASE_URL";
 export const headers_param_name = "headers";
 
 /**
+ * Which Depict API the SDK reads: `?depict_api=v4` reads the native V4 API (https://api.depict.ai/v4/{merchant}) for
+ * search, listing pages and search suggestions. Anything else, or nothing, is the default v3 API. Read once when the
+ * page loads, since the SDK picks its API when it's constructed.
+ */
+export const depict_api_param_name = "depict_api";
+
+/** The API `?depict_api=` asks for: only the exact value `v4` selects the native API. */
+export function depict_api_version(value: string | null | undefined): "v3" | "v4" {
+  return value === "v4" ? "v4" : "v3";
+}
+
+/**
  * Hosts the BASE_URL override (see {@link base_url_param_name}) is allowed to point at.
  *
  * An entry starting with a dot is a domain suffix: it matches that domain and any subdomain of it.
