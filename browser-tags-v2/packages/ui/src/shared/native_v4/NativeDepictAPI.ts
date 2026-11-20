@@ -1,6 +1,7 @@
-import { base_url, Display, dwarn, fetch_retry, ModernDisplay, report, set_event_api } from "@depict-ai/utilishared";
+import { base_url, Display, dwarn, fetch_retry, ModernDisplay, report } from "@depict-ai/utilishared";
 import { DepictAPI, DepictAPIConstructorOptions, DepictAPIRawCall } from "../DepictAPI";
 import { ModernDisplayWithPageUrl } from "../display_transformer_types";
+import { set_event_api } from "@depict-ai/utilishared";
 import * as IdTypes from "../../category_listing/IdTypes";
 import type {
   BrowseInclude,
@@ -47,8 +48,9 @@ export type DepictAPIVersion = "v3" | "v4";
  * `/v4/{merchant}/browse`, `/listings` and `/suggest`, and every answer is mapped to the v3 shape DepictAPI returns,
  * so the UI and merchant display transformers work unchanged (see cards.ts for the card mapping).
  *
- * Not native yet (phase 1): search-related recommendations (`get_recommended`) stay on v3, and so do everything
- * outside DepictAPI (recommendations, looks, shop the look).
+ * Not native yet, and on v3 instead:
+ * - recommendations, the search page's related products (`get_recommended`) among them
+ * - looks and shop the look (V4 has no endpoint for them)
  *
  * Creating one also sends tracking events to the native `/v4/{merchant}/events` (`set_event_api("v4")`), for the
  * Performance Client and anything else on this page that shares this `@depict-ai/utilishared`. Events V4 can't take

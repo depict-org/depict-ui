@@ -84,8 +84,9 @@ type ConstructorOptionsWithoutAPI<
 > = GeneralConstructorOptions<InputDisplay, OutputDisplay> & {
   /**
    * Which Depict API to read: `"v3"` (the default) or `"v4"`, the native V4 API (`https://api.depict.ai/v4/{merchant}`).
-   * V4 serves search, listing pages and search suggestions, and receives the tracking events it can carry (see the
-   * Performance Client's `api` option); everything else stays on v3. Opt-in while V4 is rolled out.
+   * V4 serves search, listing pages and search suggestions; anything not named here stays on v3.
+   * Opt-in while V4 is rolled out.
+   * With `"v4"`, the tracking events V4 can carry go to it too (see the Performance Client's `api` option).
    */
   api?: DepictAPIVersion;
 } & SomethingTakingADisplayTransformers<InputDisplay, OutputDisplay>;
