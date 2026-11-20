@@ -47,8 +47,10 @@ export type DepictAPIVersion = "v3" | "v4";
  * `/v4/{merchant}/browse`, `/listings` and `/suggest`, and every answer is mapped to the v3 shape DepictAPI returns,
  * so the UI and merchant display transformers work unchanged (see cards.ts for the card mapping).
  *
- * Not native yet (phase 1): search-related recommendations (`get_recommended`) stay on v3, and so do everything
- * outside DepictAPI (recommendations, looks, shop the look, tracking events).
+ * Not native yet, and on v3 instead:
+ * - recommendations, the search page's related products (`get_recommended`) among them
+ * - looks and shop the look (V4 has no endpoint for them)
+ * - tracking events
  *
  * The native API is strict: it rejects unknown parameters and fields, and content requests carry no session or
  * metadata, so `get_metadata`/`get_session_id` only affect the cache key here.
