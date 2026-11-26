@@ -57,6 +57,7 @@ import { useTopLevelContext } from "~/helpers/useTopLevelContext";
 import { cols_at_size } from "~/helpers/global_values";
 import { Dynamic } from "solid-js/web";
 import { display_transformers } from "~/helpers/url_creator_transformer";
+import { reads_native_api } from "~/helpers/depict_api_option";
 import { useGap } from "~/helpers/GapProvider";
 
 type RecommendationRow = {
@@ -345,7 +346,8 @@ export function CurrentProductAndProductIDSourceConfig({
                   })()}
                 </Suspense>
               </div>
-              <Show when={show_hackathon_shop_the_look}>
+              {/* Looks and shop the look stay on v3, out of scope for the native V4 API: not asked for at all there. */}
+              <Show when={show_hackathon_shop_the_look && !reads_native_api()}>
                 <ShopTheLookButton
                   buttonAttributes={{ class: "minor", style: { "align-self": "baseline" } }}
                   onNavigation={onNavigation}
