@@ -12,10 +12,12 @@ import type {
 } from "./v4_types";
 import {
   FacetIndex,
+  FilterClause,
   is_resolvable_field,
   NativeFilterError,
+  rejected_clauses,
   V3RequestFilter,
-  v3_filters_to_filter_by,
+  v3_filter_to_clause,
   v3_sort_to_native,
 } from "./filters";
 import {
@@ -28,7 +30,7 @@ import {
   native_suggest_to_v3,
   to_bcp47,
 } from "./responses";
-import { native_get_json, native_merchant_url } from "./http";
+import { native_get_answer, native_merchant_url } from "./http";
 import { fetch_native_related } from "./fetch_native_recommendations";
 /** V4 browse's largest page; a bigger v3 page is V4's pages chained by their cursors, as the facade does. */
 const BROWSE_MAX_LIMIT = 100;
@@ -67,6 +69,8 @@ export class NativeDepictAPI<
   #cursor_offsets = new Map<string, number>();
   /** Each listing's ancestors from the listing tree, per merchant, market and locale, read once a page load. */
   #ancestor_lookups = new Map<string, Promise<AncestorLookup | undefined>>();
+  /** Filter clauses V4 refused (`unknown_filter_field`, `invalid_filter`), per merchant, market and locale. */
+  #rejected = new Map<string, Set<string>>();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected async request_raw_(call: DepictAPIRawCall): Promise<any> {
@@ -98,7 +102,12 @@ export class NativeDepictAPI<
   }
 
   async #get_json<T>(url: string): Promise<T | undefined> {
-    return await native_get_json<T>(url);
+    return (await this.#get_answer<T>(url)).body_;
+  }
+
+  /** A GET's body on a 200, else V4's error (when it sent one). */
+  async #get_answer<T>(url: string) {
+    return await native_get_answer<T>(url);
   }
 
   #facet_index(merchant: string, market: string, locale: string | undefined) {
@@ -109,9 +118,21 @@ export class NativeDepictAPI<
   }
 
   async #browse_page(merchant: string, request: BrowseRequest) {
-    return await this.#get_json<BrowseResponse>(
+    return (await this.#browse_answer(merchant, request)).body_;
+  }
+
+  async #browse_answer(merchant: string, request: BrowseRequest) {
+    return await this.#get_answer<BrowseResponse>(
       this.#merchant_url(merchant, "/browse") + "?" + browse_query_string(request)
     );
+  }
+
+  /** The filter clauses V4 refused, per merchant, market and locale, for this page load. */
+  #rejected_clauses(merchant: string, market: string, locale: string | undefined) {
+    const key = JSON.stringify([merchant, market, locale]);
+    let rejected = this.#rejected.get(key);
+    if (!rejected) this.#rejected.set(key, (rejected = new Set()));
+    return rejected;
   }
 
   async #browse(door: "search" | "listing", v3_request: V3BrowseRequest, listing?: BrowseRequest["listing"]) {
@@ -141,31 +162,52 @@ export class NativeDepictAPI<
       index.learn_((await this.#browse_page(merchant, { ...base, include: ["facets"], limit: 1 }))?.facets);
     }
 
-    let filter_by: string | undefined;
-    try {
-      filter_by = v3_filters_to_filter_by(filters, index);
-    } catch (e) {
-      if (!(e instanceof NativeFilterError)) throw e;
-      dwarn("[NativeDepictAPI] can't send filters", filters, e);
-      return undefined;
+    // A filter V4 can't take must not cost the shopper the page: a link can outlive its filter (one removed from the
+    // store, a hand-written value). One the adapter can't write is left out here; one V4 rejects is left out and the
+    // page asked again, and remembered for this page load so later pages don't ask with it.
+    const rejected = this.#rejected_clauses(merchant, market, locale);
+    let clauses: FilterClause[] = [];
+    for (const filter of filters) {
+      try {
+        const clause = v3_filter_to_clause(filter, index);
+        if (clause) clauses.push(clause);
+      } catch (e) {
+        if (!(e instanceof NativeFilterError)) throw e;
+        dwarn("[NativeDepictAPI] leaving out a filter V4 can't take:", e.message, filter);
+      }
     }
+    clauses = clauses.filter(clause => !rejected.has(clause.clause_));
     const sort = v3_sort_to_native(v3_request.sort);
     const include: BrowseInclude[] =
       door === "search" ? ["facets", "sorts", "content", "attributes"] : ["facets", "sorts", "attributes"];
     const want = v3_request.limit ?? DEFAULT_LIMIT;
     const offset = (v3_request.cursor && this.#cursor_offsets.get(v3_request.cursor)) || 0;
-    const request: BrowseRequest = {
+    const request_with = (sent: readonly FilterClause[]): BrowseRequest => ({
       ...base,
-      ...(filter_by ? { filter_by } : {}),
+      ...(sent.length ? { filter_by: sent.map(clause => clause.clause_).join(" && ") } : {}),
       ...(sort ? { sort } : {}),
       ...(v3_request.cursor ? { cursor: v3_request.cursor } : {}),
       include,
       ...(want !== DEFAULT_LIMIT ? { limit: Math.min(want, BROWSE_MAX_LIMIT) } : {}),
-    };
+    });
 
-    const first = await this.#browse_page(merchant, request);
-    if (!first) return undefined;
-    let response = first;
+    let request = request_with(clauses);
+    let answer = await this.#browse_answer(merchant, request);
+    // Each retry leaves out at least one more clause, so this ends.
+    while (!answer.body_) {
+      const refused = rejected_clauses(answer.error_, clauses);
+      if (!refused.length) return undefined;
+      dwarn(
+        "[NativeDepictAPI] leaving out filters V4 refused:",
+        refused.map(clause => clause.clause_),
+        answer.error_?.message
+      );
+      for (const clause of refused) rejected.add(clause.clause_);
+      clauses = clauses.filter(clause => !refused.includes(clause));
+      request = request_with(clauses);
+      answer = await this.#browse_answer(merchant, request);
+    }
+    let response = answer.body_;
     // A page over V4's largest is its pages chained by their cursors; later pages ask for products alone.
     while (want > BROWSE_MAX_LIMIT && response.products.length < want && response.cursor !== undefined) {
       const page = await this.#browse_page(merchant, {

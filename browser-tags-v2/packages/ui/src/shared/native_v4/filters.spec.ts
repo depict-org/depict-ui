@@ -1,12 +1,15 @@
 import { describe, expect, it } from "@jest/globals";
 import {
   FacetIndex,
+  FilterClause,
   is_resolvable_field,
   native_content_to_v3,
   native_facets_to_v3,
   native_sorts_to_v3,
   NativeFilterError,
+  rejected_clauses,
   V3RequestFilter,
+  v3_filter_to_clause,
   v3_filters_to_filter_by,
   v3_sort_to_native,
 } from "./filters";
@@ -89,6 +92,24 @@ describe("v3_filters_to_filter_by", () => {
     expect(() => filter_by([{ field: "weight", op: "leq", data: [1, 2] }])).toThrow(/one value/);
   });
 
+  it("takes in and eq on the discount as 'this discount or more', as the facade since realtime#2181", () => {
+    // Bjornborg sends in with text, while the discount template means 20% or more.
+    const threshold = filter_by([{ field: "discount", op: "geq", data: "0.2" }]);
+    expect(threshold).toBe("discount:>=0.2");
+    expect(filter_by([{ field: "discount", op: "in", data: ["0.2"] }])).toBe(threshold);
+    expect(filter_by([{ field: "discount", op: "eq", data: "0.2" }])).toBe(threshold);
+    expect(filter_by([{ field: "discount", op: "in", data: [0.2] }])).toBe(threshold);
+    expect(filter_by([{ field: "discount", op: "in", data: ["0.2", "0.4"] }])).toBe("discount:>=0.4");
+  });
+
+  it("finds the discount by its group title too, as a link with no operator sends it (in)", () => {
+    const facets = [values("discount", "radio", "Korting", ["0.2", "0.3"])];
+    expect(filter_by([{ field: "korting", op: "in", data: ["0.2"] }], facets)).toBe("discount:>=0.2");
+    // Other fields keep in and eq.
+    expect(filter_by([{ field: "discount_code", op: "in", data: ["0.2"] }])).toBe("discount_code:=[`0.2`]");
+    expect(filter_by([{ field: "size", op: "eq", data: "0.2" }])).toBe("size:=`0.2`");
+  });
+
   it("refuses what V4 can't express, as the facade answers a 400", () => {
     expect(() => filter_by([{ field: "size", op: "in", data: ["a`b"] }])).toThrow(NativeFilterError);
     expect(() => filter_by([{ field: "sale_price", op: "inrange", data: [1] }])).toThrow(/inrange/);
@@ -134,6 +155,54 @@ describe("v3_filters_to_filter_by", () => {
     expect(filter_by([{ field: "material", op: "in", data: ["Acetate;#123456"] }])).toBe(
       "material:=[`Acetate;#123456`]"
     );
+  });
+});
+
+describe("v3_filter_to_clause", () => {
+  it("writes one filter with the V4 field it filters on, and nothing for a filter without data", () => {
+    const index = new FacetIndex();
+    index.learn_([values("var_color", "swatch", "Färg", ["Green"])]);
+    expect(v3_filter_to_clause({ field: "färg", op: "in", data: ["Green"] }, index)).toEqual({
+      field_: "var_color",
+      clause_: "var_color:=[`Green`]",
+    });
+    expect(v3_filter_to_clause({ field: "färg", op: "in", data: [] }, index)).toBeUndefined();
+  });
+});
+
+describe("rejected_clauses", () => {
+  const clauses: FilterClause[] = [
+    { field_: "size_name", clause_: "size_name:=[`S`]" },
+    { field_: "removed_field", clause_: "removed_field:=[`x`]" },
+    { field_: "in_stock", clause_: "in_stock:=maybe" },
+  ];
+  // The bodies are V4's own 400s from depictcentra (26 Nov), trimmed.
+  it("takes unknown_filter_field's allowed list, else the field its message names", () => {
+    const allowed = ["in_stock", "price", "size_name"];
+    expect(
+      rejected_clauses(
+        { code: "unknown_filter_field", message: 'unknown filter field "removed_field"', allowed },
+        clauses
+      )
+    ).toEqual([clauses[1]]);
+    expect(
+      rejected_clauses({ code: "unknown_filter_field", message: 'unknown filter field "removed_field"' }, clauses)
+    ).toEqual([clauses[1]]);
+  });
+
+  it("takes the field invalid_filter's message names, or every clause when it names none of them", () => {
+    expect(
+      rejected_clauses({ code: "invalid_filter", message: 'filter_by: "in_stock" takes true or false' }, clauses)
+    ).toEqual([clauses[2]]);
+    expect(rejected_clauses({ code: "invalid_filter", message: "filter_by: unbalanced parentheses" }, clauses)).toEqual(
+      clauses
+    );
+  });
+
+  it("rejects nothing for any other error, or none", () => {
+    expect(rejected_clauses({ code: "bad_request", message: '"size_name" no' }, clauses)).toEqual([]);
+    expect(rejected_clauses(undefined, clauses)).toEqual([]);
+    expect(rejected_clauses({ code: "invalid_filter", message: "x" }, [])).toEqual([]);
   });
 });
 

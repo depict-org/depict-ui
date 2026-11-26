@@ -15,12 +15,17 @@ export function native_merchant_url(merchant: string, path: string) {
  * id; fetch_retry already reports a 4xx with its body.
  */
 export async function native_get_json<T>(url: string): Promise<T | undefined> {
+  return (await native_get_answer<T>(url)).body_;
+}
+
+/** {@link native_get_json}'s GET, with V4's error (when it sent one) instead of undefined on a failure. */
+export async function native_get_answer<T>(url: string): Promise<{ body_?: T; error_?: ErrorResponse["error"] }> {
   const response = await fetch_retry(url, { method: "GET" }, NATIVE_MAX_TRIES);
   if (!response) {
     dwarn("[NativeDepictAPI] no response from", url);
-    return undefined;
+    return {};
   }
-  if (response.status === 200) return (await response.json()) as T;
+  if (response.status === 200) return { body_: (await response.json()) as T };
   let error: ErrorResponse["error"] | undefined;
   try {
     error = ((await response.json()) as ErrorResponse).error;
@@ -36,5 +41,5 @@ export async function native_get_json<T>(url: string): Promise<T | undefined> {
       request_id: error?.request_id ?? response.headers.get("x-depict-request-id"),
     });
   }
-  return undefined;
+  return { error_: error };
 }
