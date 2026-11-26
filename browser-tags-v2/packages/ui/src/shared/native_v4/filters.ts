@@ -56,6 +56,8 @@ const CATEGORY_TREE_FIELDS: ReadonlySet<string> = new Set([
   "product_category_hierarchy",
   "product_scollection_category_hierarchy",
 ]);
+/** V4's public name for the discount template's field (realtime `v4/worker/src/search/fields.ts`). */
+const DISCOUNT_FIELD = "discount";
 /** The fields of V4's toggle facets (the `on_sale` and `in_stock` templates). */
 const V3_TOGGLES = new Set(["on_sale", "in_stock"]);
 
@@ -127,72 +129,110 @@ function lax_number(value: unknown): number | undefined {
   return Number.isFinite(number) ? number : undefined;
 }
 
+/** One v3 filter as a `filter_by` clause, with the V4 field it filters on. */
+export type FilterClause = { field_: string; clause_: string };
+
 /**
- * v3 filters as one Typesense `filter_by` over V4's public field names, ANDed (the facade's `v3FilterBy`). A field
- * the index doesn't know is sent as it came (after the `sale_price` → `price` alias); V4 then answers
- * `unknown_filter_field` for one it doesn't take either.
+ * One v3 filter as a Typesense `filter_by` clause over V4's public field names (the facade's `v3FilterBy`, per
+ * filter); `undefined` for a filter with no data. A field the index doesn't know is sent as it came (after the
+ * `sale_price` → `price` alias); V4 then answers `unknown_filter_field` for one it doesn't take either. Throws
+ * {@link NativeFilterError} for a filter V4 can't express.
  */
-export function v3_filters_to_filter_by(filters: readonly V3RequestFilter[], index: FacetIndex): string | undefined {
-  const clauses = filters.flatMap(filter => {
-    if (is_empty(filter.data)) return [];
-    const info = index.get_(filter.field);
-    const bare = filter.field.replace(/#$/, "");
-    const field = info?.field_ ?? V4_FIELD[bare] ?? bare;
-    if (!PUBLIC_FIELD.test(field)) throw new NativeFilterError(`Invalid filter field \`${filter.field}\``);
-    const colour = FI_COLOUR_FIELDS.has(field) || !!info?.colour_;
-    const data = filter.data as FilterValue | (FilterValue | FilterValue[])[];
-    const values = (Array.isArray(data) ? data : [data]).map(value =>
-      !Array.isArray(value)
-        ? colour && typeof value === "string"
-          ? value.replace(HEX_SUFFIX, "").trim() || value
-          : value
-        : field === "category"
-        ? value[value.length - 1]
-        : value.map(String).join(HIERARCHY_SEPARATOR)
+export function v3_filter_to_clause(filter: V3RequestFilter, index: FacetIndex): FilterClause | undefined {
+  if (is_empty(filter.data)) return undefined;
+  const info = index.get_(filter.field);
+  const bare = filter.field.replace(/#$/, "");
+  const field = info?.field_ ?? V4_FIELD[bare] ?? bare;
+  if (!PUBLIC_FIELD.test(field)) throw new NativeFilterError(`Invalid filter field \`${filter.field}\``);
+  const clause = (text: string): FilterClause => ({ field_: field, clause_: text });
+  const colour = FI_COLOUR_FIELDS.has(field) || !!info?.colour_;
+  const data = filter.data as FilterValue | (FilterValue | FilterValue[])[];
+  const values = (Array.isArray(data) ? data : [data]).map(value =>
+    !Array.isArray(value)
+      ? colour && typeof value === "string"
+        ? value.replace(HEX_SUFFIX, "").trim() || value
+        : value
+      : field === "category"
+      ? value[value.length - 1]
+      : value.map(String).join(HIERARCHY_SEPARATOR)
+  );
+  const list = () => `[${values.map(value => literal(value, field)).join(",")}]`;
+  // V4's discount filter (the discount template's "X% or more" radio) is a threshold, so `in` or `eq` on it means
+  // "this discount or more", as on the facade since realtime#2181: a link with no operator decodes as `in`, and a
+  // shop may send `in ["0.2"]` itself. Several values take the largest, as `geq` does.
+  const op = (filter.op === "in" || filter.op === "eq") && field === DISCOUNT_FIELD ? "geq" : filter.op;
+  // A configured checkbox keeps in/nin; every other op on it becomes in.
+  if (op !== "in" && op !== "nin" && info?.checkbox_) {
+    return clause(`${field}:=${list()}`);
+  }
+  const one = () => {
+    if (values.length !== 1) throw new NativeFilterError(`filters: ${op} takes one value`);
+    return literal(values[0], field);
+  };
+  // A comparison takes a number, also one sent as a string; of several numbers `geq` takes the largest.
+  const bound = () => {
+    const numbers = values.map(value =>
+      typeof value === "number" || (typeof value === "string" && NUMERIC.test(value)) ? Number(value) : undefined
     );
-    const list = () => `[${values.map(value => literal(value, field)).join(",")}]`;
-    // A configured checkbox keeps in/nin; every other op on it becomes in.
-    if (filter.op !== "in" && filter.op !== "nin" && info?.checkbox_) {
-      return [`${field}:=${list()}`];
-    }
-    const one = () => {
-      if (values.length !== 1) throw new NativeFilterError(`filters: ${filter.op} takes one value`);
-      return literal(values[0], field);
-    };
-    // A comparison takes a number, also one sent as a string; of several numbers `geq` takes the largest.
-    const bound = () => {
-      const numbers = values.map(value =>
-        typeof value === "number" || (typeof value === "string" && NUMERIC.test(value)) ? Number(value) : undefined
-      );
-      if (numbers.length === 0 || numbers.some(number => number === undefined)) return one();
-      if (numbers.length > 1 && filter.op !== "geq") return one();
-      return String(Math.max(...(numbers as number[])));
-    };
-    switch (filter.op) {
-      case "eq":
-        return [`${field}:=${one()}`];
-      case "neq":
-        return [`${field}:!=${one()}`];
-      case "in":
-        return [`${field}:=${list()}`];
-      case "nin":
-        return [`${field}:!=${list()}`];
-      case "leq":
-        return [`${field}:<=${bound()}`];
-      case "geq":
-        return [`${field}:>=${bound()}`];
-      case "inrange": {
-        const [min, max] = values.map(lax_number);
-        if (min === undefined || max === undefined || values.length !== 2) {
-          throw new NativeFilterError("filters: inrange takes [min, max]");
-        }
-        return [`${field}:[${min}..${max}]`];
+    if (numbers.length === 0 || numbers.some(number => number === undefined)) return one();
+    if (numbers.length > 1 && op !== "geq") return one();
+    return String(Math.max(...(numbers as number[])));
+  };
+  switch (op) {
+    case "eq":
+      return clause(`${field}:=${one()}`);
+    case "neq":
+      return clause(`${field}:!=${one()}`);
+    case "in":
+      return clause(`${field}:=${list()}`);
+    case "nin":
+      return clause(`${field}:!=${list()}`);
+    case "leq":
+      return clause(`${field}:<=${bound()}`);
+    case "geq":
+      return clause(`${field}:>=${bound()}`);
+    case "inrange": {
+      const [min, max] = values.map(lax_number);
+      if (min === undefined || max === undefined || values.length !== 2) {
+        throw new NativeFilterError("filters: inrange takes [min, max]");
       }
-      default:
-        throw new NativeFilterError(`filters: unknown op ${filter.op as string}`);
+      return clause(`${field}:[${min}..${max}]`);
     }
-  });
+    default:
+      throw new NativeFilterError(`filters: unknown op ${op as string}`);
+  }
+}
+
+/** v3 filters as one `filter_by`, ANDed; throws {@link NativeFilterError} if any one can't be expressed. */
+export function v3_filters_to_filter_by(filters: readonly V3RequestFilter[], index: FacetIndex): string | undefined {
+  const clauses = filters.flatMap(filter => v3_filter_to_clause(filter, index)?.clause_ ?? []);
   return clauses.length ? clauses.join(" && ") : undefined;
+}
+
+/**
+ * The clauses a V4 400 rejects, from its error: `unknown_filter_field` (a field the store doesn't have, such as a
+ * filter removed since a link was made) names the fields it takes in `allowed`, or the field in its message;
+ * `invalid_filter` names the field in its message (`filter_by: "in_stock" takes true or false`). An
+ * `invalid_filter` that names no field we sent rejects every clause. Any other error rejects none.
+ */
+export function rejected_clauses(
+  error: { code?: string; message?: string; allowed?: readonly string[] } | undefined,
+  clauses: readonly FilterClause[]
+): FilterClause[] {
+  if (!error || !clauses.length) return [];
+  const named = (error.message ?? "").match(/"([A-Za-z0-9_.-]+)/)?.[1];
+  if (error.code === "unknown_filter_field") {
+    if (error.allowed) {
+      const allowed = new Set(error.allowed);
+      return clauses.filter(clause => !allowed.has(clause.field_));
+    }
+    return clauses.filter(clause => clause.field_ === named);
+  }
+  if (error.code === "invalid_filter") {
+    const on_field = clauses.filter(clause => clause.field_ === named);
+    return on_field.length ? on_field : [...clauses];
+  }
+  return [];
 }
 
 /** A v3 sort as V4's; the relevance default is no sort (Python discards it, and so does the facade). */
