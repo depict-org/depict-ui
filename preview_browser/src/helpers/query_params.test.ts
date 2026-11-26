@@ -3,6 +3,7 @@ import { describe, it } from "node:test";
 import {
   ALLOWED_BASE_URL_HOST_SUFFIXES,
   ALLOWED_BASE_URL_HOSTS_DESCRIPTION,
+  depict_api_version,
   is_allowed_base_url,
 } from "./query_params.ts";
 
@@ -103,5 +104,14 @@ describe("is_allowed_base_url", () => {
 
   it("tells people which allowed hosts need https", () => {
     assert.equal(ALLOWED_BASE_URL_HOSTS_DESCRIPTION, ".depict.ai, .anton-osika.workers.dev (https only), localhost");
+  });
+});
+
+describe("depict_api_version", () => {
+  it("selects the native V4 API only for exactly v4", () => {
+    assert.equal(depict_api_version("v4"), "v4");
+    for (const value of ["v3", "V4", "v4 ", "4", "", null, undefined]) {
+      assert.equal(depict_api_version(value), "v3", String(value));
+    }
   });
 });

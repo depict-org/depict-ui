@@ -1,0 +1,6 @@
+{
+  "testEnvironment": "jsdom",
+  "transform": {
+    "^.+\\.ts$": ["ts-jest", { "isolatedModules": true }]
+  }
+}

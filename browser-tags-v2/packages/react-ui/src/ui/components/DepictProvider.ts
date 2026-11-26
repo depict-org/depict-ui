@@ -4,7 +4,7 @@ import {
   BaseCategoryProviderConfig as CategoryProviderConfig,
   BaseProviderConfig,
   BaseSearchProviderConfig as SearchProviderConfig,
-  DepictAPI,
+  create_depict_api,
   ModernDisplayWithPageUrl,
   OnNavigation,
 } from "@depict-ai/ui";
@@ -181,7 +181,7 @@ function ActualDepictProvider<
 
     globalState.on_navigation = on_navigation;
 
-    globalState.api ||= new DepictAPI({
+    globalState.api ||= create_depict_api(props.api, {
       get_metadata: async () => globalState.metaData,
       get_session_id: () => untrack(globalState.sessionId[0]),
     });

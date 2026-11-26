@@ -30,6 +30,15 @@
     background: #b00020;
     color: #fff;
   }
+  // Same row treatment, in a calm colour: the native V4 API is a choice (?depict_api=v4), not an error.
+  .native_api_notice {
+    flex-basis: 100%;
+    align-self: center;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background: #1e4fa8;
+    color: #fff;
+  }
   & > .search {
     flex-grow: 1;
     @if customised-plp-styling.$search-modal-layout == "classic" {

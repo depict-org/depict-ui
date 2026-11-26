@@ -1,0 +1,56 @@
+{
+  "merchant": "depictcentra",
+  "market": "se",
+  "locale": "en_GB",
+  "cases": [
+    { "name": "search-shirt", "kind": "search", "query": "shirt" },
+    { "name": "search-dress", "kind": "search", "query": "dress" },
+    { "name": "search-jacket", "kind": "search", "query": "jacket" },
+    { "name": "search-bag", "kind": "search", "query": "bag" },
+    { "name": "search-linen", "kind": "search", "query": "linen" },
+    {
+      "name": "search-shirt-price-asc",
+      "kind": "search",
+      "query": "shirt",
+      "sort": { "field": "sale_price", "order": "asc" }
+    },
+    {
+      "name": "search-shirt-size-m",
+      "kind": "search",
+      "query": "shirt",
+      "filters": [{ "field": "size_name", "op": "in", "data": ["M"] }],
+      "filter_by": "size_name:=[`M`]"
+    },
+    {
+      "name": "search-knit-in-stock-price-range",
+      "kind": "search",
+      "query": "knit",
+      "filters": [
+        { "field": "in_stock", "op": "eq", "data": "true" },
+        { "field": "sale_price", "op": "inrange", "data": [100, 1000] }
+      ],
+      "filter_by": "in_stock:=true && price:[100..1000]"
+    },
+    { "name": "listing-men-shirts", "kind": "listing", "id": "ccd1bb06-037a-4561-8e78-61a243c9bfb3" },
+    { "name": "listing-women-dresses", "kind": "listing", "id": "d07446d3-6638-416b-859a-ff1e506a6d98" },
+    { "name": "listing-men", "kind": "listing", "id": "34db4158-12d0-4763-b036-06941ca5ac31" },
+    { "name": "listing-accessories-bags", "kind": "listing", "id": "1c80350c-ae5a-4e83-b111-93840c636602" },
+    { "name": "listing-bestsellers", "kind": "listing", "id": "815f8404-664f-4f92-aa15-e97b13e67bd1" },
+    {
+      "name": "listing-women-external-price-desc",
+      "kind": "listing",
+      "external_id": "44",
+      "sort": { "field": "sale_price", "order": "desc" }
+    },
+    {
+      "name": "listing-women-size-s",
+      "kind": "listing",
+      "id": "16ec0c69-ccf0-42e9-b58e-baf2ed6fb4e0",
+      "filters": [{ "field": "size_name", "op": "in", "data": ["S"] }],
+      "filter_by": "size_name:=[`S`]"
+    },
+    { "name": "suggest-start-view", "kind": "suggest", "query": "" },
+    { "name": "suggest-sh", "kind": "suggest", "query": "sh" },
+    { "name": "suggest-dre", "kind": "suggest", "query": "dre" }
+  ]
+}

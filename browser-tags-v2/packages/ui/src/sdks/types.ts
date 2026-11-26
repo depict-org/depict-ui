@@ -1,3 +1,4 @@
+import type { DepictAPIVersion } from "../shared/native_v4/NativeDepictAPI";
 import { SDKColsAtSize } from "../shared/helper_functions/cols_at_size_transformer/cols_at_size_transformer";
 import { SDKGridSpacing } from "../shared/types";
 import { Display, ModernDisplay } from "@depict-ai/utilishared";
@@ -44,6 +45,15 @@ export type BaseProviderConfig<
    * resizer for Shopify CDN images.
    */
   imageResizer?: (url: string, width: number) => string;
+  /**
+   * Which Depict API to read: `"v3"` (the default) or `"v4"`, the native V4 API (`https://api.depict.ai/v4/{merchant}`).
+   * V4 serves search, listing pages, search suggestions and the search page's related products; looks, shop the look
+   * and anything else not named here stay on v3. Recommendations take their own `api` option
+   * (fetchDepictRecommendations; React's useFetchRecommendations follows its DepictProvider).
+   * Opt-in while V4 is rolled out.
+   * With `"v4"`, the tracking events V4 can carry go to it too (see the Performance Client's `api` option).
+   */
+  api?: DepictAPIVersion;
 } & (InputDisplay extends ModernDisplay // kudos to chatGPT for typing help
   ? "page_url" extends keyof InputDisplay["variant_displays"][number]
     ? {

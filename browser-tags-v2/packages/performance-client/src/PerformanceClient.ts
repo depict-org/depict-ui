@@ -15,6 +15,12 @@ import {
   send_depict_unfiltered,
   set_event_transport,
   EventTransport,
+  EventApi,
+  set_event_api,
+  get_event_api,
+  native_purchase_event,
+  queue_native_events,
+  random_string,
 } from "@depict-ai/utilishared";
 import { PurchasedProduct, TrackV2Request } from "@depict-ai/types/api/TrackV2Request";
 import { a2c_selector, product_card_tracking_id_attributes } from "./selectors";
@@ -24,6 +30,12 @@ import { GA4Purchase, ProductCardType, tracking_keys, TrackingKey } from "./type
 export interface Options {
   /** Configure shared SDK tracking before sending events. Defaults to http; both enables the canary socket. */
   transport?: EventTransport;
+  /**
+   * Which Depict API receives events: `"v3"` (the default) posts them to `/create-events`; `"v4"` posts every event the
+   * native V4 events contract can carry, purchases included, to `/v4/{merchant}/events`, and leaves the rest on v3.
+   * A `@depict-ai/ui` SDK created with `api: "v4"` sets this too when it shares this client's `@depict-ai/utilishared`.
+   */
+  api?: EventApi;
   /**
    * The initial market. Should be specified if the market is known at the point of intializing DPC.
    */
@@ -83,6 +95,9 @@ export class PerformanceClient {
     if (options !== undefined) {
       if (options.transport !== undefined) {
         set_event_transport(options.transport);
+      }
+      if (options.api !== undefined) {
+        set_event_api(options.api);
       }
       if (options.auto_observe !== undefined) {
         this.auto_observe = options.auto_observe;
@@ -257,6 +272,22 @@ export class PerformanceClient {
       price: item.price,
       quantity: item.quantity,
     }));
+
+    if (get_event_api() === "v4") {
+      const event = native_purchase_event(
+        {
+          event_id: random_string(),
+          market: this.market,
+          session_id,
+          transaction_id: data.transaction_id,
+          currency: data.currency,
+          items,
+        },
+        new Date().toISOString()
+      );
+      // A purchase the contract can't take (a bad currency, say) still goes to v3 below.
+      if (event && queue_native_events(this.merchant, [event]) !== false) return;
+    }
 
     const request: TrackV2Request = {
       events: [

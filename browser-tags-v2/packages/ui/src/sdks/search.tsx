@@ -28,6 +28,7 @@ import { search_i18n, solid_search_i18n } from "../locales/i18n_types";
 import { SearchModalV2 } from "../search/components/modal/v2/SearchModalV2";
 import { SearchPage } from "../search/SearchPage";
 import { DepictAPI } from "../shared/DepictAPI";
+import { create_depict_api, DepictAPIVersion } from "../shared/native_v4/NativeDepictAPI";
 import {
   convert_sdk_cols_at_size_to_layout,
   SDKColsAtSize,
@@ -81,7 +82,15 @@ type ConstructorOptionsWithoutAPI<
   InputDisplay extends Display,
   OutputDisplay extends ModernDisplay | never,
 > = GeneralConstructorOptions<InputDisplay, OutputDisplay> & {
-  api?: never;
+  /**
+   * Which Depict API to read: `"v3"` (the default) or `"v4"`, the native V4 API (`https://api.depict.ai/v4/{merchant}`).
+   * V4 serves search, listing pages, search suggestions and the search page's related products; looks, shop the look
+   * and anything else not named here stay on v3. Recommendations take their own `api` option
+   * (fetchDepictRecommendations; React's useFetchRecommendations follows its DepictProvider).
+   * Opt-in while V4 is rolled out.
+   * With `"v4"`, the tracking events V4 can carry go to it too (see the Performance Client's `api` option).
+   */
+  api?: DepictAPIVersion;
 } & SomethingTakingADisplayTransformers<InputDisplay, OutputDisplay>;
 
 type ConstructorOptions<InputDisplay extends Display, OutputDisplay extends ModernDisplay> =
@@ -234,8 +243,11 @@ export class DepictSearch<
           return raw_search_query_accessor();
         }
       });
-      // @ts-ignore
-      const depict_api_ = api ?? new DepictAPI({ display_transformers });
+      const depict_api_ =
+        typeof api === "object" && api
+          ? api
+          : // @ts-ignore
+            create_depict_api(api, { display_transformers });
 
       const previous_searches = make_previous_searches_signal(get_search_query_);
       const [, set_search_showing_recommendation_rows] = state_.showing_recommendation_rows;

@@ -312,3 +312,142 @@ it("does not send or construct sockets when tracking is disabled", () => {
   expect(fetch_mock).not.toHaveBeenCalled();
   expect(socket_mock).not.toHaveBeenCalled();
 });
+
+describe("api v4", () => {
+  const HEX = "0123456789abcdef0123456789abcdef";
+  const SEARCH_ID = `d1.s.${HEX}.3.U0tVLTE`;
+  const RECS_ID = `d1.r.${HEX}.0.U0tVLTE.bm9ybWFs`;
+  const context = { tenant: "depictcentra", market: "se", session_id: "s1", url: "https://shop.example/" };
+  const V4_URL = /^https:\/\/api\.depict\.ai\/v4\/depictcentra\/events$/;
+  const lines = (request = 0) =>
+    (fetch_mock.mock.calls[request][1].body as string).split("\n").map(line => JSON.parse(line));
+
+  beforeEach(() => queue.set_event_api("v4"));
+
+  it("defaults to v3", () => {
+    jest.resetModules();
+    const fresh: typeof import("./event_queue") = require("./event_queue");
+    expect(fresh.get_event_api()).toBe("v3");
+    fresh.queue_events([{ ...context, type: "click", search_result_id: SEARCH_ID }]);
+    expect(fetch_mock.mock.calls[0][0]).toMatch(/\/create-events(\?|$)/);
+  });
+
+  it("posts a d1 click to /v4/{merchant}/events as one NDJSON line, with keepalive and text/plain", () => {
+    expect(transmission.send_depict_unfiltered([{ ...context, type: "click", search_result_id: SEARCH_ID }])).toBe(
+      true
+    );
+    expect(fetch_mock).toHaveBeenCalledTimes(1);
+    const [url, options] = fetch_mock.mock.calls[0];
+    expect(url).toMatch(V4_URL);
+    expect(options).toMatchObject({ method: "POST", keepalive: true, headers: { "Content-Type": "text/plain" } });
+    expect(lines()).toEqual([
+      {
+        event_id: expect.any(String),
+        type: "click",
+        market: "se",
+        session_id: "s1",
+        ts: expect.stringMatching(/Z$/),
+        tracking_id: SEARCH_ID,
+        url: "https://shop.example/",
+      },
+    ]);
+  });
+
+  it("batches impressions for 250 ms into one NDJSON body and keeps the deduplication id as event_id", () => {
+    transmission.send_depict_unfiltered([
+      { ...context, type: "element_visible", recommendation_id: RECS_ID, deduplication_id: "a" },
+    ]);
+    transmission.send_depict_unfiltered([
+      { ...context, type: "element_visible", recommendation_id: RECS_ID, deduplication_id: "b" },
+    ]);
+    expect(fetch_mock).not.toHaveBeenCalled();
+    jest.advanceTimersByTime(250);
+    expect(fetch_mock).toHaveBeenCalledTimes(1);
+    expect(fetch_mock.mock.calls[0][1].body).not.toMatch(/^\[/);
+    expect(lines().map(line => [line.type, line.event_id])).toEqual([
+      ["impression", "a"],
+      ["impression", "b"],
+    ]);
+  });
+
+  it("splits a batch per endpoint: v4 events to V4, the rest to /create-events", () => {
+    transmission.send_depict_unfiltered([
+      { ...context, type: "element_visible", recommendation_id: "v3-recs-id" },
+      { ...context, type: "element_visible", recommendation_id: RECS_ID },
+      { ...context, type: "recommendations_inserted" },
+      { ...context, tenant: "other", type: "add_to_cart", product_id: "1" },
+    ]);
+    expect(fetch_mock).toHaveBeenCalledTimes(3);
+    const urls = fetch_mock.mock.calls.map(([url]) => url);
+    expect(urls[0]).toMatch(/\/create-events(\?|$)/);
+    expect(urls[1]).toMatch(V4_URL);
+    expect(urls[2]).toBe("https://api.depict.ai/v4/other/events");
+    expect(events(0).map((event: { type: string }) => event.type)).toEqual([
+      "element_visible",
+      "recommendations_inserted",
+    ]);
+    expect(lines(1)).toEqual([expect.objectContaining({ type: "impression", tracking_id: RECS_ID })]);
+    expect(lines(2)).toEqual([expect.objectContaining({ type: "add_to_cart", product_id: "1" })]);
+  });
+
+  it("retries a V4 5xx once with the same body", async () => {
+    fetch_mock.mockResolvedValue({ status: 503 });
+    transmission.send_depict_unfiltered([{ ...context, type: "click", search_result_id: SEARCH_ID }]);
+    await settle();
+    expect(fetch_mock).toHaveBeenCalledTimes(2);
+    expect(fetch_mock.mock.calls[1]).toEqual(fetch_mock.mock.calls[0]);
+  });
+
+  it("falls back to a beacon to the V4 URL after network failure", async () => {
+    fetch_mock.mockRejectedValue(new TypeError("offline"));
+    transmission.send_depict_unfiltered([{ ...context, type: "click", search_result_id: SEARCH_ID }]);
+    await settle();
+    expect(beacon_mock).toHaveBeenCalledTimes(1);
+    expect(beacon_mock.mock.calls[0][0]).toMatch(V4_URL);
+  });
+
+  it("reports lines V4 rejected", async () => {
+    fetch_mock.mockResolvedValue({
+      status: 200,
+      json: () => Promise.resolve({ request_id: "r", accepted: 0, rejected: 1 }),
+    });
+    transmission.send_depict_unfiltered([{ ...context, type: "click", search_result_id: SEARCH_ID }]);
+    await settle();
+    expect(require("../logging/error").report).toHaveBeenCalledWith(expect.any(Error), "warning", {
+      url: expect.stringMatching(V4_URL),
+      request_id: "r",
+      accepted: 0,
+      rejected: 1,
+    });
+  });
+
+  it("does not mirror V4 events on the v3 canary socket", () => {
+    queue.set_event_transport("both");
+    transmission.send_depict_unfiltered([{ ...context, type: "click", search_result_id: SEARCH_ID }]);
+    transmission.send_depict_unfiltered([{ ...context, type: "click", recommendation_id: "v3-recs-id" }]);
+    expect(socket_send).toHaveBeenCalledTimes(1);
+    expect(socket_send.mock.calls[0][0].event.recommendation_id).toBe("v3-recs-id");
+  });
+
+  it("queues native purchases immediately, refusing a merchant V4 doesn't accept", () => {
+    const purchase = {
+      event_id: "p1",
+      type: "purchase" as const,
+      market: "se",
+      session_id: "s1",
+      ts: "2026-11-19T12:00:00.000Z",
+      purchase: { transaction_id: "t1", currency: "SEK", items: [{ sku: "1", price: 1, quantity: 1 }] },
+    };
+    expect(queue.queue_native_events("Not A Merchant", [purchase])).toBe(false);
+    expect(fetch_mock).not.toHaveBeenCalled();
+    expect(queue.queue_native_events("depictcentra", [purchase])).toBe(true);
+    expect(fetch_mock).toHaveBeenCalledTimes(1);
+    expect(lines()).toEqual([purchase]);
+  });
+
+  it("goes back to /create-events after set_event_api('v3')", () => {
+    queue.set_event_api("v3");
+    transmission.send_depict_unfiltered([{ ...context, type: "click", search_result_id: SEARCH_ID }]);
+    expect(fetch_mock.mock.calls[0][0]).toMatch(/\/create-events(\?|$)/);
+  });
+});

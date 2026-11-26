@@ -7,6 +7,7 @@ import { catchify } from "@depict-ai/utilishared/latest";
 import { locale_to_price_fmt } from "~/helpers/locale_to_price_fmt";
 import { display_transformers } from "~/helpers/url_creator_transformer";
 import { make_sdk_on_navigation_cb } from "~/helpers/make_sdk_on_navigation_cb";
+import { depict_api_option } from "~/helpers/depict_api_option";
 
 export function setup_depict_category() {
   const depict_category = new DepictCategory({
@@ -14,6 +15,7 @@ export function setup_depict_category() {
     market: untrack(get_market),
     localization: en,
     display_transformers,
+    ...depict_api_option(),
     on_navigation: make_sdk_on_navigation_cb(),
   });
 
