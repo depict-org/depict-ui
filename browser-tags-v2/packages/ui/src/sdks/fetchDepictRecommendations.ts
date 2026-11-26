@@ -2,6 +2,7 @@ import {
   add_version_query_params,
   base_url,
   dlog,
+  dwarn,
   fetch_retry,
   get_session_id,
   ModernDisplay,
@@ -9,6 +10,8 @@ import {
 } from "@depict-ai/utilishared";
 import { RecommendRequestV3 } from "@depict-ai/types/api/RecommendRequestV3";
 import { RecommendResponseV3 } from "@depict-ai/types/api/RecommendResponseV3";
+import type { DepictAPIVersion } from "../shared/native_v4/NativeDepictAPI";
+import { fetch_native_recommendations } from "../shared/native_v4/fetch_native_recommendations";
 
 export type ExclusiveId =
   | { categoryId: string; productId?: undefined; productIds?: undefined }
@@ -24,6 +27,13 @@ type RecsAPIWrapperOptions = {
   sessionId?: string;
   headers?: HeadersInit;
   metadata?: Record<string, any>;
+  /**
+   * Which Depict API to read: `"v3"` (the default) or `"v4"`, the native V4 API
+   * (`https://api.depict.ai/v4/{merchant}/recommendations`). On V4, `sessionId`, `metadata` and `headers` aren't sent:
+   * V4 content requests carry no session, and history-based recommendations get the shopper's recently viewed products
+   * from the browser instead. Opt-in while V4 is rolled out.
+   */
+  api?: DepictAPIVersion;
 } & ExclusiveId;
 
 /**
@@ -39,6 +49,7 @@ type RecsAPIWrapperOptions = {
  * @param sessionId Optional unique identifier of the current session. Only necessary when performing server side requests to Depict.
  * @param metadata Custom metadata to be sent with each request to the Depict API. Only necessary if specifically instructed by Depict.
  * @param headers Optional headers to send to the Depict API. This could be authentication for example. 99% of integrations can leave this unset.
+ * @param api Which Depict API to read: `"v3"` (the default) or `"v4"`, the native V4 API.
  * When no id is provided (none out of `categoryId`, `productId` and `productIds`) general recommendations will be fetched. This is for, for example, the frontpage where generally popular products get returned.
  *
  * @note If you only get recommendations when specifying the wrong id type (i.e. you only get basket recommendations if you provide a single product id while the recommendations should be based on everything in the basket) please ask Depict to re-configure the endpoint for you.
@@ -65,6 +76,7 @@ type RecsAPIWrapperOptions = {
 export async function fetchDepictRecommendations<T extends ModernDisplay = ModernDisplay>(
   options: RecsAPIWrapperOptions
 ): Promise<T[]> {
+  if (options.api === "v4") return (await fetch_native(options)) as T[];
   const headers = options.headers;
   const product_id = options.productId || (options as any).product_id; // Second fallback here is just because there was very little missing to make this work with snake_case input and in case someone puts in snake case'd stuff already (preview browser did) we can easily not break it
   const cleaned_up_options = snakeCasifyObject(
@@ -72,6 +84,7 @@ export async function fetchDepictRecommendations<T extends ModernDisplay = Moder
   );
   delete cleaned_up_options.headers;
   delete cleaned_up_options.product_id;
+  delete cleaned_up_options.api;
   cleaned_up_options.session_id ||= get_session_id();
   if (product_id && !cleaned_up_options.product_ids) {
     cleaned_up_options.product_ids = [product_id];
@@ -96,4 +109,24 @@ export async function fetchDepictRecommendations<T extends ModernDisplay = Moder
       }
       return (decoded?.displays || []) as unknown as T[];
     });
+}
+
+async function fetch_native(options: RecsAPIWrapperOptions) {
+  const { merchant, market, locale, type, headers, categoryId, productIds } = options;
+  if (headers) dwarn("fetchDepictRecommendations: headers aren't sent to the native V4 API", headers);
+  try {
+    return await fetch_native_recommendations({
+      merchant,
+      market,
+      locale,
+      type,
+      categoryId,
+      productId: options.productId || (options as any).product_id,
+      productIds,
+      limit: (options as { limit?: number }).limit,
+    });
+  } catch (e) {
+    dlog("fetch_native_recommendations threw", e);
+    return [];
+  }
 }

@@ -1,0 +1,17 @@
+{
+  "merchant": "depictcentra",
+  "market": "se",
+  "locale": "en_GB",
+  "cases": [
+    { "name": "recs-similar-linen-shirt", "kind": "recs", "type": "similar", "product_id": "73" },
+    { "name": "recs-similar-graphic-tee", "kind": "recs", "type": "similar", "product_id": "63" },
+    { "name": "recs-similar-gingham-shirt", "kind": "recs", "type": "similar", "product_id": "78" },
+    { "name": "recs-similar-flannel-shirt", "kind": "recs", "type": "similar", "product_id": "58" },
+    { "name": "recs-similar-evening-gown", "kind": "recs", "type": "similar", "product_id": "154" },
+    { "name": "recs-similar-midi-dress", "kind": "recs", "type": "similar", "product_id": "169" },
+    { "name": "recs-similar-ruffle-dress", "kind": "recs", "type": "similar", "product_id": "139" },
+    { "name": "recs-similar-by-group-id", "kind": "recs", "type": "similar", "product_id": "85" },
+    { "name": "related-shirt", "kind": "related", "query": "shirt" },
+    { "name": "related-dress", "kind": "related", "query": "dress" }
+  ]
+}

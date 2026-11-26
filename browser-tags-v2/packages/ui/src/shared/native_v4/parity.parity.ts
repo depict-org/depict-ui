@@ -12,6 +12,8 @@ import { describe, expect, it } from "@jest/globals";
 import fs from "fs";
 import path from "path";
 import { ancestors_from_tree, native_browse_to_v3, native_listing_to_v3, native_suggest_to_v3 } from "./responses";
+import { native_card_to_display } from "./cards";
+import type { Product } from "./v4_types";
 
 const dir = process.env.NATIVE_V4_PARITY_DIR;
 
@@ -110,8 +112,16 @@ function run_case(file: string): CaseResult {
   const { case: c } = record;
   const diffs: Diff[] = [];
   let displays = 0;
-  if (record.v3.status !== 200 || record.v4.status !== 200) {
-    diffs.push({ where: "status", kind: "changed", v3: record.v3.status, native: record.v4.status });
+  // A related search with no hits asks V4 for no recommendations.
+  const v4 = record.v4 ?? record.v4_browse;
+  if (record.v3.status !== 200 || v4.status !== 200) {
+    diffs.push({ where: "status", kind: "changed", v3: record.v3.status, native: v4.status });
+  } else if (c.kind === "recs" || c.kind === "related") {
+    // What fetch_native_recommendations maps a single answer to (a related search's `similar` has one anchor).
+    const products: Product[] = record.v4?.body.products ?? [];
+    const native = { displays: products.map(product => native_card_to_display(product, "recommendation_id")) };
+    displays = record.v3.body.displays.length;
+    compare(record.v3.body, native, "", diffs);
   } else if (c.kind === "search" || c.kind === "listing") {
     const native = native_browse_to_v3(record.v4.body, c.kind, 0);
     displays = record.v3.body.displays.length;

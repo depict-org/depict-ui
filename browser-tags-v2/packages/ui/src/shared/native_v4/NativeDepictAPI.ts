@@ -1,4 +1,4 @@
-import { base_url, Display, dwarn, fetch_retry, ModernDisplay, report } from "@depict-ai/utilishared";
+import { Display, dwarn, ModernDisplay } from "@depict-ai/utilishared";
 import { DepictAPI, DepictAPIConstructorOptions, DepictAPIRawCall } from "../DepictAPI";
 import { ModernDisplayWithPageUrl } from "../display_transformer_types";
 import { set_event_api } from "@depict-ai/utilishared";
@@ -7,7 +7,6 @@ import type {
   BrowseInclude,
   BrowseRequest,
   BrowseResponse,
-  ErrorResponse,
   ListingResponse,
   ListingTreeResponse,
   SuggestResponse,
@@ -32,9 +31,8 @@ import {
   native_suggest_to_v3,
   to_bcp47,
 } from "./responses";
-
-/** One try and at most two retries: a 503 burst from V4 shouldn't be multiplied by fetch_retry's default of 10. */
-const NATIVE_MAX_TRIES = 3;
+import { native_get_answer, native_merchant_url } from "./http";
+import { fetch_native_related } from "./fetch_native_recommendations";
 /** V4 browse's largest page; a bigger v3 page is V4's pages chained by their cursors, as the facade does. */
 const BROWSE_MAX_LIMIT = 100;
 /** V4 browse's page size without a limit, and v3's. */
@@ -47,11 +45,11 @@ export type DepictAPIVersion = "v3" | "v4";
 
 /**
  * DepictAPI over the native V4 API. Search, listing pages (products and header) and search suggestions read
- * `/v4/{merchant}/browse`, `/listings` and `/suggest`, and every answer is mapped to the v3 shape DepictAPI returns,
- * so the UI and merchant display transformers work unchanged (see cards.ts for the card mapping).
+ * `/v4/{merchant}/browse`, `/listings` and `/suggest`, and the search page's related products (`get_recommended`)
+ * read `/recommendations` (fetch_native_recommendations.ts). Every answer is mapped to the v3 shape DepictAPI
+ * returns, so the UI and merchant display transformers work unchanged (see cards.ts for the card mapping).
  *
  * Not native yet, and on v3 instead:
- * - recommendations, the search page's related products (`get_recommended`) among them
  * - looks and shop the look (V4 has no endpoint for them)
  *
  * Creating one also sends tracking events to the native `/v4/{merchant}/events` (`set_event_api("v4")`), for the
@@ -100,14 +98,16 @@ export class NativeDepictAPI<
         return await this.#listing(call);
       case "suggest":
         return await this.#suggest(call.request_);
-      default:
-        // search/related: recommendations stay on v3 in phase 1.
-        return await super.request_raw_(call);
+      case "related": {
+        const { merchant, market, locale, query } = call.request_;
+        const displays = await fetch_native_related({ merchant, market, locale, query });
+        return displays && { displays };
+      }
     }
   }
 
   #merchant_url(merchant: string, path: string) {
-    return `${base_url}/v4/${encodeURIComponent(merchant)}${path}`;
+    return native_merchant_url(merchant, path);
   }
 
   async #get_json<T>(url: string): Promise<T | undefined> {
@@ -115,30 +115,8 @@ export class NativeDepictAPI<
   }
 
   /** A GET's body on a 200, else V4's error (when it sent one). */
-  async #get_answer<T>(url: string): Promise<{ body_?: T; error_?: ErrorResponse["error"] }> {
-    const response = await fetch_retry(url, { method: "GET" }, NATIVE_MAX_TRIES);
-    if (!response) {
-      dwarn("[NativeDepictAPI] no response from", url);
-      return {};
-    }
-    if (response.status === 200) return { body_: (await response.json()) as T };
-    let error: ErrorResponse["error"] | undefined;
-    try {
-      error = ((await response.json()) as ErrorResponse).error;
-    } catch {
-      // not V4's error body
-    }
-    dwarn("[NativeDepictAPI]", response.status, error?.code, error?.message, error?.request_id, url);
-    // fetch_retry already reports a 4xx with its body; report what it doesn't, with V4's code and request id.
-    if (response.status >= 500) {
-      report([new Error(`V4 ${response.status} ${error?.code ?? ""}`), "Native V4 request failed"], "warning", {
-        url,
-        status: response.status,
-        code: error?.code,
-        request_id: error?.request_id ?? response.headers.get("x-depict-request-id"),
-      });
-    }
-    return { error_: error };
+  async #get_answer<T>(url: string) {
+    return await native_get_answer<T>(url);
   }
 
   #facet_index(merchant: string, market: string, locale: string | undefined) {

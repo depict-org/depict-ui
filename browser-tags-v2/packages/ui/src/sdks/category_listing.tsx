@@ -40,7 +40,9 @@ type CategoryConstructorOptionsWithoutApi<
 > = GeneralCategoryListingOptions & {
   /**
    * Which Depict API to read: `"v3"` (the default) or `"v4"`, the native V4 API (`https://api.depict.ai/v4/{merchant}`).
-   * V4 serves search, listing pages and search suggestions; anything not named here stays on v3.
+   * V4 serves search, listing pages, search suggestions and the search page's related products; looks, shop the look
+   * and anything else not named here stay on v3. Recommendations take their own `api` option
+   * (fetchDepictRecommendations; React's useFetchRecommendations follows its DepictProvider).
    * Opt-in while V4 is rolled out.
    * With `"v4"`, the tracking events V4 can carry go to it too (see the Performance Client's `api` option).
    */

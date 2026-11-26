@@ -142,8 +142,8 @@ export function Header() {
     >
       <Show when={reads_native_api()}>
         <div class="depict plp native_api_notice">
-          Search, listing pages and suggestions read the native V4 API ({depict_api_param_name}=v4); everything else
-          reads v3.
+          Search, listing pages, suggestions and recommendations read the native V4 API ({depict_api_param_name}=v4);
+          looks, shop the look and tracking read v3.
         </div>
       </Show>
       <Show when={get_rejected_base_url()}>

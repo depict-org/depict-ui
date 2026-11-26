@@ -8,6 +8,9 @@
 //   { name, kind: "search", query, sort?, filters?, filter_by? }
 //   { name, kind: "listing", id? | external_id?, sort?, filters?, filter_by? }   (products and header)
 //   { name, kind: "suggest", query }
+//   { name, kind: "recs", type, product_id }   (a product page's recommendations)
+//   { name, kind: "related", query }   (the search page's related products: v3 /search/related; on V4 a search, then
+//                                       `similar` on its top hit, as the adapter and v3's facade do)
 // `filters` is the v3 request's; `filter_by` is what the adapter sends for them (its unit tests pin that translation).
 import fs from "node:fs";
 import path from "node:path";
@@ -92,6 +95,34 @@ for (const c of cases) {
     // The adapter names a listing suggestion's ancestors from the listing tree, read once a page load.
     tree ??= await read(`${base}/v4/${enc(merchant)}/listings?market=${enc(market)}&locale=${enc(bcp47)}`);
     record.v4_tree = tree;
+  } else if (c.kind === "recs") {
+    record.v3 = await read(`${base}/v3/recommend/products`, {
+      method: "POST",
+      body: JSON.stringify({ merchant, market, locale, type: c.type, product_ids: [c.product_id] }),
+    });
+    record.v4 = await read(
+      `${base}/v4/${enc(merchant)}/recommendations?market=${enc(market)}&locale=${enc(bcp47)}&type=${enc(
+        c.type
+      )}&anchor=product:${enc(c.product_id)}&include=attributes`
+    );
+  } else if (c.kind === "related") {
+    record.v3 = await read(`${base}/v3/search/related`, {
+      method: "POST",
+      body: JSON.stringify({ merchant, market, locale, query: c.query }),
+    });
+    record.v4_browse = await read(
+      `${base}/v4/${enc(merchant)}/browse?market=${enc(market)}&locale=${enc(bcp47)}&query=${enc(c.query)}&limit=100`
+    );
+    const hits = record.v4_browse.body?.products ?? [];
+    const shown = hit => hit.variants[hit.selected]?.product_id ?? hit.group_id;
+    if (hits.length) {
+      const exclude = hits.slice(1).map(shown).map(enc).join(",");
+      record.v4 = await read(
+        `${base}/v4/${enc(merchant)}/recommendations?market=${enc(market)}&locale=${enc(
+          bcp47
+        )}&type=similar&anchor=product:${enc(shown(hits[0]))}${exclude ? `&exclude=${exclude}` : ""}&include=attributes`
+      );
+    }
   }
   fs.writeFileSync(path.join(outDir, `${c.name}.json`), JSON.stringify(record, null, 1));
   console.log("recorded", c.name);

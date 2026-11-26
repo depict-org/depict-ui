@@ -89,6 +89,10 @@ export interface V4Types {
   SuggestResponse?: SuggestResponse;
   Suggestion?: Suggestion;
   ContextResponse?: ContextResponse;
+  RecommendationsRequest?: RecommendationsRequest;
+  RecommendationsResponse?: RecommendationsResponse;
+  RecommendationAnchor?: RecommendationAnchor;
+  RecentView?: RecentView;
   ProductsRequest?: ProductsRequest;
   ProductsResponse?: ProductsResponse;
   ErrorResponse?: ErrorResponse;
@@ -315,6 +319,49 @@ export interface ContextResponse {
     type: string;
     inputs: RecommendationInput[];
   }[];
+}
+export interface RecommendationsRequest {
+  market: Market;
+  locale?: Locale;
+  type: string;
+  anchor?: RecommendationAnchor;
+  /**
+   * @minItems 1
+   * @maxItems 100
+   */
+  cart?: [ProductRef, ...ProductRef[]];
+  /**
+   * @minItems 1
+   * @maxItems 50
+   */
+  recent_views?: [RecentView, ...RecentView[]];
+  query?: string;
+  /**
+   * @maxItems 100
+   */
+  exclude?: ProductRef[];
+  limit?: Limit;
+  include?: CardInclude[];
+}
+export interface RecommendationAnchor {
+  type: "product" | "category";
+  id: ExternalId;
+}
+export interface RecentView {
+  id: ProductRef;
+  at: string;
+}
+export interface RecommendationsResponse {
+  request_id: RequestId;
+  currency?: Currency;
+  products: Product[];
+  used_inputs: {
+    anchor?: RecommendationAnchor;
+    cart?: ExternalId[];
+    recent_views?: RecentView[];
+    query?: string;
+    exclude?: ExternalId[];
+  };
 }
 export interface ProductsRequest {
   market: Market;
