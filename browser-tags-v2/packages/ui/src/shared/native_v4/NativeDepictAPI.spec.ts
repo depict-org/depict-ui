@@ -229,6 +229,107 @@ describe("NativeDepictAPI", () => {
     expect(fetch_mock).toHaveBeenCalledTimes(3);
   });
 
+  describe("a filter V4 can't take doesn't cost the shopper the page", () => {
+    const filter_by_of = (url: string) => new URL(url).searchParams.get("filter_by");
+    const unknown_field = (field: string) =>
+      json(
+        {
+          error: {
+            code: "unknown_filter_field",
+            message: `unknown filter field "${field}"`,
+            request_id: "r",
+            path: ["filter_by"],
+            allowed: ["in_stock", "price", "size_name"],
+          },
+        },
+        400
+      );
+
+    it("leaves out a filter removed from the store, asks again, and doesn't send it for the next page", async () => {
+      const removed = { field: "removed_field", op: "in" as const, data: ["x"] };
+      const in_stock = { field: "in_stock", op: "eq" as const, data: "true" };
+      fetch_mock.mockImplementation(async input => {
+        const filter_by = filter_by_of(String(input));
+        return filter_by?.includes("removed_field")
+          ? unknown_field("removed_field")
+          : json(browse({ cursor: "c2", facets: [] }));
+      });
+      const api = new NativeDepictAPI({});
+      const q = query();
+      const result = await api.query({ ...base, query: q, filters: [removed, in_stock] as SearchFilter[] });
+
+      expect(result.failed).toBeUndefined();
+      expect(result.displays).toHaveLength(2);
+      // The facets read for the unresolved field, the refused page, the page without the removed filter.
+      expect(requested().map(filter_by_of)).toEqual([null, "removed_field:=[`x`] && in_stock:=true", "in_stock:=true"]);
+
+      fetch_mock.mockClear();
+      await api.query({ ...base, query: q, cursor: "c2", filters: [removed, in_stock] as SearchFilter[] });
+      expect(requested().map(filter_by_of)).toEqual(["in_stock:=true"]);
+    });
+
+    it("leaves out a value V4 refuses (invalid_filter)", async () => {
+      fetch_mock
+        .mockResolvedValueOnce(
+          json(
+            {
+              error: {
+                code: "invalid_filter",
+                message: 'filter_by: "in_stock" takes true or false',
+                request_id: "r",
+                path: ["filter_by"],
+              },
+            },
+            400
+          )
+        )
+        .mockResolvedValueOnce(json(browse()));
+      const result = await new NativeDepictAPI({}).query({
+        ...base,
+        query: query(),
+        filters: [{ field: "in_stock", op: "eq", data: "maybe" }] as SearchFilter[],
+      });
+      expect(result.failed).toBeUndefined();
+      expect(requested().map(filter_by_of)).toEqual(["in_stock:=`maybe`", null]);
+    });
+
+    it("leaves out a filter the adapter can't write, and still sends the rest", async () => {
+      fetch_mock.mockResolvedValueOnce(json(browse()));
+      const result = await new NativeDepictAPI({}).query({
+        ...base,
+        query: query(),
+        filters: [
+          { field: "in_stock", op: "eq", data: "true" },
+          { field: "sale_price", op: "inrange", data: [1] },
+        ] as SearchFilter[],
+      });
+      expect(result.failed).toBeUndefined();
+      expect(requested().map(filter_by_of)).toEqual(["in_stock:=true"]);
+    });
+
+    it("still serves the fallback for a 400 that isn't about a filter, without asking again", async () => {
+      fetch_mock.mockResolvedValue(json({ error: { code: "unknown_market", message: "no", request_id: "r" } }, 400));
+      const result = await new NativeDepictAPI({}).query({
+        ...base,
+        query: query(),
+        filters: [{ field: "in_stock", op: "eq", data: "true" }] as SearchFilter[],
+      });
+      expect(result.failed).toBe(true);
+      expect(fetch_mock).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it("sends a discount link with no operator (in) as 'this discount or more'", async () => {
+    fetch_mock.mockImplementation(async () => json(browse()));
+    await new NativeDepictAPI({}).query({
+      ...base,
+      query: query(),
+      filters: [{ field: "discount", op: "in", data: ["0.2"] }] as SearchFilter[],
+    });
+    // `discount` isn't a served facet here, so the facets are read first.
+    expect(new URL(requested().at(-1)!).searchParams.get("filter_by")).toBe("discount:>=0.2");
+  });
+
   it("reads a listing header by id or external id", async () => {
     const listing = {
       id: "l1",
