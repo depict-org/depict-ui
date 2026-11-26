@@ -1,7 +1,6 @@
-import { Display, dwarn, ModernDisplay } from "@depict-ai/utilishared";
+import { Display, dwarn, ModernDisplay, set_event_api } from "@depict-ai/utilishared";
 import { DepictAPI, DepictAPIConstructorOptions, DepictAPIRawCall } from "../DepictAPI";
 import { ModernDisplayWithPageUrl } from "../display_transformer_types";
-import { set_event_api } from "@depict-ai/utilishared";
 import * as IdTypes from "../../category_listing/IdTypes";
 import type {
   BrowseInclude,
